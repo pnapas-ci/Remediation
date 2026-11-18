@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan de session hebdomadaire – Classe hétérogène (Mathématiques et Lecture)</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f8a5b">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plan de session">
+
+<style>
+:root{
+  --ink:#1d2a24; --muted:#5d6b64; --line:#d9e0dc; --bg:#f6f7f4; --card:#fff;
+  --g1:#e8792b; --g1s:#fdf0e6; --g2:#1f8a5b; --g2s:#e6f4ed; --acc:#2b5d9b; --accs:#e8eff8; --warn:#9a5b00; --warns:#fff6e0;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;font-family:"Source Sans 3",system-ui,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.4}
+header.top{background:#fff;border-bottom:1px solid var(--line);padding:18px 24px}
+header.top h1{margin:0;font-size:22px}
+header.top p{margin:4px 0 0;color:var(--muted)}
+main{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
+section.card{scroll-margin-top:72px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:18px}
+section.card h2{margin:0 0 4px;font-size:18px;display:flex;align-items:center;gap:10px}
+.step{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-size:14px;flex:none}
+.hint{color:var(--muted);font-size:13.5px;margin:0 0 12px}
+.grid{display:grid;gap:12px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}
+input,select{font:inherit;color:inherit;border:1px solid #c5cec9;border-radius:6px;padding:7px 9px;background:#fff;width:100%}
+input:focus,select:focus{outline:2px solid var(--acc);outline-offset:0;border-color:var(--acc)}
+.tabs{display:flex;gap:6px;margin:0 0 16px;position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0}
+.tabs button{flex:1;font-size:16px;padding:11px;border-radius:8px;border:2px solid var(--line);background:#fff}
+.tabs button.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.groups{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.groups{grid-template-columns:1fr}}
+.grp{border-radius:8px;padding:12px 14px;border:1px solid var(--line)}
+.grp.g1{background:var(--g1s);border-color:#f3cfb3}
+.grp.g2{background:var(--g2s);border-color:#b9dfcb}
+.grp h3{margin:0 0 8px;font-size:15px}
+.lvl{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px dashed rgba(0,0,0,.1)}
+.lvl:first-of-type{border-top:none}
+.lvl input[type=checkbox]{width:18px;height:18px;flex:none}
+.lvl .nm{flex:1;font-weight:600}
+.lvl input[type=number]{width:96px}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;background:#fff;border:1px solid var(--line)}
+.lowest{margin-top:8px;font-size:13.5px}
+.notice{background:var(--warns);color:var(--warn);border:1px solid #f0d9a8;border-radius:6px;padding:8px 10px;font-size:13.5px;margin-top:10px}
+.notice:empty{display:none}
+.lbl1{font-size:13px;font-weight:700;color:var(--ink);margin:10px 0 5px}
+.lbl1 small{font-weight:400;color:var(--muted)}
+label.lbl1 select{margin-top:4px;font-weight:600}
+ol.daily{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:13px}
+ol.daily li{background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 9px}
+ol.daily li.muted{opacity:.6}
+ol.daily li.lastses{border-color:var(--ink);background:#f3f8f5}
+ol.daily small{color:var(--muted)}
+.mois{font-size:13.5px;margin:0 0 8px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:7px 9px}
+ol.prog{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+ol.prog li button{width:100%;text-align:left;font-weight:400;display:flex;gap:8px;align-items:flex-start;background:#fff;padding:7px 9px}
+ol.prog li button .n{font-weight:700;min-width:92px;color:var(--muted);font-size:12.5px;padding-top:1px}
+ol.prog li button.done{opacity:.6}
+ol.prog li button.cur{border:2px solid var(--ink);font-weight:700}
+ol.prog li button.cur .n{color:var(--ink)}
+ol.prog .op{font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin:6px 0 0}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 14px}
+button{font:inherit;font-weight:600;border:1px solid #c5cec9;background:#fff;border-radius:6px;padding:7px 12px;cursor:pointer;color:var(--ink)}
+button:hover{background:#f1f3f0}
+button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.primary:hover{background:#33443b}
+.gen{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px;border:2px dashed var(--line);border-radius:10px;background:#fbfcfa;margin-bottom:14px}
+.gen button{font-size:19px;padding:14px 34px;border-radius:40px;background:var(--g2);border-color:var(--g2);color:#fff;box-shadow:0 4px 0 #136843;transition:transform .05s,box-shadow .05s}
+.gen button:hover{background:#1a7a50}
+.gen button:active{transform:translateY(3px);box-shadow:0 1px 0 #136843}
+.gen .st{font-size:13.5px;color:var(--muted)}
+.gen .st.stale{color:var(--warn);font-weight:600}
+.day{border:1px solid var(--line);border-radius:8px;margin-bottom:12px;overflow:hidden}
+.day .dh{background:#f1f3f0;padding:8px 12px;font-weight:700}
+.day .dh small{font-weight:400;color:var(--muted)}
+.slot{display:grid;grid-template-columns:210px 1fr;gap:10px;padding:10px 12px;border-top:1px solid var(--line)}
+@media(max-width:760px){.slot{grid-template-columns:1fr}}
+.slot .who{font-weight:700;font-size:14px}
+.slot .who small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.slot.c{border-left:4px solid var(--acc)}
+.slot.g1{border-left:4px solid var(--g1)}
+.slot.g2{border-left:4px solid var(--g2)}
+.res b{font-size:14.5px}
+.res .ob{margin-top:2px}
+.res .nt{font-size:12.5px;color:var(--muted);margin-top:4px}
+.rs{font-size:13px;margin-top:6px;background:#f7f8f6;border-left:3px solid var(--line);padding:6px 9px;border-radius:4px}
+.exwrap{margin-top:8px;background:#fffaf2;border:1px solid #f0dfc0;border-radius:6px;padding:8px 10px;font-size:13.5px}
+.exh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.exh button{font-size:12px;padding:3px 9px}
+ol.exo{margin:6px 0 4px 20px;padding:0}
+ol.exo li{margin:2px 0}
+.cor{font-size:12.5px;color:var(--muted)}
+.res .src{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:10px;background:var(--accs);color:var(--acc);margin-left:6px}
+.res .man{background:#eee;color:#555}
+details{margin-top:6px}
+details summary{cursor:pointer;font-size:13px;color:var(--acc);font-weight:600}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.fields .full{grid-column:1/-1}
+@media(max-width:760px){.fields{grid-template-columns:1fr}}
+.mode{display:inline-flex;border:1px solid #c5cec9;border-radius:20px;overflow:hidden;margin-top:6px}
+.mode button{border:none;border-radius:0;padding:4px 9px;font-size:12px;white-space:nowrap}
+.mode button.on.act{background:var(--ink);color:#fff}
+.mode button.on.aut{background:#7b8780;color:#fff}
+.planwrap{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:8px}
+.planwrap .empty{padding:30px;text-align:center;color:var(--muted)}
+.tblwrap{overflow-x:auto}
+table.eltab{width:100%;border-collapse:collapse;font-size:14px}
+.eltab th{background:#f1f3f0;font-size:12.5px;text-align:left;padding:6px;border:1px solid var(--line)}
+.eltab td{border:1px solid var(--line);padding:3px;vertical-align:top}
+.eltab td.num{text-align:center;color:var(--muted);width:36px;padding-top:9px}
+.eltab input,.eltab select{border:none;padding:6px;background:transparent}
+.eltab small{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--g2);padding:0 6px}
+.eltab small input{padding:2px;font-size:11px;width:auto}
+.eltab .del{border:none;color:#a33;padding:6px 8px}
+.emptyrow{text-align:center;color:var(--muted);padding:16px!important}
+.elfoot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px;flex-wrap:wrap}
+details.paste{margin-top:8px}details.paste textarea{width:100%;font:inherit;border:1px solid #c5cec9;border-radius:6px;padding:8px;margin:6px 0}
+.eltab td.now{padding:6px 8px;font-size:13.5px}
+.eltab td.now .up{font-weight:700;color:var(--g2)}
+.eltab td.now small{display:block;color:var(--muted);padding:0}
+.pbtn{display:block;margin-top:4px;font-size:11.5px;padding:2px 8px}
+.pform{margin-top:12px;border:2px solid var(--g2);border-radius:8px;padding:12px 14px;background:var(--g2s)}
+.pform h4{margin:0 0 8px}
+details.hist{margin-top:12px}details.hist summary{cursor:pointer;font-weight:600;color:var(--acc)}
+.presgrid td,.presgrid th{text-align:center}
+.presgrid td.nm{text-align:left}
+.presgrid input{width:18px;height:18px}
+.presgrid tr.abs td.nm{color:#a33}
+.filebtn{display:inline-block;font-weight:600;border:1px solid #c5cec9;background:#fff;border-radius:6px;padding:7px 12px;cursor:pointer}
+.filebtn:hover{background:#f1f3f0}
+.cltab td{padding:6px 8px;font-size:13.5px}.cltab td.c{text-align:center}
+.cltab tr.curr td{background:#f3f8f5}.cltab tr.alrow td{background:#fff0f0}
+.cltab small{color:var(--muted)}
+.st0{color:var(--muted)}.st1{color:var(--warn);font-weight:700}.st2{color:#b00;font-weight:700}.st3{color:var(--g2);font-weight:700}
+.del2{font-size:12px;padding:3px 8px;color:#a33}
+.alarm{display:flex;gap:12px;align-items:flex-start;background:#ffecec;border:2px solid #d33;color:#7a0000;border-radius:10px;padding:12px 16px;margin-bottom:16px;animation:pulse 2s ease-in-out 3}
+.alarm.soft{background:var(--warns);border-color:#e0b050;color:var(--warn);animation:none}
+.alarm .ai{font-size:30px;line-height:1}
+.alarm ul{margin:6px 0;padding-left:18px}.alarm small{display:block;margin-top:4px}.alarm .soft2{margin-top:4px;color:var(--warn)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(221,51,51,.5)}50%{box-shadow:0 0 0 8px rgba(221,51,51,0)}}
+.trial{display:flex;gap:12px;align-items:flex-start;background:var(--accs);border:2px solid var(--acc);color:#183a66;border-radius:10px;padding:12px 16px;margin-bottom:12px}
+.trial.exp{background:#fff0f0;border-color:#b00;color:#6a0000}
+.trial .moved{font-weight:700;margin-bottom:6px}
+.trial .ti{font-size:28px;line-height:1}.trial .tb{flex:1}
+.trial .act{margin-top:8px;font-size:13.5px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.trial .lid{font-family:monospace;font-size:15px;letter-spacing:1px;background:#fff;padding:1px 6px;border-radius:4px;border:1px solid var(--line)}
+.trial .actf{display:inline-flex;gap:6px}.trial .actf input{width:230px;text-transform:uppercase}
+body.locked #btnGen,body.locked #btnDocGen{background:#9aa39e;border-color:#9aa39e;box-shadow:none;cursor:not-allowed}
+@media(max-width:640px){
+ header.top{padding:14px}header.top h1{font-size:19px}
+ main{padding:12px 8px 50px}section.card{padding:14px 12px}section.card h2{font-size:16.5px}
+ .tabs button{font-size:15px;padding:9px}
+ .trial,.alarm{padding:10px 12px}.trial .actf{display:flex;width:100%}.trial .actf input{flex:1;min-width:0;width:auto}
+ table.eltab{min-width:680px}
+ .gen button{font-size:16px;padding:12px 22px}
+ .toolbar>*{flex:1 1 auto}
+ .slot{padding:10px 8px}
+ ol.prog li button .n{min-width:74px}
+}
+.eltab td.c{text-align:center;vertical-align:middle}
+.eltab select.outil{width:58px}
+.eltab th.tth{background:#e8eff8;text-align:center}.eltab th.tth2{background:#e6f4ed;text-align:center}
+.share{margin-top:10px;border:2px solid var(--acc);background:var(--accs);border-radius:8px;padding:12px 14px}
+.share h4{margin:0 0 6px}.share textarea{width:100%;font-family:monospace;font-size:12px;border:1px solid #c5cec9;border-radius:6px;padding:6px;margin:6px 0}
+.docbtns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.docbtns button{font-weight:600}.docbtns button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Plan de session hebdomadaire : classe hétérogène</h1>
+  <p>Remédiation PNAPAS (CE–CM) : mathématiques et lecture. Activités, objectifs et canevas tirés des guides de remédiation.</p>
+</header>
+<main>
+<div id="trial"></div>
+<div id="alarm"></div>
+<section class="card" id="classCard">
+  <h2><span class="step">★</span> Mes classes</h2>
+  <p class="hint">Chaque classe est enregistrée dans ce navigateur, avec ses apprenants, ses progressions et ses plans. Une <b>alerte</b> signale les classes où, après 4 plans de session enregistrés dans une discipline, au moins 50 % des apprenants n’ont pas progressé. <span id="offlineNote"></span></p>
+  <div class="toolbar">
+    <button class="primary" id="btnSaveClass">💾 Enregistrer la classe</button>
+    <button id="btnNewClass">+ Nouvelle classe</button>
+    <span style="flex:1"></span>
+    <button id="btnExport">Sauvegarder toutes les classes (fichier)</button>
+    <label class="filebtn">Restaurer depuis un fichier<input type="file" id="importFile" accept=".json,application/json" hidden></label>
+    <button id="btnOffline" hidden>⬇ Télécharger l'application hors ligne</button>
+  </div>
+  <div id="classList"></div>
+</section>
+
+<section class="card">
+  <h2><span class="step">1</span> Identification</h2>
+  <p class="hint">Commun aux deux disciplines et à tous les documents. La remédiation concerne les classes de CE1, CE2, CM1 et CM2 (45 min de lecture et 45 min de mathématiques par jour). Les dates se calculent à partir de la date du lundi.</p>
+  <div class="grid g4">
+    <label class="f">DRENA<select id="drenaSel"></select><input data-k="drena" id="drenaTxt" placeholder="Saisir la DRENA" hidden></label>
+    <label class="f">IEPP (circonscription)<select id="ieppSel"></select><input data-k="iepp" id="ieppTxt" placeholder="Saisir l’IEPP" hidden></label>
+    <label class="f">Secteur pédagogique<input data-k="secteur"></label>
+    <label class="f">École<input data-k="ecole"></label>
+    <label class="f">Code de l’école<input data-k="codeEcole"></label>
+    <label class="f">Directeur (DEP)<input data-k="directeur"></label>
+    <label class="f">Classe<select data-k="classe"><option value="">— Choisir —</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option></select></label>
+    <label class="f">Année scolaire<input data-k="annee" readonly></label>
+    <label class="f">Enseignant(e) / facilitateur<input data-k="enseignant"></label>
+    <label class="f">Sigles de l’auteur (impression)<input data-k="sigles" placeholder="automatique : initiales"></label>
+    <label class="f">Sexe de l’enseignant(e)<select data-k="sexeEns"><option value="">—</option><option value="H">Homme</option><option value="F">Femme</option></select></label>
+    <label class="f">Formé(e) à la remédiation PNAPAS<select data-k="forme"><option value="">—</option><option value="1">Oui</option><option value="0">Non</option></select></label>
+    <label class="f">Semaine n°<input type="number" min="1" data-k="semaine"></label>
+    <label class="f">Date du lundi<input type="date" data-k="lundi"></label>
+    <label class="f">Jours de la session
+      <select data-k="mer"><option value="0">Lundi, mardi, jeudi, vendredi</option><option value="1">Du lundi au vendredi</option></select>
+    </label>
+  </div>
+</section>
+
+<section class="card">
+  <h2><span class="step">2</span> Apprenants et résultats du test ASER</h2>
+  <p class="hint">Saisissez la liste des apprenants puis, <b>pendant chaque test ASER</b> (début, mi-parcours, fin), le niveau atteint en français (lecture) et en mathématiques, le numéro de l’outil ASER utilisé et la vérification par un mentor. La <b>fiche de résultats ASER</b> se remplit au canevas officiel ; les effectifs des groupes et tous les documents en découlent. Quand un apprenant progresse, même avant le test suivant, cliquez sur <b>↑ Progression</b> : la <b>fiche de progression</b> se remplit automatiquement.</p>
+  <div class="grid g4" style="margin-bottom:10px">
+    <label class="f">Test ASER en cours de saisie<select data-k="aser"><option>Début d’année</option><option>Mi-parcours</option><option>Fin d’année</option></select></label>
+    <label class="f">Période du test (date)<input type="date" id="tDate"></label>
+    <label class="f">Nombre total d’élèves dans la classe (= élèves testés)<input type="number" data-k="effClasse" readonly title="Calculé automatiquement : nombre d’élèves testés"></label>
+    <label class="f">Taux de passage en classe supérieure / CEPE l’année passée (%)<input type="number" min="0" max="100" data-k="taux"></label>
+  </div>
+  <div class="toolbar"><button class="primary" id="btnShare">📤 Envoyer ma fiche ASER au directeur</button></div>
+  <div id="sharePanel"></div>
+  <div id="eleves"></div>
+</section>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="math">Mathématiques</button>
+  <button data-tab="lect">Lecture</button>
+</nav>
+
+<section class="card">
+  <h2><span class="step">3</span> Groupes de niveau (résultats ASER) : <span class="dn"></span></h2>
+  <p class="hint">Cochez les niveaux présents et indiquez les effectifs. Pour chaque grand groupe, tout est préparé pour le <b>niveau le plus faible</b> présent.</p>
+  <div class="groups" id="levels"></div>
+  <div class="notice" id="lvlNotice"></div>
+</section>
+
+<section class="card">
+  <h2><span class="step">4</span> Progression et objectifs : <span class="dn"></span></h2>
+  <p class="hint">Pour chaque groupe : ① choisissez l'<b>objectif du mois</b> (une seule opération en mathématiques) ; ② les <b>objectifs de la semaine</b> proposés y mènent pas à pas : cliquez sur la semaine en cours ; ③ les <b>objectifs du jour</b> des séances avec l'enseignant mènent à l'objectif de la semaine. Le bouton « Semaine suivante » fait passer chaque groupe à la semaine suivante, puis au mois suivant.</p>
+  <div class="groups" id="progress"></div>
+</section>
+
+<section class="card">
+  <h2><span class="step">5</span> Déroulement de la semaine : <span class="dn"></span></h2>
+  <p class="hint" id="dayHint"></p>
+  <div class="toolbar">
+    <label class="f" style="flex-direction:row;align-items:center;gap:6px">Le lundi, l'enseignant travaille avec
+      <select id="firstSel" style="width:auto"><option value="g1">le Groupe 1</option><option value="g2">le Groupe 2</option></select>
+    </label>
+    <label class="f" id="trWrap" style="flex-direction:row;align-items:center;gap:6px">Tranche de nombres (reconnaissance)
+      <select id="trSel" style="width:auto"></select></label>
+    <button id="btnAlt">Réappliquer l'alternance</button>
+    <span style="flex:1"></span>
+    <button id="btnRepeat" title="Objectif de la semaine non atteint : on le reprend avec d’autres activités">↻ Reprendre la semaine (autres activités)</button>
+    <button id="btnNext">Semaine suivante →</button>
+    <button id="btnReset">Tout effacer</button>
+  </div>
+  <div id="days"></div>
+</section>
+
+<section class="card" id="planCard">
+  <h2><span class="step">6</span> Plan de session : <span class="dn"></span></h2>
+  <div class="gen">
+    <button id="btnGen">▶ Générer le plan de session</button>
+    <div class="st" id="genState"></div>
+  </div>
+  <div class="toolbar" id="exportBar" hidden>
+    <button class="primary" id="btnCopy">Copier ce plan (coller dans Word)</button>
+    <button id="btnDl" hidden>Télécharger ce plan</button>
+    <button id="btnPrintPlan" hidden>🖨 Imprimer ce plan</button>
+    <button id="btnDlBoth" hidden>Télécharger les deux plans</button>
+  </div>
+  <div class="planwrap wmable" id="plan"><div class="empty">Cliquez sur « Générer le plan de session ».</div></div>
+</section>
+
+<section class="card" id="docCard">
+  <h2><span class="step">7</span> Documents d'accompagnement</h2>
+  <p class="hint">Choisissez un document : il est rempli automatiquement avec l'identification, la liste des apprenants, les groupes et le plan de la semaine.</p>
+  <div class="docbtns" id="docBtns"></div>
+  <div id="presPanel"></div>
+  <div class="gen"><button id="btnDocGen">▶ Remplir le document</button></div>
+  <div class="toolbar" id="docBar" hidden>
+    <button class="primary" id="btnDocCopy">Copier ce document (coller dans Word)</button>
+    <button id="btnDocDl" hidden>Télécharger ce document</button>
+    <button id="btnPrintDoc" hidden>🖨 Imprimer ce document</button>
+    <button id="btnDocAll" hidden>Télécharger tous les documents</button>
+  </div>
+  <div class="planwrap wmable" id="docView"></div>
+</section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const LICKEY='plan-session-licence-v1';
+function AUTHOR(){return {role:'L’enseignant(e)',name:S.enseignant,sig:S.sigles,lieu:S.ecole}}
+/* =====================================================================
+   VERSION D'ESSAI (3 jours), LICENCE ANNUELLE 2026-2027 (+ 1 renouvellement 2027-2028), ACTIVATION, SIGLES ET SIGNATURE DES DOCUMENTS
+   (LICKEY et AUTHOR() sont définis par chaque application)
+   ===================================================================== */
+const TRIAL_DAYS=3,DAYMS=86400000;
+const LIC_SALT='PNAPAS-b285bdde5780fa4bb98a2664';
+const B32='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+/* Licence annuelle : 2026-2027, puis un seul et dernier renouvellement pour 2027-2028 */
+const YEARS=[{y:'2026-2027',end:new Date(2027,7,31,23,59,59).getTime()},{y:'2027-2028',end:new Date(2028,7,31,23,59,59).getTime()}];
+function fnv(str,seed){let h=seed>>>0;for(const c of str){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h>>>0}
+function licCode(id,yi){id=(id||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const salt=LIC_SALT+(yi?'|'+YEARS[yi].y:'');
+  let a=fnv(salt+'|'+id,2166136261),b=fnv(id+'|'+salt,0x9E3779B9),out='';
+  for(let i=0;i<10;i++){const v=i<5?a:b;out+=B32[(v>>>((i%5)*6))&31]}return out.slice(0,5)+'-'+out.slice(5)}
+let LIC=null;try{LIC=JSON.parse(localStorage.getItem(LICKEY))}catch(e){LIC=null}
+if(!LIC||!LIC.id){let id='';for(let i=0;i<8;i++)id+=B32[Math.floor(Math.random()*32)];LIC={id:id.slice(0,4)+'-'+id.slice(4),start:Date.now(),last:Date.now(),code:''}}
+LIC.last=Math.max(LIC.last||0,Date.now());if(LIC.code&&LIC.yi==null)LIC.yi=0;
+function saveLic(){try{localStorage.setItem(LICKEY,JSON.stringify(LIC))}catch(e){}}
+saveLic();
+function devFP(){const sc=[screen.width,screen.height].sort((a,b)=>b-a);let tz='';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){}
+  return [navigator.platform||'',navigator.hardwareConcurrency||0,tz,sc[0]+'x'+sc[1],(navigator.maxTouchPoints>0)?'t':'n']}
+function sameDevice(a){if(!Array.isArray(a))return true;const b=devFP();let diff=0;for(let i=0;i<b.length;i++)if(String(a[i])!==String(b[i]))diff++;return diff<2}
+if(!LIC.fp){LIC.fp=devFP();saveLic()}
+if(!sameDevice(LIC.fp)){let id='';for(let i=0;i<8;i++)id+=B32[Math.floor(Math.random()*32)];LIC={id:id.slice(0,4)+'-'+id.slice(4),start:LIC.start,last:LIC.last,code:'',yi:LIC.yi,fp:devFP(),moved:true};saveLic()}
+const nowT=()=>Math.max(Date.now(),LIC.last||0);
+/* période en cours : 0 = 2026-2027, 1 = 2027-2028, 2 = au-delà (application arrivée à terme) */
+function periodIdx(){const t=nowT();return t<=YEARS[0].end?0:t<=YEARS[1].end?1:2}
+const codeOk=()=>!!LIC.code&&LIC.yi!=null&&LIC.code===licCode(LIC.id,LIC.yi)&&sameDevice(LIC.fp);
+const isActivated=()=>codeOk()&&nowT()<=YEARS[LIC.yi].end;
+const elapsed=()=>nowT()-LIC.start;
+function licState(){const p=periodIdx();if(isActivated())return 'actif';if(p>=2)return 'termine';
+  if(codeOk()&&LIC.yi<p)return 'renouveler';if(elapsed()<TRIAL_DAYS*DAYMS)return 'essai';return 'essai_fini'}
+const trialExpired=()=>{const s=licState();return s!=='actif'&&s!=='essai'};
+function SCHOOL_YEAR(){return isActivated()?YEARS[LIC.yi].y:YEARS[Math.min(periodIdx(),1)].y}
+function trialEnd(){return new Date(LIC.start+TRIAL_DAYS*DAYMS)}
+const fmtDay=t=>new Date(t).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
+function lockMsg(){const s=licState();
+  return s==='termine'?'L’application est arrivée à terme (fin de l’année scolaire 2027-2028) : aucun renouvellement n’est plus possible.'
+   :s==='renouveler'?'Licence '+YEARS[LIC.yi].y+' expirée : saisissez le code de renouvellement pour '+YEARS[1].y+'.'
+   :'Période d’essai terminée : saisissez votre code d’activation.'}
+function tryActivate(v){v=(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const p=periodIdx();if(p>=2||!v)return false;
+  const c=licCode(LIC.id,p);if(v===c.replace('-','')){LIC.code=c;LIC.yi=p;LIC.moved=false;saveLic();return true}return false}
+function actForm(lbl){return `<div class="act">Identifiant de cet appareil : <b class="lid">${LIC.id}</b> – communiquez-le pour obtenir votre ${lbl}.
+      <span class="actf"><input id="licInput" placeholder="${lbl[0].toUpperCase()+lbl.slice(1)}" autocomplete="off"><button class="primary" id="btnActivate">Activer</button></span></div>`}
+function renderTrial(){
+  const box=document.getElementById('trial');const st=licState();const act=st==='actif';
+  document.body.classList.toggle('trialmode',!act);document.body.classList.toggle('locked',trialExpired());
+  if(typeof LIC_YEAR_HOOK==='function')LIC_YEAR_HOOK(SCHOOL_YEAR());
+  document.querySelectorAll('[data-k="annee"]').forEach(el=>{el.value=SCHOOL_YEAR();el.readOnly=true;el.title='Année scolaire fixée par la licence'});
+  if(act){const end=YEARS[LIC.yi].end,left=Math.ceil((end-nowT())/DAYMS);const last=LIC.yi>=YEARS.length-1;
+    box.innerHTML=`<div class="trial ok"><div class="ti">✅</div><div class="tb"><b>Licence activée – année scolaire ${YEARS[LIC.yi].y}</b> (valable jusqu’au ${fmtDay(end)}).
+      ${left<=45?(last?` <b>Attention :</b> c’est la dernière année d’utilisation ; l’application s’arrêtera le ${fmtDay(end)}.`:` <b>Pensez au renouvellement</b> pour l’année ${YEARS[LIC.yi+1].y} (dernier renouvellement).`)
+        :(last?' Dernière année d’utilisation (aucun autre renouvellement possible).':` Un seul et dernier renouvellement sera nécessaire pour l’année ${YEARS[1].y}.`)}</div></div>`;return}
+  const left=Math.max(0,TRIAL_DAYS*DAYMS-elapsed());const d=Math.floor(left/DAYMS),h=Math.floor((left%DAYMS)/3600000);
+  const end=trialEnd().toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const keep=' Vos données sont conservées : vous pouvez toujours les consulter et les sauvegarder.';
+  let body;
+  if(st==='termine')body=`<b>L’application est arrivée à terme.</b> Elle était utilisable pour les années scolaires ${YEARS[0].y} et ${YEARS[1].y} ; aucun renouvellement n’est plus possible. La production des documents est bloquée.${keep}`;
+  else if(st==='renouveler')body=`<b>Votre licence ${YEARS[LIC.yi].y} est expirée.</b> Pour l’année scolaire ${YEARS[1].y}, un <b>dernier renouvellement</b> est nécessaire. La production des documents est bloquée jusqu’au renouvellement.${keep}`+actForm('code de renouvellement '+YEARS[1].y);
+  else if(st==='essai_fini')body=`<b>La période d’essai de ${TRIAL_DAYS} jours est terminée.</b> La production des documents (remplissage, copie, téléchargement, impression, envoi) est bloquée.${keep}`+actForm('code d’activation '+SCHOOL_YEAR());
+  else body=`<b>Version d’essai : il reste ${d} jour${d>1?'s':''} et ${h} heure${h>1?'s':''}</b> (jusqu’au ${end}). Les documents produits portent la mention « VERSION D’ESSAI » tant que l’application n’est pas activée. La licence est valable pour l’année scolaire ${SCHOOL_YEAR()}.`+actForm('code d’activation '+SCHOOL_YEAR());
+  box.innerHTML=`<div class="trial ${st==='essai'?'':'exp'}"><div class="ti">${st==='essai'?'⏳':'🔒'}</div><div class="tb">
+    ${LIC.moved&&st!=='termine'?'<div class="moved">Ces données proviennent d’un autre appareil : l’activation n’est valable que sur l’appareil pour lequel le code a été donné. Un nouveau code est nécessaire pour cet appareil.</div>':''}${body}</div></div>`;
+}
+/* ---- noms en MAJUSCULES (personnes, école, secteur) ---- */
+const UPKEYS=new Set(['enseignant','directeur','ecole','secteur','conseiller','drena','iepp']);
+const UP=s=>String(s??'').toLocaleUpperCase('fr-FR');
+function upField(el){return !!el&&el.tagName==='INPUT'&&(!el.type||el.type==='text')&&(UPKEYS.has(el.dataset.k)||/\.nom$/.test(el.dataset.el||'')||el.hasAttribute('data-up'))}
+document.addEventListener('input',e=>{const el=e.target;if(!upField(el))return;const u=UP(el.value);
+  if(u!==el.value){const a=el.selectionStart,b=el.selectionEnd;el.value=u;try{el.setSelectionRange(a,b)}catch(_){}}},true);
+function upObj(o,keys){if(o)keys.forEach(k=>{if(typeof o[k]==='string')o[k]=UP(o[k])});return o}
+/* ---- sigles et signature ---- */
+function initials(name){return String(name||'').trim().split(/[\s\-]+/).filter(w=>/[A-Za-zÀ-ÿ]/.test(w)).map(w=>w.replace(/[^A-Za-zÀ-ÿ]/g,'')[0].toUpperCase()+'.').join('')}
+function authorSig(){const A=AUTHOR();return (A.sig||initials(A.name)||'').trim()}
+const todayFR=()=>new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
+const TRIAL_STRIP=`<div style="border:2px solid #c00;color:#c00;text-align:center;font-weight:bold;font-family:Arial,sans-serif;font-size:11pt;letter-spacing:2px;padding:3px;margin:4px 0">VERSION D’ESSAI – DOCUMENT NON VALABLE SANS ACTIVATION</div>`;
+function signBlock(){const A=AUTHOR();const sig=authorSig();
+  return `<table style="width:100%;margin-top:14px;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:10pt;page-break-inside:avoid"><tr>
+   <td style="vertical-align:bottom;width:45%;border:none">${sig?`Sigles : <b>${esc(sig)}</b>`:''}</td>
+   <td style="text-align:center;border:none">Fait à ${esc(A.lieu||'……………………')}, le ${todayFR()}<br><b>${esc(A.role)}</b><br><br>
+     <span style="font-family:'Segoe Script','Brush Script MT','Lucida Handwriting',cursive;font-size:17pt">${esc(A.name||'')}</span><br>${esc(A.name||'……………………………')}</td></tr></table>`}
+function finalizeDoc(inner){const wm=!isActivated();return `<div>${wm?TRIAL_STRIP:''}${inner}${signBlock()}${wm?TRIAL_STRIP:''}</div>`}
+function printWrap(body,portrait,title){const wm=!isActivated();const sig=authorSig();
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>${esc(title||'Document')}</title><style>@page{size:A4 ${portrait?'portrait':'landscape'};margin:12mm}body{margin:0}tr{page-break-inside:avoid}
+  .wmk{position:fixed;top:42%;left:-10%;right:-10%;text-align:center;transform:rotate(-28deg);font:bold 86px Arial,sans-serif;color:rgba(200,0,0,.13);z-index:999;pointer-events:none;white-space:nowrap}
+  .sgl{position:fixed;top:0;right:0;font:bold 9pt Arial,sans-serif;color:#333}</style></head><body>${wm?'<div class="wmk">VERSION D’ESSAI</div>':''}${sig?`<div class="sgl">${esc(sig)}</div>`:''}${body}</body></html>`}
+(function(){const st=document.createElement('style');
+  const svg=encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='420' height='260'><text x='50%' y='55%' text-anchor='middle' transform='rotate(-28 210 130)' font-family='Arial' font-weight='bold' font-size='38' fill='rgba(200,0,0,0.10)'>VERSION D’ESSAI</text></svg>`);
+  st.textContent=`.trial{display:flex;gap:12px;align-items:flex-start;background:#e8eff8;border:2px solid #2b5d9b;color:#183a66;border-radius:10px;padding:12px 16px;margin-bottom:12px}
+  .trial.exp{background:#fff0f0;border-color:#b00;color:#6a0000}.trial .ti{font-size:28px;line-height:1}.trial .tb{flex:1}.trial .moved{font-weight:700;margin-bottom:6px}
+  .trial .act{margin-top:8px;font-size:13.5px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .trial .lid{font-family:monospace;font-size:15px;letter-spacing:1px;background:#fff;padding:1px 6px;border-radius:4px;border:1px solid #d9e0dc}
+  .trial .actf{display:inline-flex;gap:6px}.trial .actf input{width:230px;text-transform:uppercase}
+  .trial .tb{min-width:0}.trial.ok{background:#eaf6ef;border-color:#1f8a5b;color:#0f4d31;padding:8px 14px;font-size:13.5px}.trial.ok .ti{font-size:20px}.trial .actf button{flex:none}
+  @media(max-width:640px){.trial{padding:10px 10px}.trial .ti{font-size:22px}.trial .actf{display:flex;width:100%;max-width:100%}.trial .actf input{flex:1;min-width:0;width:auto}}
+  body.trialmode .wmable{background-image:url("data:image/svg+xml,${svg}");background-repeat:repeat}
+  body.locked .lockable{opacity:.5}`;
+  document.head.appendChild(st)})();
+
+function LIC_YEAR_HOOK(y){if(S&&S.annee!==y){S.annee=y;persist()}}
+
+/* =====================================================================
+   MATHÉMATIQUES – activités (Guide de remédiation mathématiques)
+   ===================================================================== */
+const SP3=['TC','TG','TI'];
+const MATH_ACTS=[
+ // ---- Reconnaissance des nombres
+ {id:'tab2',t:'R',n:'Lecture du tableau des nombres à 2 chiffres',L:['L1','L2'],
+  o:['Identifier les nombres de 0 à 99','Lire de différentes manières le tableau'],
+  m:'Un grand tableau des nombres à 2 chiffres ; des tableaux format A4',sp:SP3,d:15,
+  nt:{L1:'Faire lire le tableau par tranches : 0 à 20, 0 à 40, 0 à 60…',L2:'Faire lire de haut en bas, de bas en haut, de droite à gauche, en diagonale, en zigzag, au hasard.'}},
+ {id:'livret',t:'R',n:'Manipulation du livret des nombres',L:['L1','L2'],
+  o:['Identifier les nombres de 0 à 99','Indiquer la valeur de position de chaque chiffre dans un nombre'],
+  m:'Livret des nombres (papier A4, stylo, ciseaux)',sp:SP3,d:15,
+  nt:{L1:'Utiliser un livret à 2 feuillets (dizaines, unités).',L2:'Utiliser un livret à 3 feuillets (centaines, dizaines, unités).'}},
+ {id:'sauter',t:'R',n:'Sauter sur les nombres',L:['L1','L2'],
+  o:['Identifier des nombres'],m:'Aucun (craie pour tracer la grille au sol)',sp:['TC','TG'],d:15,
+  nt:{L1:'Commencer par des nombres à 1 chiffre, puis à 2 chiffres.',L2:'Commencer par des nombres à 2 chiffres, puis à 3 chiffres.'}},
+ {id:'panier',t:'R',n:'Jeu du panier',L:['L1','L2'],
+  o:['Identifier les nombres','Lire les nombres'],m:'Cartes nombres ; un panier',sp:['TC','TG'],d:15,
+  nt:{L1:'Jouer avec des nombres de 1 et 2 chiffres.',L2:'Jouer avec des nombres de 2 et 3 chiffres.'}},
+ {id:'bingo',t:'R',n:'Jeu de Bingo',L:['L1','L2'],
+  o:['Identifier les nombres','Écrire les nombres'],m:'Ardoise, craie, cahier, stylo',sp:['TC','TI'],d:15,
+  nt:{L1:'Jouer avec des nombres de 1 et 2 chiffres.',L2:'Jouer avec des nombres de 2 et 3 chiffres.'}},
+ {id:'carte',t:'R',n:'Retourner la carte',L:['L1','L2'],
+  o:['Stimuler l’attention et la mémoire','Identifier les nombres','Lire les nombres'],m:'Cartes nombres ; tableau des nombres',sp:['TC','TG'],d:15,
+  nt:{L1:'Jouer avec des nombres de 1 et 2 chiffres.',L2:'Jouer avec des nombres de 2 et 3 chiffres.'}},
+ {id:'gestes',t:'R',n:'Former des nombres par des gestes et des sons',L:['L1','L2'],
+  o:['Associer un nombre à un geste ou à un son','Identifier, lire et écrire un nombre à partir de gestes ou de sons','Stimuler l’attention'],
+  m:'Aucun',sp:['TC','TG'],d:15,
+  nt:{L1:'Représenter des nombres de 1 et 2 chiffres (1 battement = 10, 1 claquement = 1).',L2:'Représenter des nombres de 2 et 3 chiffres.'}},
+ {id:'compar',t:'R',n:'Comparaison des nombres (<, >, =)',L:['L1','L2'],
+  o:{L1:['Identifier les signes <, > et =','Comparer les nombres compris entre 0 et 99'],L2:['Identifier les signes <, > et =','Comparer les nombres compris entre 0 et 999']},
+  m:{L1:'Bâtonnets, élastiques, tableau des nombres',L2:'La monnaie des enfants, tableau des nombres'},sp:SP3,d:15,
+  nt:{L1:'Manipuler les paquets et bâtonnets ; nombres de 0 à 99.',L2:'Manipuler la monnaie des enfants ; nombres de 0 à 999.'}},
+ {id:'cercle',t:'R',n:'Cercle des nombres',L:['L1','L2','L3'],
+  o:['Identifier la valeur de position d’un chiffre'],m:'9 objets (cailloux, graines…) ; craie',sp:['TC','TG'],d:15,
+  nt:{L1:'Jusqu’à 3 cercles concentriques (unités, dizaines, centaines).',L2:'Jusqu’à 4 cercles (unités, dizaines, centaines, milliers).',L3:'Jusqu’à 6 cercles (jusqu’aux centaines de mille).'}},
+ {id:'decomp',t:'R',n:'Décomposition additive d’un nombre',L:['L1','L2'],
+  o:['Contextualiser le vocabulaire propre à l’addition et à la soustraction','Résoudre oralement des problèmes d’addition et de soustraction','Identifier des quantités sans compter en observant des groupements d’objets'],
+  m:'Cailloux, bâtonnets, capsules ; tableau des grands nombres',sp:SP3,d:15,
+  nt:{L1:'Travailler sur un nombre à 1 chiffre (ex. 9 cailloux).',L2:'Travailler sur des nombres plus grands, avec les mots « ajouter », « enlever ».'}},
+ {id:'grands',t:'R',n:'Lecture du tableau des grands nombres',L:['L2','L3'],
+  o:['Identifier les grands nombres','Former les grands nombres','Décomposer les grands nombres'],
+  m:'Tableau des grands nombres (grand format et format A4)',sp:SP3,d:15,
+  nt:{L2:'Lire de 20 en 20, de 100 en 100 ; former des nombres de 3 chiffres.',L3:'Former et décomposer des nombres de 4 à 7 chiffres (ex. 3223 = 3000 + 200 + 20 + 3).'}},
+ {id:'monnaie',t:'R',n:'La monnaie des enfants',L:['L2','L3'],
+  o:['Lire les nombres','Écrire les nombres dans un tableau','Décomposer les nombres'],m:'La monnaie des enfants',sp:SP3,d:15,
+  nt:{L2:'Représenter des nombres pour préparer les opérations.',L3:'Représenter de grands nombres (ex. 1545) en billets et pièces.'}},
+ // ---- Opérations
+ {id:'pb1',t:'O',n:'Paquets et bâtonnets 1',L:['L1','L2'],
+  o:['Compter en vue de faire des opérations','Identifier les nombres de 0 à 99','Introduire la notion de quantité'],
+  m:'Bâtonnets ; élastiques ou ficelles',sp:SP3,d:30,
+  nt:{L1:'Établir la règle : 10 bâtonnets font un paquet.',L2:'Même démarche que pour le niveau débutant / 1 chiffre.'}},
+ {id:'pb2',t:'O',n:'Paquets et bâtonnets 2',L:['L1','L2'],
+  o:['Identifier la valeur d’un chiffre selon sa position dans un nombre','Renforcer la notion de quantité'],
+  m:'Bâtonnets ; élastiques ou ficelles',sp:SP3,d:30,
+  nt:{L1:'Maison des paquets et des bâtonnets ; nombres à 2 chiffres.',L2:'Passer des mots « paquets / bâtonnets » à « dizaines / unités ».'}},
+ {id:'addBat',t:'O',n:'Addition avec les bâtonnets',L:['L1','L2'],v:true,
+  o:['Résoudre des situations d’additions de la vie courante','Effectuer des additions de nombres entiers de 0 à 99','Identifier la valeur d’un chiffre selon sa position : unités et dizaines'],
+  m:'Bâtonnets, élastiques ; livret de situations',sp:SP3,d:30,
+  nt:{L1:'Progression : 7 + 2, puis 11 + 8, puis 12 + 13.',L2:'Progression : 56 + 12, puis 27 + 8, puis 53 + 28.'}},
+ {id:'addMon',t:'O',n:'Addition avec la monnaie des enfants',L:['L2','L3'],v:true,
+  o:['Effectuer des opérations d’additions de nombres entiers','Résoudre des situations d’additions de la vie courante'],
+  m:'La monnaie des enfants ; livret de situations',sp:SP3,d:30,
+  nt:{L2:'Nombres de 2 et 3 chiffres ; partir du concret vers l’abstrait.',L3:'Nombres de 3 chiffres et plus ; partir du concret vers l’abstrait.'}},
+ {id:'tabAdd',t:'O',n:'Lecture de la table d’addition',L:['L1'],
+  o:['Comprendre la technique de l’addition des nombres à un chiffre','Développer le calcul mental'],
+  m:'Cartes nombres de 0 à 18 ; table d’addition',sp:SP3,d:30,nt:{L1:'Lire d’abord dans l’ordre croissant, puis sans ordre.'}},
+ {id:'sousBat',t:'O',n:'Soustraction avec les bâtonnets',L:['L1','L2'],v:true,
+  o:['Retrancher des nombres entiers de 0 à 99','Appliquer la soustraction aux réalités de la vie courante','Identifier la valeur de position des unités et des dizaines dans un nombre'],
+  m:'Craie, bâtonnets, élastiques ; livret de situations',sp:SP3,d:30,
+  nt:{L1:'Progression : 7 − 2, puis 15 − 4, puis 27 − 12.',L2:'Progression : 56 − 14, puis 27 − 9, puis 76 − 38.'}},
+ {id:'sousMon',t:'O',n:'Soustraction avec la monnaie des enfants',L:['L2','L3'],v:true,
+  o:['Soustraire des nombres entiers','Résoudre des problèmes de soustraction de la vie courante'],
+  m:'La monnaie des enfants ; livret de situations',sp:SP3,d:30,
+  nt:{L2:'Ex. : Adja a 331 F, elle donne 115 F à Koné…',L3:'Nombres de 3 chiffres et plus.'}},
+ {id:'tabSous',t:'O',n:'Lecture de la table de soustraction',L:['L1'],
+  o:['Comprendre la technique de la soustraction des nombres à un chiffre','Développer le calcul mental'],
+  m:'Cartes nombres de 0 à 18 ; table de soustraction',sp:SP3,d:15,nt:{L1:'Lire d’abord dans l’ordre décroissant (18, 17, 16…), puis sans ordre.'}},
+ {id:'marche',t:'O',n:'Achat au marché',L:['L2','L3'],
+  o:['Résoudre des opérations dans des situations de vie courante','Identifier la valeur de chaque monnaie','Pratiquer le calcul mental'],
+  m:'La monnaie des enfants ; articles avec étiquettes de prix',sp:['TC','TG'],d:30,
+  nt:{L2:'Rôles : commerçant, client, banquier ; prix de 2 à 3 chiffres.',L3:'Introduire le rendu de monnaie ; prix de 3 à 4 chiffres.'}},
+ {id:'multBat',t:'O',n:'Multiplication avec les bâtonnets',L:['L2','L3'],
+  o:['Expliquer le concept de la multiplication sous forme d’addition itérée (répétée)','Multiplier des nombres à un chiffre','Utiliser le vocabulaire de la multiplication'],
+  m:'Bâtonnets ; élastiques',sp:SP3,d:30,
+  nt:{L2:'Partir des tas (ex. 4 tas de 3 = 3 + 3 + 3 + 3 = 4 × 3).',L3:'Ajouter la décomposition des termes et le tableau de numération.'}},
+ {id:'echMult',t:'O',n:'Multiplication par la méthode de l’échelle',L:['L2','L3'],
+  o:['Multiplier les nombres à un chiffre'],m:'Craie, stylo, cahier, ardoise',sp:SP3,d:30,
+  nt:{L2:'Ex. : 2 × 3 (2 lignes verticales, 3 horizontales, compter les croisements).',L3:'Ex. : 3 × 4, 5 × 2… puis passer aux tables.'}},
+ {id:'tabMult',t:'O',n:'Lecture de la table de multiplication',L:['L2','L3'],
+  o:['Comprendre la technique de la multiplication des nombres à un chiffre','Calculer mentalement','Construire des tables de multiplication','Mémoriser des tables de multiplication'],
+  m:'Table de multiplication',sp:SP3,d:30,
+  nt:{L2:'Lire une table portion par portion (ex. table de 2).',L3:'Apprendre les différentes tables de 2 à 10.'}},
+ {id:'divBat',t:'O',n:'Division avec les bâtonnets',L:['L2','L3'],
+  o:['Expliquer le concept de la division','Exprimer la division sous forme de soustraction ou de partages répétés','Utiliser le vocabulaire de la division'],
+  m:'Craie, bâtonnets, élastiques',sp:SP3,d:30,
+  nt:{L2:'Partager 18 bâtonnets en parts égales (2, 3, 6, 9 apprenants).',L3:'Activité surtout destinée au niveau soustraction ; introduire le reste (18 : 7).'}},
+ {id:'divMon',t:'O',n:'Division avec la monnaie des enfants',L:['L3'],
+  o:['Exprimer la division sous forme de partage ou de soustraction répétée','Diviser les nombres à deux et trois chiffres par des nombres à un chiffre'],
+  m:'Craie ; la monnaie des enfants ; livret de situations',sp:SP3,d:30,nt:{L3:'Ex. : partager 63 F entre 3 enfants.'}},
+ {id:'divTab',t:'O',n:'Division avec la table de multiplication',L:['L2','L3'],
+  o:['Résoudre la division en utilisant une table de multiplication','Résoudre des problèmes de division sans matériel en mémorisant les tables de 1 à 10'],
+  m:'Table de multiplication ; livret de situations',sp:SP3,d:30,
+  nt:{L2:'Résoudre des situations simples (ex. 86 : 5).',L3:'Aller vers des divisions comme 238 : 7.'}},
+ {id:'balle',t:'O',n:'Lancer la balle',L:['L1','L2','L3'],
+  o:['Familiariser les apprenants avec les nombres et les opérations','Compter selon un ordre'],
+  m:'Une balle',sp:['TC','TG'],d:30,
+  nt:{L1:'Questions d’addition et de soustraction.',L2:'Questions d’addition, de soustraction et de multiplication.',L3:'Récitation des tables de 2 à 10 (10 min) et calcul mental.'}},
+ {id:'parts',t:'O',n:'Chasse aux parts égales (division par partage)',L:['L2','L3'],
+  o:['Expliquer la notion de partage en parts égales','Résoudre des situations de division par manipulation'],
+  m:'Graines ou cailloux ; paniers, cartons, seaux',sp:SP3,d:30,
+  nt:{L2:'Ex. : 30 graines dans 6 paniers.',L3:'Déterminer des parts égales à partir d’une situation de division.'}},
+ {id:'devine',t:'O',n:'Devine mes nombres',L:['L3'],ni:true,
+  o:['Pratiquer le calcul mental','Effectuer des opérations de multiplication'],
+  m:'Cartes nombres de 1 à 10 ; 2 paniers ou calebasses',sp:['TC','TG'],d:30,nt:{L3:'Ne se joue pas individuellement.'}},
+ {id:'avancons',t:'O',n:'Avançons en jouant',L:['L3'],
+  o:['Développer le calcul mental','Mémoriser les tables de multiplication'],
+  m:'Une pièce de monnaie ; cartes d’opérations de multiplication',sp:['TC','TG'],d:30,nt:{L3:'Tracer l’aire de jeu (départ, cases 1 à 5, arrivée).'}},
+ {id:'enigma',t:'O',n:'Enigma',L:['L3'],
+  o:['Appliquer la technique de la multiplication et de la division','Développer les aptitudes de calcul mental'],
+  m:'Cartes nombres de 1 à 100 ; 2 paniers',sp:SP3,d:30,nt:{L3:'Dividendes de 10 à 100, diviseurs de 2 à 10.'}},
+ {id:'crack',t:'O',n:'Le crack de la multiplication',L:['L3'],ni:true,
+  o:['Effectuer des opérations de multiplication'],m:'Cartes numérotées de 1 à 9',sp:['TC','TG'],d:30,nt:{L3:'Ne se joue pas individuellement.'}},
+ {id:'echDiv',t:'O',n:'Division par la méthode de l’échelle',L:['L3'],
+  o:['Exprimer la division sous forme de partage','Diviser les nombres à 1, 2 et 3 chiffres par des nombres de 1 et 2 chiffres'],
+  m:'Craie, ardoise, papier, stylo ou crayon',sp:SP3,d:30,nt:{L3:'Ex. : 9 mangues partagées entre 4 enfants (9 : 4).'}},
+ {id:'carteMult',t:'O',n:'La carte de la multiplication',L:['L3'],
+  o:['Développer la capacité d’effectuer des calculs mentaux','Effectuer aisément les calculs de la multiplication'],
+  m:'Ardoise, tableau ou feuille',sp:SP3,d:30,nt:{L3:'Ex. : 12 = 2 × 6 = 4 × 3 = 1 × 12.'}},
+ {id:'fortune',t:'O',n:'Ma fortune',L:['L3'],ni:true,
+  o:['Appliquer la technique de l’addition et de la multiplication','Développer les aptitudes de calcul mental'],
+  m:'La monnaie des enfants ; cartes nombres',sp:['TC','TG'],d:30,nt:{L3:'Ne peut pas être menée en individuel.'}}
+];
+
+MATH_ACTS.forEach(a=>{a.c=a.t==='R';a.g=a.t==='O'});
+
+/* =====================================================================
+   PROGRESSION MATHÉMATIQUES
+   Objectif du mois (une seule opération)  →  objectifs de la semaine qui y mènent
+   →  séances avec l'enseignant : [activité, objectif du jour, retenue, type d'exercice d'autonomie]
+   Les deux premières séances de chaque semaine conduisent à l'objectif de la semaine ;
+   la troisième (semaine de 5 jours) le consolide.
+   rc = activités communes de reconnaissance des nombres de la semaine.
+   ===================================================================== */
+const M_ADD='Effectuer correctement des opérations d’addition avec retenue';
+const M_SUB='Effectuer correctement des opérations de soustraction avec retenue';
+const M_MUL='Effectuer correctement des opérations de multiplication';
+const M_DIV='Effectuer correctement des opérations de division';
+const MATH_PLAN={
+ L1:[
+  {mois:M_ADD,op:'Addition',weeks:[
+   {sem:'Additionner des nombres à un chiffre',ex:'add11',rc:['tab2','decomp','sauter','decomp','bingo'],
+    s:[['addBat','Additionner deux nombres à un chiffre avec les bâtonnets (ex. 7 + 2)','sans','add11'],['tabAdd','Trouver la somme de deux nombres à un chiffre dans la table d’addition','','add11'],['balle','Calculer mentalement des sommes de nombres à un chiffre','','add11']]},
+   {sem:'Effectuer correctement des opérations d’addition sans retenue',ex:'add22s',rc:['tab2','decomp','panier','decomp','bingo'],
+    s:[['addBat','Additionner un nombre à 2 chiffres et un nombre à 1 chiffre sans retenue (ex. 11 + 8)','sans','add21s'],['addBat','Additionner deux nombres à 2 chiffres sans retenue (ex. 12 + 13)','sans','add22s'],['addBat','Résoudre une situation d’addition sans retenue','sans','add22s']]},
+   {sem:'Effectuer des additions avec retenue d’un nombre à 2 chiffres et d’un nombre à 1 chiffre',ex:'add21a',rc:['carte','decomp','gestes','decomp','compar'],
+    s:[['addBat','Transformer 10 bâtonnets en un paquet au cours d’une addition (ex. 27 + 8)','avec','add21a'],['addBat','Additionner un nombre à 2 chiffres et un nombre à 1 chiffre avec retenue','avec','add21a'],['balle','Calculer mentalement des additions avec passage à la dizaine','','add21a']]},
+   {sem:M_ADD,ex:'add22a',rc:['tab2','decomp','bingo','decomp','sauter'],
+    s:[['addBat','Additionner deux nombres à 2 chiffres avec une retenue (ex. 53 + 28)','avec','add22a'],['addBat','Résoudre une situation d’addition avec retenue','avec','add22a'],['addBat','Poser et effectuer une addition avec retenue sans matériel','avec','add22a']]}]},
+  {mois:M_SUB,op:'Soustraction',weeks:[
+   {sem:'Soustraire des nombres à un chiffre',ex:'sub11',rc:['tab2','decomp','sauter','decomp','bingo'],
+    s:[['sousBat','Retrancher un nombre à un chiffre d’un autre avec les bâtonnets (ex. 7 − 2)','sans','sub11'],['tabSous','Trouver la différence de deux nombres dans la table de soustraction','','sub11'],['balle','Calculer mentalement des différences de nombres à un chiffre','','sub11']]},
+   {sem:'Effectuer correctement des opérations de soustraction sans retenue',ex:'sub22s',rc:['tab2','sauter','decomp','decomp','bingo'],
+    s:[['sousBat','Retrancher un nombre à 1 chiffre d’un nombre à 2 chiffres sans retenue (ex. 29 − 7)','sans','sub21s'],['sousBat','Retrancher deux nombres à 2 chiffres sans retenue (ex. 27 − 12)','sans','sub22s'],['sousBat','Résoudre une situation de soustraction sans retenue','sans','sub22s']]},
+   {sem:'Effectuer des soustractions avec retenue d’un nombre à 1 chiffre',ex:'sub21a',rc:['carte','decomp','compar','decomp','gestes'],
+    s:[['sousBat','Défaire un paquet en 10 bâtonnets pour soustraire (ex. 22 − 7)','avec','sub21a'],['sousBat','Retrancher un nombre à 1 chiffre d’un nombre à 2 chiffres avec retenue','avec','sub21a'],['balle','Calculer mentalement des soustractions avec passage à la dizaine','','sub21a']]},
+   {sem:M_SUB,ex:'sub22a',rc:['tab2','decomp','bingo','decomp','sauter'],
+    s:[['sousBat','Retrancher deux nombres à 2 chiffres avec une retenue (ex. 76 − 38)','avec','sub22a'],['sousBat','Résoudre une situation de soustraction avec retenue','avec','sub22a'],['sousBat','Poser et effectuer une soustraction avec retenue sans matériel','avec','sub22a']]}]}
+ ],
+ L2:[
+  {mois:M_ADD,op:'Addition',weeks:[
+   {sem:'Effectuer correctement des opérations d’addition sans retenue',ex:'add22s',rc:['tab2','grands','decomp','bingo','monnaie'],
+    s:[['addBat','Additionner deux nombres à 2 chiffres sans retenue (ex. 56 + 12)','sans','add22s'],['addMon','Additionner des nombres à 3 chiffres sans retenue avec la monnaie des enfants','sans','add33s'],['balle','Calculer mentalement des additions sans retenue','','add22s']]},
+   {sem:'Effectuer des additions avec retenue d’un nombre à 2 chiffres et d’un nombre à 1 chiffre',ex:'add21a',rc:['monnaie','decomp','grands','bingo','cercle'],
+    s:[['addBat','Transformer 10 bâtonnets en un paquet au cours d’une addition (ex. 27 + 8)','avec','add21a'],['addBat','Additionner un nombre à 2 chiffres et un nombre à 1 chiffre avec retenue','avec','add21a'],['balle','Calculer mentalement des additions avec passage à la dizaine','','add21a']]},
+   {sem:'Effectuer des additions avec retenue de deux nombres à 2 chiffres',ex:'add22a',rc:['tab2','decomp','grands','decomp','bingo'],
+    s:[['addBat','Additionner deux nombres à 2 chiffres avec une retenue (ex. 53 + 28)','avec','add22a'],['addBat','Résoudre une situation d’addition avec retenue','avec','add22a'],['addBat','Poser et effectuer une addition avec retenue sans matériel','avec','add22a']]},
+   {sem:M_ADD,ex:'add33a',rc:['monnaie','grands','cercle','monnaie','grands'],
+    s:[['addMon','Additionner des nombres à 3 chiffres avec retenue avec la monnaie des enfants (ex. 246 + 125)','avec','add33a'],['addMon','Résoudre une situation d’addition de sommes d’argent avec retenue','avec','add33a'],['marche','Calculer le prix total de deux articles','','add33a']]}]},
+  {mois:M_SUB,op:'Soustraction',weeks:[
+   {sem:'Effectuer correctement des opérations de soustraction sans retenue',ex:'sub22s',rc:['tab2','sauter','decomp','decomp','grands'],
+    s:[['sousBat','Retrancher deux nombres à 2 chiffres sans retenue (ex. 56 − 14)','sans','sub22s'],['sousMon','Soustraire des nombres à 3 chiffres sans retenue avec la monnaie des enfants','sans','sub33s'],['balle','Calculer mentalement des soustractions sans retenue','','sub22s']]},
+   {sem:'Effectuer des soustractions avec retenue d’un nombre à 1 chiffre',ex:'sub21a',rc:['monnaie','decomp','compar','decomp','cercle'],
+    s:[['sousBat','Défaire un paquet en 10 bâtonnets pour soustraire (ex. 27 − 9)','avec','sub21a'],['sousBat','Retrancher un nombre à 1 chiffre d’un nombre à 2 chiffres avec retenue','avec','sub21a'],['balle','Calculer mentalement des soustractions avec passage à la dizaine','','sub21a']]},
+   {sem:'Effectuer des soustractions avec retenue de deux nombres à 2 chiffres',ex:'sub22a',rc:['tab2','decomp','grands','decomp','compar'],
+    s:[['sousBat','Retrancher deux nombres à 2 chiffres avec une retenue (ex. 76 − 38)','avec','sub22a'],['sousBat','Résoudre une situation de soustraction avec retenue','avec','sub22a'],['sousBat','Poser et effectuer une soustraction avec retenue sans matériel','avec','sub22a']]},
+   {sem:M_SUB,ex:'sub33a',rc:['monnaie','grands','cercle','monnaie','grands'],
+    s:[['sousMon','Soustraire des nombres à 3 chiffres avec retenue avec la monnaie des enfants (ex. 331 − 115)','avec','sub33a'],['marche','Rendre la monnaie lors d’un achat','','sub33a'],['sousMon','Résoudre une situation de soustraction de sommes d’argent','avec','sub33a']]}]},
+  {mois:M_MUL,op:'Multiplication',weeks:[
+   {sem:'Comprendre la multiplication comme une addition répétée',ex:'multRep',rc:['tab2','grands','gestes','bingo','cercle'],
+    s:[['multBat','Former des tas égaux et écrire l’addition répétée (ex. 3 + 3 + 3 + 3)','','multRep'],['multBat','Exprimer une addition répétée sous forme de produit (ex. 4 × 3 = 12)','','multRep'],['multBat','Utiliser le vocabulaire de la multiplication (facteur, produit)','','multRep']]},
+   {sem:'Multiplier des nombres à un chiffre par la méthode de l’échelle',ex:'mult11',rc:['grands','cercle','monnaie','bingo','tab2'],
+    s:[['echMult','Représenter un produit par des lignes qui se croisent (ex. 2 × 3)','','mult11'],['echMult','Trouver le produit de deux nombres à un chiffre par la méthode de l’échelle','','mult11'],['multBat','Vérifier un produit avec les bâtonnets','','mult11']]},
+   {sem:'Mémoriser les tables de multiplication de 2 à 9',ex:'tab',rc:['tab2','grands','compar','cercle','monnaie'],
+    s:[['tabMult','Lire et mémoriser les tables de multiplication de 2 à 5','','tab'],['tabMult','Lire et mémoriser les tables de multiplication de 6 à 9','','tab'],['balle','Réciter les tables de multiplication de 2 à 10','','tab']]},
+   {sem:M_MUL,ex:'mult11',rc:['grands','monnaie','cercle','tab2','grands'],
+    s:[['balle','Calculer mentalement des produits des tables','','mult11'],['multBat','Résoudre une situation de multiplication','','mult11'],['tabMult','Effectuer des multiplications à l’aide de la table','','mult11']]}]},
+  {mois:M_DIV,op:'Division',weeks:[
+   {sem:'Partager une quantité en parts égales',ex:'divPart',rc:['grands','cercle','monnaie','compar','tab2'],
+    s:[['divBat','Partager une quantité de bâtonnets en parts égales (ex. 18 : 3)','','divPart'],['divBat','Identifier le dividende, le diviseur, le quotient et le reste','','divPart'],['parts','Partager des graines en parts égales','','divPart']]},
+   {sem:'Résoudre des situations de partage en parts égales',ex:'divPart',rc:['monnaie','grands','cercle','tab2','compar'],
+    s:[['parts','Résoudre une situation de partage en parts égales (ex. 30 : 6)','','divPart'],['parts','Écrire l’opération correspondant à un partage','','divPart'],['divBat','Partager avec un reste (ex. 18 : 7)','','div21']]},
+   {sem:'Diviser à l’aide de la table de multiplication',ex:'div21',rc:['grands','cercle','monnaie','compar','tab2'],
+    s:[['divTab','Trouver dans la table de multiplication le multiple le plus proche du dividende','','div21'],['divTab','Diviser un nombre à 2 chiffres par un nombre à 1 chiffre (ex. 86 : 5)','','div21'],['parts','Résoudre une situation de division avec reste','','div21']]},
+   {sem:M_DIV,ex:'div21',rc:['monnaie','grands','cercle','tab2','compar'],
+    s:[['divTab','Effectuer des divisions d’un nombre à 2 chiffres par un nombre à 1 chiffre','','div21'],['parts','Résoudre une situation de division','','div21'],['divTab','Poser et effectuer une division sans matériel','','div21']]}]}
+ ],
+ L3:[
+  {mois:M_MUL,op:'Multiplication',weeks:[
+   {sem:'Comprendre la multiplication comme une addition répétée',ex:'multRep',
+    s:[['multBat','Exprimer une addition répétée sous forme de produit (ex. 3 + 3 + 3 + 3 = 4 × 3)','','multRep'],['multBat','Utiliser le vocabulaire de la multiplication (facteur, produit)','','multRep'],['echMult','Trouver le produit de deux nombres à un chiffre par la méthode de l’échelle','','mult11']]},
+   {sem:'Mémoriser les tables de multiplication de 2 à 10',ex:'tab',
+    s:[['tabMult','Lire et mémoriser les tables de multiplication de 2 à 5','','tab'],['tabMult','Lire et mémoriser les tables de multiplication de 6 à 10','','tab'],['avancons','Calculer mentalement des produits des tables','','tab']]},
+   {sem:'Calculer mentalement des produits',ex:'mult10',
+    s:[['carteMult','Trouver les produits égaux à un nombre donné','','facteurs'],['crack','Effectuer rapidement des multiplications de nombres à un chiffre','','mult11'],['fortune','Multiplier un nombre par 10, 100, 1 000 et 10 000','','mult10']]},
+   {sem:M_MUL,ex:'mult11',
+    s:[['devine','Retrouver les facteurs d’un produit','','mult11'],['multBat','Résoudre une situation de multiplication','','mult11'],['avancons','Effectuer des multiplications tirées au sort','','mult11']]}]},
+  {mois:M_DIV,op:'Division',weeks:[
+   {sem:'Partager une quantité en parts égales',ex:'divPart',
+    s:[['divBat','Exprimer la division sous forme de partages répétés','','divPart'],['parts','Résoudre une situation de partage en parts égales','','divPart'],['divMon','Partager une somme d’argent en parts égales (ex. 63 F : 3)','','divPart']]},
+   {sem:'Diviser un nombre à 2 chiffres par un nombre à 1 chiffre',ex:'div21',
+    s:[['echDiv','Diviser par la méthode de l’échelle et trouver le reste (ex. 9 : 4)','','div21'],['divTab','Diviser avec la table de multiplication (ex. 86 : 5)','','div21'],['enigma','Effectuer des divisions de nombres tirés au sort','','div21']]},
+   {sem:'Diviser un nombre à 3 chiffres par un nombre à 1 chiffre',ex:'div31',
+    s:[['divMon','Diviser une somme à 3 chiffres par un nombre à 1 chiffre avec la monnaie des enfants','','div31'],['divTab','Diviser un nombre à 3 chiffres avec la table de multiplication (ex. 238 : 7)','','div31'],['echDiv','Diviser un nombre à 3 chiffres par la méthode de l’échelle','','div31']]},
+   {sem:M_DIV,ex:'div31',
+    s:[['enigma','Effectuer des divisions de nombres tirés au sort','','div21'],['divTab','Résoudre une situation de division','','div31'],['echDiv','Poser et effectuer une division avec reste','','div31']]}]}
+ ]
+};
+const MATH_COMMON_DEFAULT={L1:['tab2','sauter','cercle','bingo','livret'],L2:['tab2','grands','cercle','bingo','monnaie'],L3:['grands','cercle','monnaie','grands','cercle']};
+const TRANCHES=['0 à 20','20 à 40','40 à 60','60 à 80','80 à 99'];
+
+/* =====================================================================
+   LECTURE – activités (Guide de remédiation lecture)
+   ===================================================================== */
+const LECT_ACTS=[
+ {id:'dial',c:true,n:'Dialogue informel',L:['DL','MP','HC'],m:'Aucun',sp:['TC','TI'],
+  o:['Briser les barrières entre l’enseignant et les apprenants','Améliorer les capacités d’écoute','Améliorer les capacités d’expression orale','Améliorer la confiance en soi'],
+  nt:{DL:'Histoire simple et drôle (anniversaire, mariage, fête…) ; l’apprenant peut raconter en langue maternelle.',MP:'Mêmes étapes, jusqu’à une expression aisée et claire.',HC:'Mêmes étapes, jusqu’à une expression aisée et claire.'}},
+ {id:'desc',c:true,n:'Description d’images',L:['DL','MP','HC'],m:'Grand dessin ou poster d’une scène familière (marché, rivière, fête…)',sp:SP3,
+  o:['S’exprimer à partir de l’observation d’une image','Améliorer la capacité d’observation','Développer les capacités d’écoute et d’expression orale'],
+  nt:{DL:'Nommer les éléments de l’image, puis faire des phrases complètes.',MP:'Mêmes étapes, en complexifiant progressivement.',HC:'Aller jusqu’à la discussion et à l’exposé en groupe.'}},
+ {id:'tps',c:true,g:true,n:'Lecture du tableau phonético-syllabique',L:['DL','MP','HC'],m:'Tableau phonético-syllabique (grand format et format A4)',sp:SP3,
+  o:['Comprendre le codage de l’écriture','Créer des syllabes simples et complexes','Produire des mots en associant des syllabes'],
+  nt:{DL:'Voyelles et consonnes, puis syllabes et mots.',MP:'Former des mots, puis produire des phrases et des paragraphes.',HC:'Produire des mots, des phrases et des historiettes à l’oral et à l’écrit.'}},
+ {id:'parag',g:true,n:'Lecture de paragraphes simples',L:['DL','MP','HC'],m:'Livret de paragraphes simples',sp:SP3,
+  o:['Lire de manière autonome','Lire un texte de façon courante et expressive','Répondre correctement aux questions de compréhension'],
+  nt:{DL:'L’enseignant lit ; les apprenants écoutent et suivent du doigt.',MP:'Poser des questions sur sa lecture avant de faire lire.',HC:'Textes plus longs ; questions de compréhension et résumé oral.'}},
+ {id:'cmots',g:true,n:'La carte des mots',L:['DL','MP','HC'],m:'Craie, ardoise, cahier, stylo',sp:SP3,
+  o:['Développer le vocabulaire','Construire des phrases simples','Écrire de petites histoires à partir du champ lexical d’un mot'],
+  nt:{DL:'Proposer des mots en rapport avec le mot entouré, puis des phrases orales.',MP:'Construire oralement des phrases avec les mots du tableau.',HC:'Aller jusqu’à écrire une histoire à partir des mots.'}},
+ {id:'copie',g:true,n:'La copie',L:['DL','MP','HC'],m:'Tableau ; cahier ou ardoise ; crayon, stylo ou craie',sp:['TC','TI'],
+  o:['Améliorer l’écriture script des lettres','Maîtriser les règles d’orthographe, de grammaire et de ponctuation'],
+  nt:{DL:'Lettres, puis syllabes, mots et phrases simples.',MP:'Copier des paragraphes.',HC:'Copier des paragraphes plus longs.'}},
+ {id:'dictee',g:true,n:'La dictée',L:['DL','MP','HC'],m:'Livret de paragraphes simples ; cahier ou ardoise ; stylo ou craie',sp:['TC','TI'],
+  o:['Améliorer les capacités d’écoute et d’écriture','Maîtriser les règles d’orthographe, de grammaire et de ponctuation'],
+  nt:{DL:'Lettres, puis syllabes, mots et phrases simples.',MP:'Paragraphe de 3 ou 4 phrases.',HC:'Texte plus long.'}},
+ {id:'panierL',g:true,n:'Jeu du panier',L:['DL'],m:'Cartes lettres ou cartes syllabes ; un panier',sp:['TC'],
+  o:['Reconnaître les sons et les noms des lettres','Reconnaître les syllabes','Former des mots avec des syllabes'],nt:{DL:'Cartes de lettres, de syllabes ou de mots adaptées au niveau.'}},
+ {id:'sauterL',g:true,n:'Sauter sur les lettres',L:['DL'],m:'Craie ; cartes lettres ou syllabes',sp:SP3,
+  o:['Reconnaître les sons et les noms des lettres','Reconnaître les syllabes'],nt:{DL:'6 ou 9 lettres ou syllabes tracées au sol ; jeu par équipes.'}},
+ {id:'carteL',g:true,n:'Retourner la carte',L:['DL'],m:'Cartes lettres ou syllabes ; tableau phonético-syllabique',sp:SP3,
+  o:['Reconnaître les lettres, les syllabes, leurs sons et leurs noms','Stimuler l’attention et la mémoire'],nt:{DL:'Montrer la lettre ou la syllabe sur le tableau, la retrouver parmi les cartes.'}},
+ {id:'bingoL',g:true,n:'Jeu de Bingo',L:['DL'],m:'Cahier, ardoise, stylo, craie',sp:SP3,
+  o:['Écrire des lettres, des syllabes','Reconnaître les lettres, les syllabes, leurs sons et leurs noms'],nt:{DL:'6 ou 9 lettres ou syllabes au tableau, 3 ou 4 à choisir.'}},
+ {id:'compet',g:true,n:'Compétition de création de mots',L:['DL'],m:'Cartes lettres, cartes syllabes ; tableau phonético-syllabique',sp:['TC','TG'],
+  o:['Construire des mots qui ont un sens','Écrire des mots'],nt:{DL:'Par équipes, construire le plus grand nombre de mots.'}},
+ {id:'rimes',g:true,n:'Jeu des rimes',L:['DL'],m:'Liste de mots',sp:SP3,
+  o:['Créer des mots qui riment','Reconnaître les voyelles, les consonnes et les sons correspondants'],nt:{DL:'Compléter des mots qui riment ; puis à partir de la seule première lettre.'}},
+ {id:'chaine',g:true,n:'La chaîne des mots',L:['DL'],m:'Craie, stylo, cahier, ardoise',sp:['TC','TG'],
+  o:['Créer des mots à l’oral à partir du son d’une lettre','Créer des mots à l’écrit à partir de lettres'],nt:{DL:'D’abord à l’oral (dernier son), puis à l’écrit (dernière lettre).'}},
+ {id:'corriger',g:true,n:'Corriger l’erreur',L:['MP'],m:'Craie, stylo, cahier, ardoise ; livret de paragraphes simples',sp:SP3,
+  o:['Repérer et corriger les erreurs dans des phrases','Améliorer la grammaire, l’orthographe et la conjugaison'],nt:{MP:'Phrases au tableau avec des fautes de grammaire, d’orthographe ou de conjugaison.'}},
+ {id:'histor',g:true,n:'Création d’historiettes',L:['MP'],m:'Cahier, stylo',sp:['TC','TG'],
+  o:['Associer les idées afin de créer une historiette','Améliorer la construction des phrases'],nt:{MP:'Chaque apprenant du groupe donne une phrase liée aux autres.'}},
+ {id:'triangle',g:true,n:'Le triangle des phrases',L:['MP'],m:'Craie, cahier, ardoise',sp:SP3,
+  o:['Construire des phrases correctes (sujet, verbe, complément)','Améliorer l’écriture des mots et des phrases'],nt:{MP:'Au moins 3 phrases par groupe à partir d’un thème.'}},
+ {id:'titre',g:true,n:'Lecture et discussion autour du titre d’un texte',L:['HC'],m:'Livret de contes, livret d’historiettes ou manuel au programme',sp:['TC'],
+  o:['Émettre des hypothèses à partir du titre d’un texte','Stimuler l’intérêt pour la lecture à partir d’un titre'],nt:{HC:'Livrets fermés ; noter toutes les hypothèses au tableau.'}},
+ {id:'lexique',g:true,n:'Lecture et exploration du lexique d’un texte',L:['HC'],m:'Livret de contes, livret d’historiettes ou manuel au programme',sp:['TC','TG'],
+  o:['Lire de façon courante et expressive un texte','Enrichir le vocabulaire et la syntaxe','Répondre aux questions liées au texte'],nt:{HC:'Faire lire le maximum d’apprenants ; questions entre groupes.'}},
+ {id:'analyse',g:true,n:'Lecture, analyse et interprétation d’un texte',L:['HC'],m:'Livret de contes, historiettes ou manuel au programme',sp:SP3,
+  o:['Restituer le contenu d’un texte','Analyser un texte'],nt:{HC:'Deux séries de questions préparées : à l’oral, puis à l’écrit en groupes.'}},
+ {id:'cracks',g:true,n:'Jeu des cracks',L:['HC'],m:'Panier ; craie, ardoise, stylo, cahier ; manuel au programme',sp:SP3,
+  o:['Lire de façon courante et expressive une phrase','Perfectionner l’orthographe, la grammaire et la conjugaison'],nt:{HC:'6 à 8 phrases tirées d’un texte, 2 ou 3 questions de langue.'}},
+ {id:'recons',g:true,n:'Reconstitution de texte',L:['HC'],m:'Livret d’historiettes ou de contes ; craie, stylo, ardoise, cahier',sp:['TC','TG'],
+  o:['Reconstituer un texte déjà lu','Enrichir le vocabulaire'],nt:{HC:'Texte déjà étudié dont des mots ou des phrases ont été supprimés.'}},
+ {id:'prod',g:true,n:'Production d’histoires',L:['HC'],m:'Livret d’historiettes, livret de contes ; craie, stylo, cahier',sp:SP3,
+  o:['Écrire sa propre histoire à partir d’un thème','Améliorer la grammaire, l’orthographe et la conjugaison'],nt:{HC:'Histoires de 150 à 250 mots au début.'}}
+];
+/* Progression lecture (II.4.5 du guide : objectifs – contenus – activités par groupe de niveau)
+   Objectif du mois  →  objectifs de la semaine  →  séances [activité, objectif du jour] */
+const LECT_PLAN={
+ DL:[
+  {mois:'Lire des syllabes',op:'Lettres et syllabes',weeks:[
+   {sem:'Identifier et lire les voyelles a, i, y, o, u, e, é, ê',
+    s:[['tps','Associer le son aux graphèmes a, i, y, o, u, e, é, ê'],['sauterL','Identifier les voyelles a, i, y, o, u, e, é, ê'],['panierL','Lire les voyelles tirées au panier']]},
+   {sem:'Identifier et lire les consonnes étudiées',
+    s:[['tps','Associer le son aux consonnes étudiées'],['carteL','Reconnaître les consonnes, leurs sons et leurs noms'],['bingoL','Écrire les consonnes étudiées']]},
+   {sem:'Former des syllabes simples',
+    s:[['tps','Associer une consonne et une voyelle pour former une syllabe'],['carteL','Reconnaître des syllabes simples'],['bingoL','Écrire des syllabes simples']]},
+   {sem:'Lire des syllabes',
+    s:[['tps','Lire des syllabes du tableau phonético-syllabique'],['panierL','Lire des syllabes tirées au panier'],['dictee','Écrire sous la dictée des syllabes']]}]},
+  {mois:'Lire des mots',op:'Mots',weeks:[
+   {sem:'Lire des mots de deux syllabes',
+    s:[['tps','Associer deux syllabes pour former un mot'],['panierL','Lire des mots de deux syllabes tirés au panier'],['compet','Construire des mots de deux syllabes qui ont un sens']]},
+   {sem:'Trouver et lire des mots',
+    s:[['chaine','Trouver des mots à partir du son d’une lettre'],['rimes','Trouver et lire des mots qui riment'],['cmots','Lire des mots en rapport avec un mot donné']]},
+   {sem:'Écrire des mots',
+    s:[['compet','Écrire des mots à partir de cartes lettres'],['copie','Copier correctement des mots'],['dictee','Écrire sous la dictée des mots étudiés']]},
+   {sem:'Lire des mots',
+    s:[['tps','Lire des mots du tableau phonético-syllabique'],['panierL','Lire des mots tirés au panier'],['cmots','Lire des mots et les utiliser dans une phrase orale']]}]}
+ ],
+ MP:[
+  {mois:'Lire un paragraphe simple',op:'Phrases et paragraphe',weeks:[
+   {sem:'Lire des phrases simples',
+    s:[['cmots','Lire des phrases simples construites à partir d’un mot'],['corriger','Lire des phrases et repérer les erreurs'],['triangle','Lire des phrases construites autour d’un thème']]},
+   {sem:'Construire des phrases correctes',
+    s:[['triangle','Construire des phrases correctes (sujet, verbe, complément)'],['corriger','Corriger les erreurs dans des phrases'],['cmots','Construire des phrases avec les mots du tableau']]},
+   {sem:'Lire un paragraphe simple en suivant du doigt',
+    s:[['parag','Écouter la lecture d’un paragraphe en suivant du doigt'],['parag','Lire à haute voix les phrases d’un paragraphe'],['copie','Copier un paragraphe simple']]},
+   {sem:'Lire un paragraphe simple',
+    s:[['parag','Lire un paragraphe simple de façon courante'],['dictee','Écrire sous la dictée un paragraphe de 3 ou 4 phrases'],['parag','Lire un paragraphe de manière autonome']]}]},
+  {mois:'Lire une historiette',op:'Historiette',weeks:[
+   {sem:'Lire les phrases d’une historiette',
+    s:[['parag','Écouter la lecture d’une historiette en suivant du doigt'],['parag','Lire à haute voix les phrases d’une historiette'],['corriger','Corriger les erreurs dans les phrases d’une historiette']]},
+   {sem:'Comprendre une historiette lue',
+    s:[['parag','Répondre aux questions sur une historiette lue'],['corriger','Retrouver et corriger les erreurs dans une historiette'],['parag','Raconter une historiette lue']]},
+   {sem:'Créer une historiette',
+    s:[['histor','Associer des idées pour créer une historiette'],['histor','Écrire une historiette en groupe'],['parag','Lire l’historiette créée par le groupe']]},
+   {sem:'Lire une historiette',
+    s:[['parag','Lire une historiette de façon courante'],['parag','Lire une historiette de manière autonome et répondre aux questions'],['histor','Écrire une historiette individuellement']]}]}
+ ],
+ HC:[
+  {mois:'Lire un texte et répondre correctement aux questions de compréhension',op:'Lecture et compréhension',weeks:[
+   {sem:'Lire un texte de façon courante et expressive',
+    s:[['titre','Émettre des hypothèses à partir du titre d’un texte'],['lexique','Lire de façon courante et expressive un texte'],['cracks','Lire de façon courante et expressive une phrase']]},
+   {sem:'Comprendre le vocabulaire d’un texte',
+    s:[['lexique','Expliquer les mots difficiles d’un texte'],['cracks','Lire une phrase et répondre aux questions de langue'],['recons','Compléter un texte avec les mots manquants']]},
+   {sem:'Restituer le contenu d’un texte',
+    s:[['analyse','Restituer oralement le contenu d’un texte'],['recons','Reconstituer un texte déjà lu'],['lexique','Répondre oralement aux questions liées au texte']]},
+   {sem:'Lire un texte et répondre correctement aux questions de compréhension',
+    s:[['lexique','Lire un texte et répondre oralement aux questions'],['analyse','Répondre par écrit aux questions de compréhension d’un texte'],['analyse','Lire un nouveau texte et répondre aux questions de compréhension']]}]},
+  {mois:'Produire une histoire',op:'Production',weeks:[
+   {sem:'Relever les éléments d’un récit',
+    s:[['analyse','Relever les personnages, le lieu et les actions d’un texte'],['recons','Remettre en ordre les phrases d’un récit'],['titre','Imaginer la suite d’une histoire à partir du titre']]},
+   {sem:'Écrire des phrases correctes pour raconter',
+    s:[['cracks','Corriger l’orthographe et la grammaire de phrases'],['recons','Compléter un récit avec les mots manquants'],['cracks','Écrire des phrases correctes à partir d’un thème']]},
+   {sem:'Produire une histoire en groupe',
+    s:[['prod','Rappeler les éléments d’un récit et choisir un thème'],['prod','Écrire une histoire en groupe à partir d’un thème'],['analyse','Lire et améliorer l’histoire du groupe']]},
+   {sem:'Produire une histoire',
+    s:[['prod','Écrire sa propre histoire à partir d’un thème'],['cracks','Corriger l’orthographe et la grammaire de son histoire'],['prod','Lire son histoire à la classe']]}]}
+ ]
+};
+/* Mise à plat : une étape = une semaine, avec son objectif du mois */
+function flatPlan(P){const o={};Object.keys(P).forEach(l=>{o[l]=[];P[l].forEach((M,m)=>M.weeks.forEach((W,w)=>o[l].push(Object.assign({},W,{mois:M.mois,op:M.op,m,w,nw:M.weeks.length}))))});return o}
+const MATH_STEPS=flatPlan(MATH_PLAN);
+const LECT_STEPS=flatPlan(LECT_PLAN);
+
+/* =====================================================================
+   DISCIPLINES
+   ===================================================================== */
+const DISC={
+ math:{name:'Mathématiques',acts:MATH_ACTS,steps:MATH_STEPS,plan:MATH_PLAN,first:'g2',
+  LN:{L1:'Débutant / 1 chiffre',L2:'2 chiffres',L3:'Soustraction / Division'},
+  G:{g1:'Groupe 1 : Débutant / 1 chiffre / 2 chiffres',g2:'Groupe 2 : Soustraction / Division'},
+  LV:[{k:'DEB',n:'Débutant',g:'g1',l:'L1'},{k:'C1',n:'1 chiffre',g:'g1',l:'L1'},{k:'C2',n:'2 chiffres',g:'g1',l:'L2'},{k:'SOU',n:'Soustraction',g:'g2',l:'L3'},{k:'DIV',n:'Division',g:'g2',l:'L3'}],
+  prereq:{L1:'Lire et écrire les nombres de 0 à 20',L2:'Lire et écrire les nombres de 0 à 99',L3:'Effectuer correctement des opérations de soustraction avec retenue'},
+  auto:{g1:{n:'Exercices écrits',m:'Exercices écrits au tableau ; cahier ou ardoise ; stylo ou craie'},g2:{n:'Exercices écrits',m:'Exercices écrits au tableau ; cahier ou ardoise ; stylo ou craie'}},
+  hint:'Chaque jour : 15 min d’activité de reconnaissance des nombres commune aux deux groupes (adaptée au niveau le plus faible de la classe), puis 30 min où un groupe travaille avec l’enseignant pendant que l’autre fait, en autonomie, des exercices écrits sur l’objectif de la veille ou sur un objectif déjà maîtrisé. Les rôles s’inversent chaque jour.'},
+ lect:{name:'Lecture',acts:LECT_ACTS,steps:LECT_STEPS,plan:LECT_PLAN,first:'g1',
+  LN:{DL:'Débutant / Lettre',MP:'Mot / Paragraphe',HC:'Histoire / Compréhension'},
+  G:{g1:'Groupe 1 : Débutant / Lettre / Mot',g2:'Groupe 2 : Paragraphe / Histoire / Compréhension'},
+  LV:[{k:'DEB',n:'Débutant',g:'g1',l:'DL'},{k:'LET',n:'Lettre',g:'g1',l:'DL'},{k:'MOT',n:'Mot',g:'g1',l:'MP'},{k:'PAR',n:'Paragraphe',g:'g2',l:'MP'},{k:'HIS',n:'Histoire',g:'g2',l:'HC'},{k:'COM',n:'Compréhension',g:'g2',l:'HC'}],
+  prereq:{DL:'Reconnaître les lettres déjà étudiées',MP:'Lire et écrire des mots',HC:'Lire un paragraphe simple de façon fluide'},
+  auto:{g1:{n:'Production écrite (copie)',m:'Texte écrit au tableau ; cahier ou ardoise ; stylo ou craie'},g2:{n:'Exercice écrit de consolidation',m:'Exercice écrit au tableau ; cahier ; stylo'}},
+  hint:'Chaque jour : 15 min d’activité orale commune aux deux groupes, puis 30 min où un groupe lit avec l’enseignant pendant que l’autre fait, en autonomie, une activité écrite sur l’objectif de la veille ou sur un objectif déjà maîtrisé (alternance oral / écrit). Les rôles s’inversent chaque jour.'}
+};
+Object.values(DISC).forEach(D=>D.A=Object.fromEntries(D.acts.map(a=>[a.id,a])));
+
+/* =====================================================================
+   RÉSUMÉS DES ACTIVITÉS (déroulement tiré des guides)
+   ===================================================================== */
+const RESUME={
+ // ---- Mathématiques : reconnaissance des nombres
+ tab2:"Grand groupe : afficher le tableau, lire une tranche de nombres en pointant chaque nombre (les élèves écoutent sans répéter), demander « Comment ai-je lu ? », puis faire lire 2 ou 3 élèves. Petits groupes : lecture à tour de rôle avec le tableau A4, sous la conduite du chef de groupe. Individuel : chacun lit la tranche étudiée.",
+ livret:"Grand groupe : écrire un nombre au tableau (ex. 64), le faire lire, puis le former avec le livret. Petits groupes : chaque groupe forme avec son livret les nombres écrits au tableau (ex. 45 et 86). Individuel : chacun forme le nombre dicté et indique la valeur de position de chaque chiffre.",
+ sauter:"Grand groupe : tracer au sol une grille de 6 ou 9 cases contenant des nombres déjà lus ; un élève saute sur le nombre prononcé (2 essais). Petits groupes : compétition ; le représentant d’un groupe lit un nombre, celui d’un autre groupe saute dans la case ; 1 point par bonne réponse.",
+ panier:"En cercle, les élèves chantent en se passant un panier contenant 6 à 9 cartes nombres. Au signal, celui qui tient le panier ferme les yeux, tire une carte, la montre et la lit ; en cas d’erreur, un camarade corrige. Variante : écrire le nombre au tableau et retrouver les chiffres qui le composent.",
+ bingo:"L’enseignant écrit et lit 6 à 9 nombres au tableau ; chaque élève en recopie 3 ou 4 sur son ardoise. L’enseignant entoure les nombres un à un et les élèves entourent les mêmes. Le premier qui a tout entouré crie « Bingo ! » ; on continue jusqu’au dernier.",
+ carte:"L’enseignant montre 6 à 9 cartes nombres sans les lire puis les pose à l’envers au sol. Il indique un nombre sur le tableau ; un élève doit retrouver la carte, la retourner et la lire (« Est-ce correct ? »). Petits groupes : compétition entre représentants, 1 point par carte trouvée.",
+ gestes:"Convention : un battement de mains = 10, un claquement de doigts = 1. L’enseignant fait des gestes (ex. 2 battements et 3 claquements) et les élèves trouvent le nombre (23). Puis 2 ou 3 élèves font les gestes à leur tour. Petits groupes : compétition avec un tableau de points.",
+ compar:"Grand groupe : deux élèves reçoivent des paquets et bâtonnets (ex. 23 et 15), montrent les nombres sur le tableau des nombres et disent lequel est le plus grand en justifiant ; introduire les signes <, > et =. Petits groupes : constituer deux tas et les comparer. Individuel : même activité.",
+ cercle:"Tracer des cercles concentriques (unités, dizaines, centaines…) et une ligne de lancer à 2 m. Un élève lance 9 cailloux ; on retire ceux tombés sur les lignes ou dehors, on compte les cailloux de chaque cercle, on écrit le nombre dans le tableau de numération et on le lit. Petits groupes : compétition, le plus grand nombre gagne.",
+ decomp:"Grand groupe : présenter et compter 9 cailloux, puis montrer des groupements (4 et 5 ; 2, 2 et 5). Petits groupes : chercher d’autres groupements. Ensuite, utiliser les mots « ajouter » et « enlever » : enlever 4 cailloux, combien en reste-t-il ? Ajouter 2, combien en tout ?",
+ grands:"Grand groupe : afficher le tableau des grands nombres, lire une tranche en pointant, poser des questions sur la lecture, puis faire lire de différentes manières (de 100 en 100, de 1 000 en 1 000…). Variantes : former un nombre (367 = 300 + 60 + 7) ou reconstituer un nombre décomposé. Petits groupes et individuel avec le tableau A4.",
+ monnaie:"Grand groupe : présenter les pièces et les billets, les faire trier, lire leur valeur, tracer le tableau de la monnaie des enfants et y classer la monnaie. Petits groupes : tracer le tableau et classer. Variante : trouver en billets et pièces un nombre écrit au tableau (ex. 1 545).",
+ // ---- Mathématiques : opérations
+ pb1:"Grand groupe : présenter les bâtonnets, faire deviner puis compter une quantité, la montrer sur le tableau des nombres. Fixer la règle : 10 bâtonnets font un paquet (attaché par un élastique) ; ex. 24 = 2 paquets et 4 bâtonnets. Petits groupes : représenter les nombres écrits au tableau. Individuel : former des paquets et dire combien de paquets et de bâtonnets.",
+ pb2:"Grand groupe : avec 34 bâtonnets, former 3 paquets et 4 bâtonnets, tracer la maison des paquets et des bâtonnets, y placer le matériel et écrire les nombres. Petits groupes puis individuel : même travail avec 18, 22… bâtonnets. Puis expliquer : paquet = dizaine, bâtonnet = unité (valeur de position).",
+ addBat:"Grand groupe : écrire et lire une situation (ex. Sara a 26 ananas, Ali en a 13), poser les 4 questions (informations utiles, ce qu’on demande, opération, pourquoi), représenter chaque nombre dans la maison des paquets et bâtonnets, introduire le signe + et calculer. Avec retenue : 10 bâtonnets forment un paquet. Petits groupes puis individuel : nouvelles situations.",
+ addMon:"Grand groupe : situation (ex. Tapé a 246 F, Sali lui donne 125 F), 4 questions, représenter les montants dans le tableau de la monnaie des enfants (pièces de 100, 10 et 1), introduire le signe + et calculer. Petits groupes puis individuel avec d’autres montants ; passer ensuite au tableau de numération, puis à l’abstrait.",
+ tabAdd:"Grand groupe : afficher la table d’addition et la lire (les élèves écoutent), montrer le résultat au croisement d’une ligne et d’une colonne (1 + 2 = 3), faire lire dans l’ordre, puis dans le désordre. Petits groupes : lecture avec la table A4 ; variante : l’enseignant dit deux nombres, chaque groupe montre la carte de la somme.",
+ sousBat:"Grand groupe : situation (ex. Koré a 29 billes, il en donne 7 à Konan), 4 questions, représenter 29 en paquets et bâtonnets, introduire le signe − et retirer 7 bâtonnets. Avec retenue (ex. 22 − 7) : défaire un paquet en 10 bâtonnets. Petits groupes puis individuel : nouvelles situations.",
+ sousMon:"Grand groupe : situation (ex. Adja a 331 F, elle donne 115 F à Koné), 4 questions, représenter le montant dans le tableau de la monnaie des enfants, introduire le signe − et retirer le montant (échanger une pièce si nécessaire). Petits groupes puis individuel avec d’autres montants.",
+ tabSous:"Grand groupe : afficher la table de soustraction, la lire, montrer le résultat au croisement (10 − 1 = 9), faire lire dans l’ordre décroissant, puis au hasard. Petits groupes : lecture avec la table A4 ; l’enseignant dit deux nombres et chaque groupe montre la carte de la différence.",
+ marche:"Jeu de rôle : un élève commerçant affiche des articles avec leur prix ; un élève client choisit un article (ex. 655 F), va chez l’enseignant-banquier chercher le montant exact (6 pièces de 100, 5 de 10, 5 de 1) et paie. Faire tourner les rôles, puis introduire le rendu de monnaie.",
+ multBat:"Grand groupe : 4 élèves reçoivent chacun 3 bâtonnets ; écrire 3 + 3 + 3 + 3, puis 4 × 3 = 12 (quantité, nombre de tas, produit) ; montrer que 3 × 4 donne aussi 12 et que 4 × 0 = 0. Petits groupes de 5 : même démarche. Individuel : 6 tas de 2 billes dessinés au tableau, écrire le produit.",
+ echMult:"Démonstration de 2 × 3 : tracer 2 lignes verticales et 3 lignes horizontales qui se croisent, compter les points d’intersection (6). Les élèves effectuent ensuite d’autres multiplications de nombres à un chiffre (3 × 4, 5 × 2…) par cette méthode.",
+ tabMult:"Grand groupe : afficher la table, choisir une table (ex. par 2), la lire portion par portion, puis la faire lire par 2 ou 3 élèves. Petits groupes : lecture avec la table A4. Individuel : chacun lit la table. Variantes : écrire sur l’ardoise le produit dicté ; compléter une partie de table au tableau.",
+ divBat:"Former 4 groupes (de 2, 3, 6 et 9 élèves) et donner 18 bâtonnets à chacun ; chaque groupe partage en parts égales. Expliquer que ce partage est une division (18 : 3 = 6) ; vocabulaire : dividende, diviseur, quotient, reste. Prendre aussi un exemple avec reste (18 : 7 = 2, reste 4).",
+ divMon:"L’enseignant partage 63 F entre 3 élèves avec la monnaie des enfants : d’abord les 6 pièces de 10 F, puis les 3 pièces de 1 F ; chacun reçoit 21 F. Passer ensuite à l’écriture de la division sans matériel.",
+ divTab:"Grand groupe : situation (ex. Adja partage 86 F entre 5 amis), 4 questions, construire la table de 5, chercher le multiple de 5 inférieur ou égal à 8 (5), soustraire, abaisser le 6, chercher pour 36 (35) : 86 : 5 = 17, reste 1. Petits groupes : ex. 238 : 7 avec la table. Individuel : une division au tableau.",
+ balle:"En cercle, l’enseignant lance une suite (ex. compter de 2 en 2) ; l’élève qui reçoit la balle donne le nombre suivant ou le résultat de l’opération posée, puis relance. Celui qui se trompe ou ne répond pas sort du cercle. Après la multiplication : 10 min de récitation des tables de 2 à 10.",
+ parts:"Grand groupe : situation (ex. Maman a 30 graines pour 6 paniers), 4 questions, un élève répartit les graines dans les paniers, on compte et on écrit 30 : 6 = 5. Petits groupes : autre situation, partage des graines, un représentant écrit l’opération. Individuel : nouvelle situation.",
+ devine:"Deux paniers de cartes de 1 à 10. Un élève tire une carte dans chaque panier sans les montrer et annonce le produit ; son adversaire doit deviner les deux cartes (1 chance). Petits groupes : compétition, 1 point par bonne réponse. Ne se joue pas en individuel.",
+ avancons:"Aire de jeu : départ, cases 1 à 5, arrivée. Deux élèves jouent à pile ou face pour commencer ; chacun tire une carte de multiplication (ex. 4 × 9), donne le résultat et avance d’une case s’il a juste. Petits groupes : compétition entre représentants.",
+ enigma:"Deux paniers : dividendes (10 à 100) et diviseurs (2 à 10). Un élève tire un nombre dans chaque panier (ex. 86 et 6) et la classe effectue la division. Petits groupes : 2 divisions tirées au sort à résoudre dans un temps donné, puis correction collective.",
+ crack:"Deux élèves ont chacun des cartes de 1 à 9, face cachée. Au signal, ils retournent une carte en même temps ; le premier qui donne le produit juste gagne les deux cartes. On joue jusqu’à ce qu’un joueur ait toutes les cartes. Petits groupes : même jeu. Pas en individuel.",
+ echDiv:"Situation (ex. 9 mangues pour 4 enfants), 4 questions. Tracer 4 lignes verticales (le diviseur), y répartir 9 points un par un, relier horizontalement les points complets : le nombre de lignes horizontales est le quotient (2), les points non reliés sont le reste (1). Petits groupes, puis individuel.",
+ carteMult:"Tracer un cercle et écrire un nombre à l’intérieur (ex. 12). Les élèves cherchent tous les produits égaux à ce nombre (2 × 6, 4 × 3, 1 × 12). Petits groupes : trouver le maximum de produits. Individuel : même travail sur l’ardoise.",
+ fortune:"Deux boîtes : cartes nombres (0 à 100) et monnaie (10, 100, 1 000, 10 000). Un élève tire une carte et un billet et calcule le produit (ex. 17 × 10 000 = 170 000), noté au tableau. Petits groupes : série de tirages, on additionne les produits ; le plus grand total gagne.",
+ // ---- Lecture
+ dial:"En cercle ou en U, l’enseignant raconte une histoire simple et vivante (anniversaire, mariage, fête…), puis anime une discussion : comment était l’histoire ? qu’avez-vous retenu ? y a-t-il des mots non compris ? Il invite ensuite les apprenants à raconter une histoire à leur tour.",
+ desc:"L’enseignant affiche une image d’une scène familière. Les apprenants nomment d’abord ce qu’ils voient, puis décrivent l’image avec des phrases complètes, puis discutent en groupes des thèmes évoqués, jusqu’à l’exposé.",
+ tps:"L’enseignant présente le tableau, lit une partie en pointant (voyelles, consonnes, syllabes), puis fait lire collectivement, en petits groupes et individuellement. Les apprenants combinent ensuite les éléments pour former et lire des syllabes et des mots.",
+ parag:"L’enseignant lit un paragraphe du livret une ou plusieurs fois pendant que les apprenants suivent du doigt, pose des questions sur sa lecture, puis fait lire devant la classe, en groupes et individuellement ; il vérifie la compréhension par des questions.",
+ cmots:"Les apprenants disent des mots (ou l’enseignant lit un paragraphe) ; ils en choisissent un, que l’enseignant écrit et entoure au tableau. Ils proposent des mots en rapport avec ce mot, puis construisent oralement des phrases avec les mots du tableau.",
+ copie:"L’enseignant écrit au tableau (lettres, syllabes, mots, phrases ou paragraphe selon le niveau). Les apprenants recopient, échangent leurs cahiers, le voisin souligne les erreurs, puis on désigne les champions (le moins d’erreurs, le plus d’erreurs repérées).",
+ dictee:"L’enseignant dicte (lettres, syllabes, mots, phrases ou paragraphe selon le niveau). Les apprenants écrivent, corrigent la copie du voisin, puis on désigne les champions.",
+ panierL:"En chantant, les apprenants se passent un panier de cartes (lettres, syllabes ou mots). Au signal, celui qui tient le panier tire une carte et la lit. Ensuite, écrire les mots trouvés au tableau et retrouver leurs syllabes sur le tableau phonético-syllabique.",
+ sauterL:"L’enseignant écrit 6 ou 9 lettres ou syllabes au sol dans un carré ou un rectangle. Par équipes, les apprenants sautent sur la lettre ou la syllabe prononcée à voix haute.",
+ carteL:"L’enseignant montre des cartes de lettres ou de syllabes sans les lire et les pose à l’envers au sol, puis montre l’une d’elles sur le tableau phonético-syllabique. Un apprenant doit retrouver la carte, la retourner et la lire devant ses camarades.",
+ bingoL:"L’enseignant écrit 6 ou 9 lettres ou syllabes au tableau ; chaque apprenant en écrit 3 ou 4 sur son ardoise. L’enseignant les dit une à une ; les apprenants entourent celles qu’ils ont. Le premier qui a tout entouré crie « Bingo ! ».",
+ compet:"Avec les cartes de consonnes et de voyelles, les équipes construisent le plus grand nombre possible de mots qui ont un sens, puis les lisent à la classe.",
+ rimes:"L’enseignant écrit au tableau des mots qui riment, avec des lettres manquantes ; les apprenants viennent compléter. Progressivement, il n’écrit que la première lettre et les apprenants complètent le reste.",
+ chaine:"Par équipes, le plus vite possible : une équipe dit un mot, la suivante doit dire un mot qui commence par le dernier son du mot précédent. Ensuite à l’écrit : la dernière lettre devient la première du mot suivant.",
+ corriger:"L’enseignant écrit au tableau des phrases contenant des fautes de grammaire, d’orthographe ou de conjugaison. Les apprenants repèrent les erreurs, les corrigent et réécrivent correctement les phrases.",
+ histor:"Par groupes, chaque apprenant donne une phrase liée aux précédentes pour créer une historiette ; le chef de groupe la lit à la classe, puis discussion. En individuel, chacun écrit une historiette en suivant les consignes.",
+ triangle:"Rappel de la structure de la phrase (sujet, verbe, complément) aux sommets d’un triangle. À partir du thème écrit dans le triangle, produire une phrase en grand groupe, puis au moins 3 phrases par groupe, écrites au tableau et corrigées.",
+ titre:"Livrets fermés, l’enseignant écrit et lit le titre d’un texte et demande : « À partir de ce titre, de quoi peut-il s’agir ? ». Les apprenants émettent des hypothèses, notées au tableau, puis vérifiées à la lecture.",
+ lexique:"Lecture individuelle du texte par le maximum d’apprenants pendant que les autres suivent du doigt. Puis, en petits groupes, les groupes se posent à tour de rôle des questions sur le texte et son vocabulaire (tableau de points).",
+ analyse:"L’enseignant lit le texte, le fait lire par 1 ou 2 apprenants et pose une première série de questions à l’oral ; puis, en petits groupes, les apprenants répondent par écrit à une seconde série de questions.",
+ cracks:"L’enseignant met dans un panier 6 à 8 phrases tirées d’un texte. Un apprenant tire une phrase, la lit à voix haute, puis répond à 2 ou 3 questions de langue (orthographe, grammaire, conjugaison).",
+ recons:"Les apprenants reconstituent un texte déjà étudié dont des mots ou des phrases ont été supprimés, en grand groupe puis en petits groupes.",
+ prod:"L’enseignant relit l’histoire des séances précédentes, fait rappeler les éléments d’un récit (écrits au tableau), puis demande de produire une histoire sur un thème et de la lire."
+};
+const RESUME_AUTO={
+ math:"Le groupe travaille seul. L’enseignant explique la consigne et écrit les exercices au tableau ; les apprenants les font dans leur cahier ou sur l’ardoise. En fin de séance, autocorrection collective : échange des cahiers, correction au tableau, chacun souligne les fautes de son voisin, contrôle par l’enseignant, puis chacun corrige ses fautes.",
+ lect_g1:"Production écrite : les apprenants recopient, puis écrivent seuls les lettres, syllabes ou mots travaillés la veille. En fin de séance : autocorrection collective (échange des cahiers, soulignement des fautes, contrôle par l’enseignant, correction individuelle).",
+ lect_g2:"Exercice écrit de consolidation sur l’objectif de la veille : questions sur le texte lu, phrases à compléter ou à corriger. En fin de séance : autocorrection collective (échange des cahiers, soulignement des fautes, contrôle par l’enseignant, correction individuelle)."
+};
+
+/* =====================================================================
+   EXERCICES D'AUTONOMIE (mathématiques) – type d'exercice par séance
+   ===================================================================== */
+const PRE_EX={L1:'read20',L2:'read99',L3:'sub33a'};
+
+function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function hashStr(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+const NAMES=[['Koffi','il'],['Awa','elle'],['Yao','il'],['Aya','elle'],['Moussa','il'],['Adjoua','elle'],['Konan','il'],['Fatou','elle'],['Kouadio','il'],['Mariam','elle'],['Tapé','il'],['Sali','elle']];
+const OBJS=['mangues','oranges','billes','cahiers','bonbons','crayons','œufs','arachides'];
+const fmt=n=>n.toLocaleString('fr-FR').replace(/ | /g,' ');
+
+function genExo(type,seed,depth){depth=depth||0;
+  const R=rng(seed),ri=(a,b)=>a+Math.floor(R()*(b-a+1)),pk=arr=>arr[Math.floor(R()*arr.length)];
+  const items=[];let fam='add',money=false,pnum=null;
+  // nombres d'une addition / soustraction selon les contraintes
+  const two=(t)=>{
+    let a,b;
+    switch(t){
+      case 'add11':a=ri(2,9);b=ri(1,9);break;
+      case 'add21s':{const u=ri(0,7);a=ri(1,8)*10+u;b=ri(1,9-u);break}
+      case 'add22s':{const t1=ri(1,7),t2=ri(1,8-t1),u1=ri(0,8),u2=ri(0,9-u1);a=t1*10+u1;b=t2*10+u2;break}
+      case 'add21a':{const u=ri(2,9);a=ri(1,8)*10+u;b=ri(10-u,9);break}
+      case 'add22a':{const u1=ri(2,9),u2=ri(10-u1,9),t1=ri(1,6),t2=ri(1,8-t1);a=t1*10+u1;b=t2*10+u2;break}
+      case 'add33s':{const h1=ri(1,4),h2=ri(1,9-h1-1),t1=ri(0,8),t2=ri(0,9-t1),u1=ri(0,8),u2=ri(0,9-u1);a=h1*100+t1*10+u1;b=h2*100+t2*10+u2;break}
+      case 'add33a':{const h1=ri(1,4),h2=ri(1,8-h1),t1=ri(0,7),t2=ri(0,8-t1),u1=ri(2,9),u2=ri(10-u1,9);a=h1*100+t1*10+u1;b=h2*100+t2*10+u2;break}
+      case 'sub11':a=ri(3,9);b=ri(1,a-1);break;
+      case 'sub21s':{const u=ri(2,9);a=ri(1,9)*10+u;b=ri(1,u);break}
+      case 'sub22s':{const t1=ri(2,9),t2=ri(1,t1-1),u1=ri(1,9),u2=ri(0,u1);a=t1*10+u1;b=t2*10+u2;break}
+      case 'sub21a':{const u=ri(0,7);a=ri(1,9)*10+u;b=ri(u+1,9);break}
+      case 'sub22a':{const t1=ri(3,9),t2=ri(1,t1-2),u1=ri(0,7),u2=ri(u1+1,9);a=t1*10+u1;b=t2*10+u2;break}
+      case 'sub33s':{const h1=ri(3,9),h2=ri(1,h1-1),t1=ri(1,9),t2=ri(0,t1),u1=ri(1,9),u2=ri(0,u1);a=h1*100+t1*10+u1;b=h2*100+t2*10+u2;break}
+      case 'sub33a':{const h1=ri(3,9),h2=ri(1,h1-1),t1=ri(2,9),t2=ri(0,t1-1),u1=ri(0,7),u2=ri(u1+1,9);a=h1*100+t1*10+u1;b=h2*100+t2*10+u2;break}
+    }
+    return [a,b];
+  };
+  if(/^add/.test(type)){fam='add';money=/33/.test(type);
+    for(let i=0;i<4;i++){const [a,b]=two(type);items.push({q:`${fmt(a)} + ${fmt(b)} = …`,r:fmt(a+b)});if(i===0)pnum=two(type)}}
+  else if(/^sub/.test(type)){fam='sub';money=/33/.test(type);
+    for(let i=0;i<4;i++){const [a,b]=two(type);items.push({q:`${fmt(a)} − ${fmt(b)} = …`,r:fmt(a-b)});if(i===0)pnum=two(type)}}
+  else if(type==='pbCount'||type==='pv'){fam='num';
+    for(let i=0;i<4;i++){const d=ri(1,9),u=ri(0,9),n=d*10+u;
+      if(i%2===0)items.push({q:`Écris le nombre formé par ${d} paquet${d>1?'s':''} et ${u} bâtonnet${u>1?'s':''} : …`,r:String(n)});
+      else items.push({q:`Dans le nombre ${n}, combien y a-t-il de dizaines ? Combien d’unités ?`,r:`${d} dizaine${d>1?'s':''} et ${u} unité${u>1?'s':''}`})}
+    pnum=[ri(2,8),ri(1,9)]}
+  else if(type==='read20'||type==='read99'){fam='num';const M=type==='read20'?19:98;
+    for(let i=0;i<3;i++){const n=ri(1,M);if(i===0)items.push({q:`Écris le nombre qui vient juste après ${n} : …`,r:String(n+1)});
+      else if(i===1)items.push({q:`Écris le nombre qui vient juste avant ${n} : …`,r:String(n-1)});
+      else{let a=ri(1,M+1),b=ri(1,M+1);items.push({q:`Compare avec <, > ou = : ${a} … ${b}`,r:a<b?'<':a>b?'>':'='})}}
+    const arr=[];while(arr.length<4){const n=ri(0,M+1);if(!arr.includes(n))arr.push(n)}
+    items.push({q:`Range du plus petit au plus grand : ${arr.join(' ; ')}`,r:[...arr].sort((x,y)=>x-y).join(' < ')});
+    pnum=type==='read20'?[1,ri(1,9)]:[ri(2,8),ri(1,9)]}
+  else if(type==='multRep'){fam='mult';
+    for(let i=0;i<4;i++){const k=ri(2,9),n=ri(2,5);items.push({q:`Écris sous forme de produit puis calcule : ${Array(n).fill(k).join(' + ')} = … × … = …`,r:`${n} × ${k} = ${n*k}`})}
+    pnum=[ri(2,6),ri(2,9)]}
+  else if(type==='mult11'){fam='mult';for(let i=0;i<4;i++){const a=ri(3,9),b=ri(2,9);items.push({q:`${a} × ${b} = …`,r:String(a*b)})}pnum=[ri(2,9),ri(2,9)]}
+  else if(type==='tab'){fam='mult';const t=ri(2,9);const used=[];
+    for(let i=0;i<4;i++){let b;do{b=ri(1,10)}while(used.includes(b));used.push(b);items.push({q:`${t} × ${b} = …`,r:String(t*b)})}pnum=[ri(3,9),t]}
+  else if(type==='mult10'){fam='mult10';for(let i=0;i<4;i++){const n=ri(2,99),m=pk([10,100,1000,10000]);items.push({q:`${n} × ${fmt(m)} = …`,r:fmt(n*m)})}pnum=[ri(2,25),pk([100,1000,10000])]}
+  else if(type==='facteurs'){fam='mult';const pool=[12,16,18,20,24,30,36,40];const used=[];
+    for(let i=0;i<4;i++){let n;do{n=pk(pool)}while(used.includes(n));used.push(n);
+      const f=[];for(let x=1;x*x<=n;x++)if(n%x===0)f.push(`${x} × ${n/x}`);items.push({q:`Trouve tous les produits égaux à ${n} : …`,r:f.join(' ; ')})}
+    pnum=[ri(3,6),ri(4,9)]}
+  else if(type==='divPart'){fam='div';for(let i=0;i<4;i++){const d=ri(2,9),q=ri(2,9);items.push({q:`${d*q} : ${d} = …`,r:String(q)})}
+    {const d=ri(2,6),q=ri(3,9);pnum=[d*q,d]}}
+  else if(type==='div21'||type==='div31'){fam='div';
+    for(let i=0;i<4;i++){const d=ri(2,9),n=type==='div21'?ri(20,99):ri(100,999);const q=Math.floor(n/d),r=n%d;items.push({q:`${fmt(n)} : ${d} = …`,r:`${fmt(q)}${r?`, reste ${r}`:', reste 0'}`})}
+    {const d=ri(3,8),n=type==='div21'?ri(25,99):ri(100,500);pnum=[n,d]}}
+  // ---- situation problème
+  const de=w=>/^[aeiouéœ]/i.test(w)?'d’'+w:'de '+w;
+  const [A,il]=pk(NAMES);let B;do{B=pk(NAMES)}while(B[0]===A);const o=pk(OBJS);const Il=il[0].toUpperCase()+il.slice(1);
+  let pb;const [x,y]=pnum;
+  if(fam==='add'){pb=money?{q:`${A} a ${fmt(x)} francs. ${B[0]} lui donne ${fmt(y)} francs. Combien de francs ${A} a-t-${il} maintenant ?`,r:`${fmt(x)} + ${fmt(y)} = ${fmt(x+y)} ; ${A} a ${fmt(x+y)} francs.`}
+    :{q:`${A} a ${x} ${o}. ${B[0]} lui en donne ${y}. Combien ${de(o)} ${A} a-t-${il} en tout ?`,r:`${x} + ${y} = ${x+y} ; ${A} a ${x+y} ${o}.`}}
+  else if(fam==='sub'){pb=money?{q:`${A} a ${fmt(x)} francs. ${Il} dépense ${fmt(y)} francs au marché. Combien de francs lui reste-t-il ?`,r:`${fmt(x)} − ${fmt(y)} = ${fmt(x-y)} ; il lui reste ${fmt(x-y)} francs.`}
+    :{q:`${A} a ${x} ${o}. ${Il} en donne ${y} à ${B[0]}. Combien ${de(o)} reste-t-il à ${A} ?`,r:`${x} − ${y} = ${x-y} ; il lui reste ${x-y} ${o}.`}}
+  else if(fam==='num'){pb={q:`${A} a ${x} paquet${x>1?'s':''} de 10 bâtonnets et ${y} bâtonnet${y>1?'s':''}. Combien de bâtonnets a-t-${il} en tout ?`,r:`${x} dizaine${x>1?'s':''} et ${y} unité${y>1?'s':''} : ${x*10+y} bâtonnets.`}}
+  else if(fam==='mult'){pb={q:`${A} range des ${o} dans ${x} sacs. Chaque sac contient ${y} ${o}. Combien ${de(o)} y a-t-il en tout ?`,r:`${x} × ${y} = ${x*y} ; il y a ${x*y} ${o}.`}}
+  else if(fam==='mult10'){pb={q:`${A} a ${x} billets de ${fmt(y)} francs. Combien d’argent a-t-${il} ?`,r:`${x} × ${fmt(y)} = ${fmt(x*y)} ; ${il} a ${fmt(x*y)} francs.`}}
+  else if(fam==='div'){const q=Math.floor(x/y),r=x%y;pb={q:`${A} partage ${x} ${o} en parts égales entre ${y} enfants. Combien chaque enfant reçoit-il ? Combien en reste-t-il ?`,r:`${x} : ${y} = ${q}, reste ${r} ; chaque enfant reçoit ${q} ${o}${r?` et il en reste ${r}`:', il n’en reste aucun'}.`}}
+  if(new Set(items.map(i=>i.q)).size<items.length&&depth<10)return genExo(type,seed+1013,depth+1);
+  return {items,pb};
+}
+function exoHTML(ex,inline){
+  if(!ex)return '';
+  const li=ex.items.map((it,i)=>`<li>${esc(it.q)}</li>`).join('');
+  const cor=ex.items.map((it,i)=>`${i+1}) ${esc(it.r)}`).join(' ; ')+` ; situation : ${esc(ex.pb.r)}`;
+  if(inline)return `<ol style="margin:4px 0 4px 18px;padding:0">${li}<li><b>Situation problème :</b> ${esc(ex.pb.q)}</li></ol><div style="font-size:9.5pt;color:#444"><i>Corrigé : ${cor}</i></div>`;
+  return `<ol class="exo">${li}<li><b>Situation problème :</b> ${esc(ex.pb.q)}</li></ol><div class="cor"><b>Corrigé :</b> ${cor}</div>`;
+}
+
+const DAYS=[{k:'lun',n:'Lundi',o:0},{k:'mar',n:'Mardi',o:1},{k:'mer',n:'Mercredi',o:2},{k:'jeu',n:'Jeudi',o:3},{k:'ven',n:'Vendredi',o:4}];
+
+/* =====================================================================
+   ÉTAT
+   ===================================================================== */
+const KEY='plan-session-hetero-v2';
+function blankOv(){return {act:'',obj:'',obs:'',seed:0}}
+function discState(dk){
+  const D=DISC[dk];const lv={};D.LV.forEach(x=>lv[x.k]={on:false,eff:''});
+  if(dk==='math'){lv.C1.on=lv.C2.on=lv.SOU.on=lv.DIV.on=true}else{lv.LET.on=lv.MOT.on=lv.PAR.on=lv.HIS.on=true}
+  const days={};DAYS.forEach(d=>days[d.k]={active:'g1',ov:{common:blankOv(),g1:blankOv(),g2:blankOv()}});
+  return {levels:lv,step:{g1:0,g2:0},first:D.first,days};
+}
+function defaults(){return {progs:[],abs:{},eleves:[],drena:'',iepp:'',directeur:'',annee:'',aser:'Début d\u2019année',ecole:'',classe:'',enseignant:'',semaine:'1',lundi:nextMonday(),mer:'0',tab:'math',math:discState('math'),lect:discState('lect')}}
+function nextMonday(){const t=new Date();const day=t.getDay();const add=day===1?0:((8-day)%7);t.setDate(t.getDate()+add);return t.toISOString().slice(0,10)}
+const KEYC='plan-session-classes-v1';
+const newId=()=>'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+let STORE=null;try{STORE=JSON.parse(localStorage.getItem(KEYC))}catch(e){STORE=null}
+if(!STORE||typeof STORE.list!=='object'){STORE={current:null,list:{}};
+  let old=null;try{old=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  if(old&&old.math&&old.lect){old.classId=newId();STORE.list[old.classId]=old;STORE.current=old.classId}}
+let S=STORE.current?STORE.list[STORE.current]:null;
+let FRESH=false;if(!S||!S.math||!S.lect){S=defaults();FRESH=true}
+if(!S.classId)S.classId=newId();
+function persist(){S.updatedAt=Date.now();STORE.list[S.classId]=S;STORE.current=S.classId;try{localStorage.setItem(KEYC,JSON.stringify(STORE))}catch(e){}}
+
+/* =====================================================================
+   OUTILS
+   ===================================================================== */
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pick=(x,l)=>(x&&typeof x==='object'&&!Array.isArray(x))?(x[l]||Object.values(x)[0]):x;
+const cur=()=>S.tab;
+function listOf(dk,g){const D=DISC[dk],st=S[dk];const f=D.LV.find(x=>x.g===g&&st.levels[x.k].on);return f?f.l:null}
+function lowestName(dk,g){const D=DISC[dk],st=S[dk];const f=D.LV.find(x=>(!g||x.g===g)&&st.levels[x.k].on);return f?f.n:''}
+function groupComp(dk,g){const D=DISC[dk],st=S[dk];return D.LV.filter(x=>x.g===g&&st.levels[x.k].on).map(x=>x.n).join(' / ')}
+function groupEff(dk,g){const D=DISC[dk],st=S[dk];return D.LV.filter(x=>x.g===g&&st.levels[x.k].on).reduce((s,x)=>s+(parseInt(st.levels[x.k].eff)||0),0)}
+function activeDays(){return DAYS.filter(d=>S.mer==='1'||d.k!=='mer')}
+function dateOf(o){if(!S.lundi)return '';const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+o);return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})}
+function weekNo(){return Math.max(1,parseInt(S.semaine)||1)}
+function stepsOf(dk,g){const l=listOf(dk,g);return l?DISC[dk].steps[l]:[]}
+function stepIdx(dk,g){const n=stepsOf(dk,g).length;return Math.min(Math.max(0,S[dk].step[g]||0),Math.max(0,n-1))}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2400)}
+function applyAlternation(dk){let c=S[dk].first;activeDays().forEach(d=>{S[dk].days[d.k].active=c;c=c==='g1'?'g2':'g1'})}
+
+/* =====================================================================
+   CALCUL DU PLAN (cœur de la génération automatique)
+   ===================================================================== */
+function useTranche(dk,l,id){return dk==='math'&&(l==='L1'||l==='L2')&&!['grands','monnaie','decomp'].includes(id)}
+function trObj(o,tr){const [x,y]=tr.split(' à ');
+  if(/0 à 99/.test(o))return o.replace('0 à 99',tr);
+  if(/entre 0 et 99/.test(o))return o.replace('entre 0 et 99',`entre ${x} et ${y}`);
+  if(/nombres$/.test(o))return o+' de '+tr;
+  return o+` (nombres de ${tr})`}
+
+/* =====================================================================
+   VARIATION COHÉRENTE DES ACTIVITÉS
+   Une activité n'est remplacée que par une activité de la même famille :
+   même opération (ou même compétence de lecture), même type de travail
+   (manipulation / calcul mental et tables) et autorisée pour le niveau.
+   ===================================================================== */
+const VAR_FAM={
+ math:{Addition:{manip:['addBat','addMon','marche'],mental:['tabAdd','balle']},
+       Soustraction:{manip:['sousBat','sousMon','marche'],mental:['tabSous','balle']},
+       Multiplication:{manip:['multBat','echMult'],mental:['tabMult','balle','avancons','crack','devine','carteMult','fortune']},
+       Division:{manip:['divBat','parts','divMon','echDiv'],mental:['divTab','enigma']}},
+ lect:{_:{jeux:['sauterL','panierL','carteL','bingoL'],mots:['compet','chaine','rimes','cmots'],phrases:['cmots','triangle','corriger'],ecrit:['dictee','copie'],texte:['lexique','cracks'],analyse:['analyse','recons']}}
+};
+function variantOf(dk,op,id,l,k){
+  if(!k)return id;const fams=dk==='math'?(VAR_FAM.math[op]||{}):VAR_FAM.lect._;
+  const A=DISC[dk].A;
+  for(const f of Object.values(fams)){if(!f.includes(id))continue;const ok=f.filter(x=>A[x]&&A[x].g&&A[x].L.includes(l));
+    if(ok.length<2)return id;return ok[(ok.indexOf(id)+k)%ok.length]}
+  return id;
+}
+const stripMat=o=>o.replace(/ avec les bâtonnets| avec la monnaie des enfants| par la méthode de l’échelle| dans la table d’addition| dans la table de soustraction| avec la table de multiplication| tirées au panier| tirés au panier| à partir de cartes lettres/g,'');
+function compute(dk){
+  const D=DISC[dk],st=S[dk],A=D.A;
+  const g1L=listOf(dk,'g1'),g2L=listOf(dk,'g2'),classL=g1L||g2L,both=!!(g1L&&g2L);
+  const ad=activeDays(),wk=weekNo();
+  const steps={};
+  ['g1','g2'].forEach(g=>{const l=listOf(dk,g);if(!l)return;const i=stepIdx(dk,g);const arr=D.steps[l];
+    steps[g]={list:l,idx:i,step:arr[i],mastered:i>0?arr[i-1].sem:D.prereq[l],arr}});
+  const teach={g1:0,g2:0},last={g1:null,g2:null};
+  // nombre de séances avec l'enseignant de chaque groupe dans la semaine : la dernière porte l'objectif de la semaine
+  const nTeach={g1:0,g2:0};ad.forEach(d=>{const act=both?st.days[d.k].active:(g1L?'g1':'g2');nTeach[act]++});
+  const out=[];
+  ad.forEach((d,j)=>{
+    const day=st.days[d.k];const rows=[];
+    const active=both?day.active:(g1L?'g1':'g2');
+    // ---- activité commune
+    if(classL){
+      let id;
+      if(dk==='math'){
+        const rc=(steps.g1&&steps.g1.step.rc)||null;
+        const seq=rc||MATH_COMMON_DEFAULT[classL];
+        const vo=(st.vary&&(st.vary.g1||st.vary.g2))||0;
+        id=rc?seq[(j+vo)%seq.length]:seq[(j+wk-1+vo)%seq.length];
+      }else{
+        id=wk<=2?(j%2?'desc':'dial'):(['desc','desc','dial','desc','desc'][j]||'desc');
+      }
+      const ov=day.ov.common;
+      if(ov.act&&A[ov.act]&&A[ov.act].c&&A[ov.act].L.includes(classL))id=ov.act;
+      const a=A[id];const os=pick(a.o,classL);
+      let autoObj=dk==='lect'?os[(j+wk-1)%os.length]:os[0];
+      let tr='',note=a.nt&&a.nt[classL]?`Niveau ${lowestName(dk)} : ${a.nt[classL]}`:'';
+      if(useTranche(dk,classL,id)){tr=ov.tr||st.tranche||TRANCHES[0];autoObj=trObj(os.find(o=>/nombre/i.test(o))||os[0],tr);note=`Tranche de nombres étudiée : ${tr} (niveau de référence : ${lowestName(dk)}).`}
+      rows.push({slot:'common',lab:both?'Les 2 groupes de niveau':'Tout le groupe',a,actLabel:a.n,obj:ov.obj||autoObj,autoObj,tr,
+        mat:pick(a.m,classL),sp:a.sp.join(' '),dur:'15 min',note,
+        mode:null,ovAct:ov.act&&ov.act===id,ovObj:!!ov.obj,list:classL,obs:ov.obs,res:RESUME[id]||''});
+    }
+    // ---- groupes
+    ['g1','g2'].forEach(g=>{
+      const sg=steps[g];if(!sg)return;
+      const ov=day.ov[g];const l=sg.list;
+      if(active===g){
+        const si=Math.min(teach[g],sg.step.s.length-1);const ses=sg.step.s[si];teach[g]++;
+        const isLast=teach[g]===nTeach[g];
+        const xt=dk==='math'?(isLast&&sg.step.ex?sg.step.ex:ses[3]):null;
+        const vk=(st.vary&&st.vary[g])||0;const vid=variantOf(dk,sg.step.op,ses[0],l,vk);
+        let a=A[vid],obj=isLast?sg.step.sem:(vid===ses[0]?ses[1]:stripMat(ses[1])),v=a.v?(ses[2]||''):'';
+        let manual=false;
+        if(ov.act&&A[ov.act]&&A[ov.act].g&&A[ov.act].L.includes(l)&&ov.act!==vid){a=A[ov.act];obj=pick(a.o,l)[0];v='';manual=true}
+        const autoObj=obj;obj=ov.obj||obj;
+        last[g]={obj,j,x:xt};
+        rows.push({slot:g,lab:groupComp(dk,g),a,actLabel:a.n+(a.v&&v?` (${v} retenue)`:''),obj,autoObj,mat:pick(a.m,l),
+          sp:a.sp.join(' '),dur:'30 min',note:a.nt&&a.nt[l]?`Niveau ${lowestName(dk,g)} : ${a.nt[l]}`:'',
+          mode:both?'teach':null,ovAct:manual,ovObj:!!ov.obj,list:l,obs:ov.obs,res:RESUME[a.id]||''});
+      }else{
+        let kind,src;
+        let xt=null;
+        if(last[g]&&last[g].j===j-1){kind='veille';src=last[g].obj;xt=last[g].x}
+        else if(last[g]){kind='semaine';src=last[g].obj;xt=last[g].x}
+        else{kind='maitrise';src=sg.mastered;xt=dk==='math'?(sg.idx>0?sg.arr[sg.idx-1].ex:PRE_EX[l]):null}
+        const exo=(dk==='math'&&xt)?genExo(xt,hashStr([wk,d.k,g,xt,ov.seed||0].join('|'))):null;
+        const lbl={veille:'objectif de la veille',semaine:'objectif déjà travaillé cette semaine',maitrise:'objectif déjà maîtrisé'}[kind];
+        const AU=D.auto[g];
+        let actLabel=`${AU.n} : ${lbl}`,mat=AU.m,sp='TI',a=null,manual=false;
+        if(ov.act&&A[ov.act]&&A[ov.act].g&&A[ov.act].L.includes(l)){a=A[ov.act];actLabel=a.n+' (en autonomie)';mat=pick(a.m,l);sp=a.ni?'TG':'TI';manual=true}
+        rows.push({slot:g,lab:groupComp(dk,g),a,actLabel,obj:ov.obj||src,autoObj:src,mat,sp,dur:'30 min',
+          note:kind==='maitrise'?'Rappel d’un objectif déjà acquis : aucun objectif n’a encore été travaillé avec l’enseignant cette semaine.':'',
+          mode:'auto',kind,ovAct:manual,ovObj:!!ov.obj,list:l,obs:ov.obs,exo,
+          res:manual?(RESUME[a.id]||''):(dk==='math'?RESUME_AUTO.math:RESUME_AUTO['lect_'+g])});
+      }
+    });
+    out.push({d,rows,active});
+  });
+  return {days:out,steps,g1L,g2L,classL,both};
+}
+
+/* =====================================================================
+   RENDU : NIVEAUX
+   ===================================================================== */
+function renderLevels(){
+  const dk=cur(),D=DISC[dk],st=S[dk];
+  const part=g=>{
+    const l=listOf(dk,g);
+    return `<div class="grp ${g}"><h3>${D.G[g]}</h3>
+    ${D.LV.filter(x=>x.g===g).map(x=>`<div class="lvl"><input type="checkbox" id="lv_${x.k}" data-lv="${x.k}" ${st.levels[x.k].on?'checked':''} ${S.eleves.length?'disabled':''}>
+      <label class="nm" for="lv_${x.k}">${x.n}</label>
+      <input type="number" min="0" placeholder="Effectif" data-eff="${x.k}" value="${esc(st.levels[x.k].eff)}" ${st.levels[x.k].on&&!S.eleves.length?'':'disabled'} aria-label="Effectif ${x.n}"></div>`).join('')}
+    <div class="lowest">${l?`Niveau le plus faible : <b>${lowestName(dk,g)}</b>. Activités du niveau <span class="badge">${D.LN[l]}</span>`:'<i>Aucun niveau coché.</i>'}</div></div>`;
+  };
+  document.getElementById('levels').innerHTML=part('g1')+part('g2');
+  const msgs=[];
+  if(S.eleves.length)msgs.push('Niveaux et effectifs calculés automatiquement à partir de la liste des apprenants (section 2).');
+  if(!listOf(dk,'g1')&&!listOf(dk,'g2'))msgs.push('Cochez au moins un niveau.');
+  else if(!(listOf(dk,'g1')&&listOf(dk,'g2')))msgs.push('Un seul grand groupe est présent : la classe est homogène pour cette discipline. Le plan reste généré, sans alternance.');
+  document.getElementById('lvlNotice').innerHTML=msgs.map(esc).join('<br>');
+}
+
+/* =====================================================================
+   RENDU : PROGRESSION
+   ===================================================================== */
+function renderProgress(){
+  const dk=cur(),D=DISC[dk];
+  const part=g=>{
+    const l=listOf(dk,g);if(!l)return `<div class="grp ${g}"><h3>${D.G[g]}</h3><i>Aucun niveau coché.</i></div>`;
+    const arr=D.steps[l],i=stepIdx(dk,g),c=arr[i],months=D.plan[l];
+    const weeks=arr.map((s,k)=>({s,k})).filter(x=>x.s.m===c.m);
+    const nT=activeDays().filter((d,j)=>{const both=listOf(dk,'g1')&&listOf(dk,'g2');return !both||S[dk].days[d.k].active===g}).length;
+    return `<div class="grp ${g}"><h3>${D.G[g]}</h3>
+      <label class="f lbl1">① Objectif du mois
+        <select data-month="${g}">${months.map((M,m)=>`<option value="${m}" ${m===c.m?'selected':''}>${esc(M.mois)}</option>`).join('')}</select></label>
+      <div class="lbl1">② Objectifs de la semaine qui mènent à l’objectif du mois <small>(cliquez sur la semaine en cours)</small></div>
+      <ol class="prog">${weeks.map(({s,k},n)=>`<li><button data-step="${g}.${k}" class="${k<i?'done':''} ${k===i?'cur':''}"><span class="n">Semaine ${n+1}/${weeks.length}<br>${k<i?'✓ atteint':k===i?'▶ en cours':'à venir'}</span><span>${esc(s.sem)}${s.w===s.nw-1?' <small style="color:var(--g2);font-weight:700">(= objectif du mois)</small>':''}</span></button></li>`).join('')}</ol>
+      <div class="lbl1">③ Objectifs du jour qui mènent à l’objectif de la semaine</div>
+      <ol class="daily">${c.s.map((x,n)=>{const vid=variantOf(dk,c.op,x[0],l,(S[dk].vary&&S[dk].vary[g])||0);const last=n===nT-1;return `<li class="${n<nT?'':'muted'} ${last?'lastses':''}"><b>Séance ${n+1}${last?' (dernière de la semaine)':''}</b> · ${esc(last?c.sem:(vid===x[0]?x[1]:stripMat(x[1])))} <small>(${esc(D.A[vid].n)})</small>${last?' <small>= objectif de la semaine</small>':''}${n>=nT?' <small>– séance de consolidation si le groupe a une 3<sup>e</sup> séance</small>':''}</li>`}).join('')}</ol>
+      <div class="toolbar" style="margin:8px 0 0"><button data-vary="${g}">🔀 Varier les activités (même objectif)</button>${(S[dk].vary&&S[dk].vary[g])?`<small style="color:var(--muted)">Variante n° ${S[dk].vary[g]+1}</small>`:''}</div>
+    </div>`;
+  };
+  document.getElementById('progress').innerHTML=part('g1')+part('g2');
+}
+
+/* =====================================================================
+   RENDU : JOURS
+   ===================================================================== */
+function renderDays(){
+  const dk=cur(),D=DISC[dk],st=S[dk],C=compute(dk);
+  document.getElementById('dayHint').textContent=D.hint;
+  document.getElementById('firstSel').value=st.first;
+  {const C0=listOf(dk,'g1')||listOf(dk,'g2');const w=document.getElementById('trWrap');w.style.display=(dk==='math'&&(C0==='L1'||C0==='L2'))?'flex':'none';
+   document.getElementById('trSel').innerHTML=TRANCHES.map(t=>`<option ${ (st.tranche||TRANCHES[0])===t?'selected':''}>${t}</option>`).join('')}
+  document.getElementById('days').innerHTML=C.days.map(({d,rows})=>`<div class="day"><div class="dh">${d.n} <small>${dateOf(d.o)}</small></div>
+   ${rows.map(r=>{
+     const isC=r.slot==='common';
+     const who=isC?`Les 2 groupes<small>Activité commune · 15 min<br>Référence : ${esc(lowestName(dk))}</small>`
+       :`${r.slot==='g1'?'Groupe 1':'Groupe 2'}<small>${esc(r.lab)} · 30 min</small>`+
+        (C.both?`<div class="mode"><button data-mode="${d.k}.${r.slot}" class="${r.mode==='teach'?'on act':''}">Avec l'enseignant</button><button data-mode="${d.k}.${r.slot}.aut" class="${r.mode==='auto'?'on aut':''}">Autonomie</button></div>`:'');
+     const opts=D.acts.filter(a=>(isC?a.c:a.g)&&a.L.includes(r.list));
+     const ov=st.days[d.k].ov[r.slot];
+     return `<div class="slot ${isC?'c':r.slot}"><div class="who">${who}</div><div class="res">
+       <b>${esc(r.actLabel)}</b>${r.ovAct?'<span class="src man">modifié</span>':'<span class="src">automatique</span>'}
+       <div class="ob">Objectif : ${esc(r.obj)}${r.ovObj?' <span class="src man">modifié</span>':''}</div>
+       ${r.note?`<div class="nt">${esc(r.note)}</div>`:''}
+       ${r.res?`<div class="rs"><b>Déroulement :</b> ${esc(r.res)}</div>`:''}
+       ${r.exo?`<div class="exwrap"><div class="exh"><b>Exercices proposés pour l’autonomie</b><button data-reroll="${d.k}.${r.slot}">↻ Autres exercices</button></div>${exoHTML(r.exo)}</div>`:''}
+       <details><summary>Modifier</summary><div class="fields">
+         ${r.tr?`<label class="f">Tranche de nombres<select data-ov="${d.k}.common.tr"><option value="">Tranche de la semaine</option>${TRANCHES.map(t=>`<option ${ov.tr===t?'selected':''}>${t}</option>`).join('')}</select></label>`:''}
+         <label class="f">Activité<select data-ov="${d.k}.${r.slot}.act"><option value="">Automatique</option>${opts.map(a=>`<option value="${a.id}" ${ov.act===a.id?'selected':''}>${esc(a.n)}</option>`).join('')}</select></label>
+         <label class="f">Objectif<input data-ov="${d.k}.${r.slot}.obj" value="${esc(ov.obj)}" placeholder="${esc(r.autoObj)}"></label>
+         <label class="f full">Observation<input data-ov="${d.k}.${r.slot}.obs" value="${esc(ov.obs)}" placeholder="facultatif"></label>
+       </div></details></div></div>`;
+   }).join('')}</div>`).join('');
+}
+
+/* =====================================================================
+   PLAN (tableau du canevas)
+   ===================================================================== */
+const B='border:1px solid #000;padding:5px 6px;vertical-align:top;font-size:11pt;';
+const BH=B+'background:#e6e6e6;font-weight:bold;text-align:center;';
+function planHTML(dk){return finalizeDoc(planCore(dk))}
+function planCore(dk){
+  const D=DISC[dk],C=compute(dk),ad=activeDays();
+  if(!C.classL)return `<p>${D.name} : aucun niveau coché.</p>`;
+  let h=`<div style="font-family:Arial,Helvetica,sans-serif;color:#000;">`;
+  h+=`<p style="text-align:center;font-weight:bold;font-size:14pt;margin:0 0 4px;">PLAN DE SESSION HEBDOMADAIRE – CLASSE HÉTÉROGÈNE</p>`;
+  h+=`<p style="text-align:center;margin:0 0 10px;font-size:12pt;font-weight:bold;">${D.name.toUpperCase()}</p>`;
+  const idf=[['École',S.ecole],['Classe',S.classe],['Enseignant(e)',S.enseignant]].filter(x=>x[1]).map(x=>`<b>${x[0]} :</b> ${esc(x[1])}`).join(' &nbsp;&nbsp; ');
+  if(idf)h+=`<p style="margin:0 0 4px;font-size:11pt;">${idf}</p>`;
+  h+=`<p style="margin:0 0 10px;font-size:11pt;"><b>Semaine n° ${esc(S.semaine||'…')}</b> du ${dateOf(ad[0].o)||'…'} au ${dateOf(ad[ad.length-1].o)||'…'}</p>`;
+  h+=`<table style="border-collapse:collapse;width:100%;margin-bottom:12px;"><tr><th style="${BH}width:28%">Groupes de niveau</th><th style="${BH}">Objectif du mois</th><th style="${BH}">Objectif de la semaine</th></tr>`;
+  ['g1','g2'].forEach(g=>{const sg=C.steps[g];if(!sg)return;const eff=groupEff(dk,g);
+    h+=`<tr><td style="${B}"><b>${esc(groupComp(dk,g))}</b>${eff?`<br>(${eff} apprenant${eff>1?'s':''})`:''}</td><td style="${B}">${esc(sg.step.mois)}</td><td style="${B}">${esc(sg.step.sem)}</td></tr>`});
+  h+=`</table>`;
+  h+=`<table style="border-collapse:collapse;width:100%;"><tr>${['DATE','GROUPES DE NIVEAU','OBJECTIFS','ACTIVITÉS','MATÉRIELS','SP','DURÉE','OBSERVATION'].map(t=>`<th style="${BH}">${t}</th>`).join('')}</tr>`;
+  C.days.forEach(({d,rows})=>{
+    rows.forEach((r,i)=>{
+      const mode=r.mode==='teach'?'<b>Activité</b> (avec l’enseignant)':r.mode==='auto'?'<b>Autonomie</b> (autocorrection collective en fin de séance)':'';
+      const obs=[mode,esc(r.obs)].filter(Boolean).join('<br>');
+      h+=`<tr>${i===0?`<td style="${B}font-weight:bold;" rowspan="${rows.length}">${d.n}<br>${dateOf(d.o)}</td>`:''}
+        <td style="${B}">${esc(r.lab)}</td>
+        <td style="${B}">${esc(r.obj)}</td>
+        <td style="${B}"><b>${esc(r.actLabel)}</b>${r.note&&r.slot==='common'||r.note&&r.mode==='teach'||r.note&&r.mode===null?`<br><i style="font-size:9.5pt;">${esc(r.note)}</i>`:''}</td>
+        <td style="${B}">${esc(r.mat)}</td>
+        <td style="${B}text-align:center;">${esc(r.sp)}</td>
+        <td style="${B}text-align:center;white-space:nowrap;">${r.dur}</td>
+        <td style="${B}">${obs}</td></tr>`;
+    });
+  });
+  h+=`</table><p style="font-size:9.5pt;margin:6px 0 0;">SP : stratégie pédagogique. TC : travail collectif ; TG : travail de groupe ; TI : travail individuel.</p>`;
+  // ---- Annexe : exercices d'autonomie
+  let na=1;
+  const exRows=[];C.days.forEach(({d,rows})=>rows.forEach(r=>{if(r.exo)exRows.push({d,r})}));
+  if(exRows.length){
+    h+=`<p style="font-weight:bold;font-size:12pt;margin:18px 0 6px;page-break-before:always;">ANNEXE ${na++} – EXERCICES POUR LE GROUPE EN AUTONOMIE</p>`;
+    exRows.forEach(({d,r})=>{
+      h+=`<div style="border:1px solid #000;padding:6px 8px;margin-bottom:8px;font-size:10.5pt;page-break-inside:avoid;"><b>${d.n} ${dateOf(d.o)} – ${esc(r.lab)}</b><br><b>Objectif (${r.kind==='veille'?'de la veille':r.kind==='semaine'?'déjà travaillé cette semaine':'déjà maîtrisé'}) :</b> ${esc(r.obj)}${exoHTML(r.exo,true)}</div>`;
+    });
+  }
+  // ---- Annexe : résumé des activités
+  const seen=new Set(),list=[];
+  C.days.forEach(({rows})=>rows.forEach(r=>{const key=r.a?r.a.id+'|'+r.list:'auto|'+r.slot;if(seen.has(key)||!r.res)return;seen.add(key);list.push(r)}));
+  h+=`<p style="font-weight:bold;font-size:12pt;margin:18px 0 6px;${exRows.length?'':'page-break-before:always;'}">ANNEXE ${na} – RÉSUMÉ DES ACTIVITÉS DE LA SEMAINE</p>`;
+  h+=`<table style="border-collapse:collapse;width:100%;"><tr><th style="${BH}width:22%">Activité</th><th style="${BH}">Déroulement (résumé)</th><th style="${BH}width:20%">Matériel</th></tr>`;
+  list.forEach(r=>{const nm=r.a?r.a.n:DISC[dk].auto[r.slot].n+' (autonomie)';
+    h+=`<tr><td style="${B}"><b>${esc(nm)}</b><br><span style="font-size:9.5pt;">${esc(r.lab)}</span></td><td style="${B}">${esc(r.res)}${r.note&&r.mode!=='auto'?`<br><i style="font-size:9.5pt;">${esc(r.note)}</i>`:''}</td><td style="${B}">${esc(r.mat)}</td></tr>`});
+  h+=`</table></div>`;
+  return h;
+}
+
+/* =====================================================================
+   GÉNÉRATION (bouton poussoir)
+   ===================================================================== */
+let GEN={math:null,lect:null};   // empreinte de l'état au moment de la génération
+function sig(dk){return JSON.stringify([S.ecole,S.classe,S.enseignant,S.semaine,S.lundi,S.mer,S[dk]])}
+function generate(){
+  const dk=cur();
+  if(!listOf(dk,'g1')&&!listOf(dk,'g2')){toast('Cochez d’abord les niveaux');return}
+  GEN[dk]=sig(dk);
+  if(S.lundi){S.sessLog[S.lundi]=S.sessLog[S.lundi]||{};S.sessLog[S.lundi][dk]=activeDays().length;persist()}
+  renderPlan();
+  document.getElementById('planCard').scrollIntoView({behavior:'smooth',block:'start'});
+  toast(`Plan de session de ${DISC[dk].name.toLowerCase()} généré`);
+}
+function renderPlan(){
+  const dk=cur(),st=document.getElementById('genState'),bar=document.getElementById('exportBar'),pl=document.getElementById('plan');
+  if(trialExpired()){st.className='st stale';st.textContent=lockMsg();bar.hidden=true;pl.innerHTML='<div class="empty">🔒 Plan de session indisponible. '+esc(lockMsg())+'</div>';return}
+  if(!GEN[dk]){st.className='st';st.textContent='Le plan n’a pas encore été généré pour cette discipline.';bar.hidden=true;
+    pl.innerHTML='<div class="empty">Cliquez sur « Générer le plan de session ».</div>';return}
+  const stale=GEN[dk]!==sig(dk);
+  st.className='st'+(stale?' stale':'');
+  st.textContent=stale?'Des changements ont été faits depuis la dernière génération : cliquez de nouveau pour mettre le plan à jour.':'Plan à jour.';
+  if(!stale){pl.innerHTML=`<div style="padding:16px;min-width:900px">${planHTML(dk)}</div>`}
+  bar.hidden=false;
+  document.getElementById('btnDl').hidden=!canSave();document.getElementById('btnPrintPlan').hidden=!OFFLINE;
+  document.getElementById('btnDlBoth').hidden=!canSave()||!(GEN.math&&GEN.lect);
+}
+
+/* =====================================================================
+   RENDU GLOBAL
+   ===================================================================== */
+function renderAll(){
+  renderTrial();renderIdent();renderClasses();
+  S.effClasse=String(effTestes());document.querySelectorAll('[data-k]').forEach(el=>{el.value=S[el.dataset.k]??''});
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===cur()));
+  document.querySelectorAll('.dn').forEach(x=>x.textContent=DISC[cur()].name);
+  deriveAll();syncLevels();renderEleves();renderShare();
+  S.effClasse=String(effTestes());document.querySelectorAll('[data-k]').forEach(el=>{el.value=S[el.dataset.k]??''});
+  renderLevels();renderProgress();renderDays();renderPlan();renderDocs();persist();
+}
+
+/* =====================================================================
+   ÉVÉNEMENTS
+   ===================================================================== */
+document.addEventListener('input',e=>{
+  const el=e.target,dk=cur();
+  if(el.dataset.k&&el.tagName==='INPUT'&&el.type==='text'||el.dataset.k&&el.tagName==='INPUT'&&!el.type){S[el.dataset.k]=el.value;persist();renderPlan();return}
+  if(el.dataset.eff){S[dk].levels[el.dataset.eff].eff=el.value;persist();renderPlan();return}
+  if(el.dataset.pf&&el.type==='text'){PF[el.dataset.pf]=el.value;return}
+  if(el.dataset.el&&el.tagName==='INPUT'&&el.type==='text'){const [i,f]=el.dataset.el.split('.');S.eleves[+i][f]=el.value;persist();return}
+  if(el.dataset.ov&&el.tagName==='INPUT'){const [d,k,f]=el.dataset.ov.split('.');S[dk].days[d].ov[k][f]=el.value;persist();renderPlan();return}
+});
+document.addEventListener('change',e=>{
+  const el=e.target,dk=cur();
+  if((el.dataset.el||el.dataset.k)&&el.tagName==='INPUT'&&el.type==='text')return;
+  if(el.dataset.pf){const f=el.dataset.pf;if(el.type==='text')return;PF[f]=el.value;
+    if(f==='eid'||f==='dk')openPF(PF.eid,PF.dk);
+    if(f==='date'&&PF.date)PF.obs=addD(PF.date,-14);renderEleves();return}
+  if(el.dataset.abs){const [eid,key]=el.dataset.abs.split('|');const W=S.abs[S.lundi]=S.abs[S.lundi]||{};const r=W[eid]=W[eid]||{};
+    if(el.checked)delete r[key];else r[key]=1;persist();renderDocs();return}
+  if(el.dataset.et){const [i,f]=el.dataset.et.split('.');const e=S.eleves[+i];if(!e)return;const tk=curT();
+    e.t[tk][f]=el.type==='checkbox'?(el.checked?'1':''):el.value;
+    if((f==='l'||f==='m')&&el.value&&!S.tests[tk].date)S.tests[tk].date=new Date().toISOString().slice(0,10);
+    deriveAll();renderAll();return}
+  if(el.id==='tDate'){S.tests[curT()].date=el.value;deriveAll();renderAll();return}
+  if(el.dataset.el){const [i,f]=el.dataset.el.split('.');const e=S.eleves[+i];if(!e)return;
+    e[f]=el.type==='checkbox'?(el.checked?'1':''):el.value;
+    renderAll();return}
+  if(el.id==='drenaSel'){if(el.value==='*'){S.drenaFree=true;S.drena=''}else{S.drenaFree=false;S.drena=el.value}S.iepp='';S.ieppFree=false;renderAll();return}
+  if(el.id==='ieppSel'){if(el.value==='*'){S.ieppFree=true;S.iepp=''}else{S.ieppFree=false;S.iepp=el.value}renderAll();return}
+  if(el.id==='importFile'){importClasses(el.files[0]);el.value='';return}
+  if(el.dataset.k){S[el.dataset.k]=el.value;if(el.dataset.k==='mer'){applyAlternation('math');applyAlternation('lect')}renderAll();return}
+  if(el.dataset.lv){const b1=listOf(dk,'g1'),b2=listOf(dk,'g2');S[dk].levels[el.dataset.lv].on=el.checked;if(listOf(dk,'g1')!==b1)S[dk].step.g1=0;if(listOf(dk,'g2')!==b2)S[dk].step.g2=0;renderAll();return}
+  if(el.dataset.ov){const [d,k,f]=el.dataset.ov.split('.');S[dk].days[d].ov[k][f]=el.value;renderAll();return}
+  if(el.dataset.month){const g=el.dataset.month,arr=stepsOf(dk,g);const k=arr.findIndex(x=>x.m===+el.value);S[dk].step[g]=Math.max(0,k);renderAll();return}
+  if(el.id==='trSel'){S[dk].tranche=el.value;renderAll();return}
+  if(el.id==='firstSel'){S[dk].first=el.value;applyAlternation(dk);renderAll();return}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='licInput'){document.getElementById('btnActivate').click()}});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;const dk=cur();
+  if(b.id==='btnActivate'){if(tryActivate(document.getElementById('licInput').value)){renderAll();toast('Application activée. Merci !')}else toast(periodIdx()>=2?lockMsg():'Code incorrect pour cet identifiant et l’année '+YEARS[Math.min(periodIdx(),1)].y);return}
+  if(LOCKED_BTNS.includes(b.id)&&trialExpired()){renderTrial();document.getElementById('trial').scrollIntoView({behavior:'smooth'});toast(lockMsg());return}
+  if(b.dataset.tab){S.tab=b.dataset.tab;renderAll();return}
+  if(b.id==='btnShare'){SHARE_OPEN=!SHARE_OPEN;if(SHARE_OPEN){encodeShare(classPayload()).then(c=>{SHARE_CODE=c;renderShare()})}renderShare();return}
+  if(b.id==='btnShareClose'){SHARE_OPEN=false;renderShare();return}
+  if(b.id==='btnShareFile'){S.sharedAt=Date.now();persist();saveFile(shareName()+'.json',JSON.stringify(classPayload()));return}
+  if(b.id==='btnShareCode'){encodeShare(classPayload()).then(async c=>{SHARE_CODE=c;renderShare();try{await navigator.clipboard.writeText(c);toast('Code copié : collez-le dans un message au directeur')}catch(e){const t=document.getElementById('shareTxt');if(t){t.focus();t.select()}toast('Sélectionnez le code puis copiez-le')}});return}
+  if(b.id==='btnSaveClass'){S.saved=true;S.savedAt=Date.now();persist();renderClasses();toast('Classe enregistrée : '+classLabel(S));return}
+  if(b.id==='btnNewClass'){persist();S=defaults();S.classId=newId();normalizeS();applyAlternation('math');applyAlternation('lect');GEN={math:null,lect:null};DOCGEN=null;PF=null;renderAll();toast('Nouvelle classe : remplissez l’identification puis enregistrez');window.scrollTo({top:0,behavior:'smooth'});return}
+  if(b.dataset.open){persist();const C=STORE.list[b.dataset.open];if(C){S=C;normalizeS();GEN={math:null,lect:null};DOCGEN=null;PF=null;renderAll();toast('Classe ouverte : '+classLabel(S))}return}
+  if(b.dataset.delclass){const id=b.dataset.delclass;
+    if(b.dataset.arm){delete STORE.list[id];if(id===S.classId){S=defaults();S.classId=newId();normalizeS();applyAlternation('math');applyAlternation('lect')}persist();renderAll();toast('Classe supprimée');return}
+    b.dataset.arm='1';b.textContent='Confirmer ?';setTimeout(()=>{if(b.isConnected){b.textContent='Supprimer';delete b.dataset.arm}},3000);return}
+  if(b.id==='btnExport'){persist();saveFile('classes-remediation-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({app:'plan-session-remediation',version:1,date:new Date().toISOString(),list:STORE.list},null,1));return}
+  if(b.id==='btnOffline'){downloadOffline();return}
+  if(b.id==='btnPrintPlan'){printHTML(fullDoc([cur()]));return}
+  if(b.id==='btnPrintDoc'){printHTML(wrapPrint(docHTML(DOCGEN)));return}
+  if(b.dataset.prog){const [eid,d]=b.dataset.prog.split('.');openPF(eid,d);renderEleves();document.querySelector('.pform').scrollIntoView({behavior:'smooth',block:'center'});return}
+  if(b.id==='btnPFcancel'){PF=null;renderEleves();return}
+  if(b.id==='btnPFsave'){if(!PF||!PF.to||!PF.date){toast('Choisissez le nouveau niveau et la date');return}
+    const e=S.eleves.find(x=>x.id===PF.eid);S.progs.push(Object.assign({id:'p'+Math.random().toString(36).slice(2,8),from:curLevel(e,PF.dk)},PF));
+    toast(PF.test==='Réussi'?'Progression enregistrée : '+(e.nom||'')+' passe au niveau '+LVN(PF.dk)[PF.to]:'Test non réussi enregistré');PF=null;renderAll();return}
+  if(b.dataset.delprog){S.progs=S.progs.filter(p=>p.id!==b.dataset.delprog);renderAll();return}
+  if(b.id==='btnAllPres'){delete S.abs[S.lundi];persist();renderDocs();toast('Tous les apprenants sont marqués présents');return}
+  if(b.id==='btnAddEl'){S.eleves.push(newEleve(''));renderAll();const ins=document.querySelectorAll('[data-el$=".nom"]');if(ins.length)ins[ins.length-1].focus();return}
+  if(b.dataset.del!==undefined){const e=S.eleves[+b.dataset.del];S.eleves.splice(+b.dataset.del,1);if(e)S.progs=S.progs.filter(p=>p.eid!==e.id);renderAll();return}
+  if(b.id==='btnPaste'){const n=pasteEleves(document.getElementById('pasteNames').value);renderAll();toast(n+' apprenant(s) ajouté(s)');return}
+  if(b.dataset.doc){DOCSEL=b.dataset.doc;DOCGEN=null;renderDocs();return}
+  if(b.id==='btnDocGen'){DOCGEN=DOCSEL;renderDocs();toast('Document rempli');return}
+  if(b.id==='btnDocCopy'){copyHTML(docHTML(DOCGEN));return}
+  if(b.id==='btnDocDl'){saveDoc(DOCGEN+'-semaine-'+weekNo(),[docHTML(DOCGEN)]);return}
+  if(b.id==='btnDocAll'){saveDoc('documents-remediation-semaine-'+weekNo(),DOCS.map(d=>docHTML(d.id)));return}
+  if(b.dataset.reroll){const [d,k]=b.dataset.reroll.split('.');const o=S[dk].days[d].ov[k];o.seed=(o.seed||0)+1;renderAll();return}
+  if(b.dataset.step){const [g,k]=b.dataset.step.split('.');S[dk].step[g]=parseInt(k);renderAll();return}
+  if(b.dataset.mode){const p=b.dataset.mode.split('.');const d=p[0],g=p[1],aut=p[2]==='aut';
+    S[dk].days[d].active=aut?(g==='g1'?'g2':'g1'):g;renderAll();return}
+  if(b.id==='btnAlt'){applyAlternation(dk);renderAll();toast('Alternance réappliquée');return}
+  if(b.id==='btnGen'){generate();return}
+  if(b.id==='btnNext'){nextWeek();return}
+  if(b.id==='btnRepeat'){repeatWeek();return}
+  if(b.dataset.vary){const g=b.dataset.vary;S[dk].vary=S[dk].vary||{g1:0,g2:0};S[dk].vary[g]=(S[dk].vary[g]||0)+1;renderAll();toast('Autres activités proposées pour le même objectif');return}
+  if(b.id==='btnReset'){
+    if(b.dataset.arm){const t=S.tab,cid=S.classId,sv=S.saved;S=defaults();S.tab=t;S.classId=cid;S.saved=sv;normalizeS();applyAlternation('math');applyAlternation('lect');GEN={math:null,lect:null};renderAll();toast('Tout a été effacé');b.textContent='Tout effacer';delete b.dataset.arm;return}
+    b.dataset.arm='1';b.textContent='Cliquer encore pour confirmer';setTimeout(()=>{b.textContent='Tout effacer';delete b.dataset.arm},3000);return}
+  if(b.id==='btnCopy'){copyPlan();return}
+  if(b.id==='btnDl'){downloadPlan([dk]);return}
+  if(b.id==='btnDlBoth'){downloadPlan(['math','lect']);return}
+});
+function nextWeek(){
+  S.semaine=String(weekNo()+1);
+  if(S.lundi){const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+7);S.lundi=d.toISOString().slice(0,10)}
+  ['math','lect'].forEach(dk=>{
+    ['g1','g2'].forEach(g=>{const n=stepsOf(dk,g).length;if(n)S[dk].step[g]=Math.min(stepIdx(dk,g)+1,n-1)});
+    DAYS.forEach(d=>S[dk].days[d.k].ov={common:blankOv(),g1:blankOv(),g2:blankOv()});
+    S[dk].vary={g1:0,g2:0};
+    applyAlternation(dk);
+  });
+  renderAll();toast(`Semaine ${S.semaine} : chaque groupe passe à l’objectif suivant`);
+}
+function repeatWeek(){
+  S.semaine=String(weekNo()+1);
+  if(S.lundi){const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+7);S.lundi=d.toISOString().slice(0,10)}
+  ['math','lect'].forEach(dk=>{S[dk].vary=S[dk].vary||{g1:0,g2:0};['g1','g2'].forEach(g=>S[dk].vary[g]=(S[dk].vary[g]||0)+1);
+    DAYS.forEach(d=>S[dk].days[d.k].ov={common:blankOv(),g1:blankOv(),g2:blankOv()});applyAlternation(dk)});
+  renderAll();toast(`Semaine ${S.semaine} : même objectif, avec d’autres activités`);
+}
+
+/* =====================================================================
+   COPIE / TÉLÉCHARGEMENT
+   ===================================================================== */
+async function copyPlan(){
+  const html=planHTML(cur());
+  const tmp=document.createElement('div');tmp.innerHTML=html;const text=tmp.innerText;
+  try{
+    if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
+      await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([text],{type:'text/plain'})})]);
+    }else{await navigator.clipboard.writeText(text)}
+    toast('Plan copié : collez-le dans Word (Ctrl+V)');
+  }catch(err){try{await navigator.clipboard.writeText(text);toast('Plan copié (texte simple)')}catch(e2){toast('Copie refusée par le navigateur')}}
+}
+function fullDoc(list){
+  return printWrap(list.map(planHTML).join('<div style="page-break-before:always"></div>'),false,'Plan de session semaine '+S.semaine);
+}
+let DL=null;
+const OFFLINE=true;
+const canSave=()=>!!DL||OFFLINE;
+async function saveFile(name,data){
+  if(DL){try{await DL.save({filename:name,data});toast('Fichier enregistré')}catch(err){if(err&&err.code==='declined')return;toast('Téléchargement indisponible ici')}return}
+  try{const mime=name.endsWith('.json')?'application/json':'text/html';const url=URL.createObjectURL(new Blob([data],{type:mime+';charset=utf-8'}));
+    const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500);toast('Fichier enregistré dans vos téléchargements')}
+  catch(e){toast('Téléchargement impossible')}
+}
+function printHTML(html){
+  const f=document.createElement('iframe');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';document.body.appendChild(f);
+  const d=f.contentWindow.document;d.open();d.write(html);d.close();
+  setTimeout(()=>{try{f.contentWindow.focus();f.contentWindow.print()}catch(e){toast('Impression impossible ici')}setTimeout(()=>f.remove(),2000)},300);
+}
+const wrapPrint=b=>printWrap(b,false,'Document');
+async function downloadPlan(list){
+  const name=`plan-session-${list.length>1?'maths-lecture':(list[0]==='math'?'maths':'lecture')}-semaine-${weekNo()}.html`;
+  saveFile(name,fullDoc(list));
+}
+
+
+
+/* =====================================================================
+   APPRENANTS ET RÉSULTATS ASER (remplissent les effectifs et les documents)
+   ===================================================================== */
+function normalizeS(){
+if(!Array.isArray(S.eleves))S.eleves=[];
+['drena','iepp','directeur','annee','aser'].forEach(k=>{if(S[k]===undefined)S[k]=''});
+S.annee=SCHOOL_YEAR();
+upObj(S,['enseignant','directeur','ecole','secteur','drena','iepp']);S.eleves.forEach(e=>{if(typeof e.nom==='string')e.nom=UP(e.nom)});
+if(!S.aser)S.aser='Début d’année';
+['secteur','codeEcole','sexeEns','forme','effClasse','taux','sigles'].forEach(k=>{if(S[k]===undefined)S[k]=''});
+if(!S.tests||typeof S.tests!=='object')S.tests={};TKEYS.forEach(k=>{if(!S.tests[k])S.tests[k]={date:''}});
+if(!S.sessLog||typeof S.sessLog!=='object')S.sessLog={};
+S.eleves.forEach(e=>{if(!e.t){e.t={debut:{l:e.lect||'',m:e.math||'',ol:'',om:'',v:''},mi:{l:'',m:'',ol:'',om:'',v:''},fin:{l:'',m:'',ol:'',om:'',v:''}}}
+  TKEYS.forEach(k=>{if(!e.t[k])e.t[k]={l:'',m:'',ol:'',om:'',v:''}});if(e.arr===undefined)e.arr=''});
+deriveAll();
+if(!Array.isArray(S.progs))S.progs=[];
+if(!S.abs||typeof S.abs!=='object')S.abs={};
+if(!S.classId)S.classId=newId();
+// reprise des anciennes saisies « niveau actuel »
+S.eleves.forEach(e=>['lect','math'].forEach(dk=>{if(e[dk+'Now']&&e[dk+'Now']!==e[dk]){const d=e[dk+'Date']||new Date().toISOString().slice(0,10);
+  S.progs.push({id:'p'+Math.random().toString(36).slice(2,8),eid:e.id,dk,from:e[dk],to:e[dk+'Now'],date:d,obs:addD(d,-14),test:'Réussi',contre:'',note:''})}
+  delete e[dk+'Now'];delete e[dk+'Date']}));
+}
+const LVN=dk=>Object.fromEntries(DISC[dk].LV.map(x=>[x.k,x.n]));
+const TKEYS=['debut','mi','fin'],TNAME={debut:'Début',mi:'Mi-parcours',fin:'Fin'},TLABEL={'Début d’année':'debut','Mi-parcours':'mi','Fin d’année':'fin'};
+const curT=()=>TLABEL[S.aser]||'debut';
+/* effectif de la classe = nombre d’élèves testés (au moins un test ASER renseigné) */
+function effTestes(){return (S.eleves||[]).filter(e=>e.t&&TKEYS.some(k=>e.t[k]&&(e.t[k].l||e.t[k].m))).length}
+function baseOf(e,dk){const f=dk==='lect'?'l':'m';for(const k of ['fin','mi','debut']){const v=e.t&&e.t[k]&&e.t[k][f];if(v)return {lvl:v,date:(S.tests[k]||{}).date||'',k}}return {lvl:'',date:'',k:''}}
+function deriveAll(){S.eleves.forEach(e=>{e.lect=baseOf(e,'lect').lvl;e.math=baseOf(e,'math').lvl})}
+normalizeS();
+const lvIdx=(dk,k)=>DISC[dk].LV.findIndex(x=>x.k===k);
+function progsOf(e,dk){return S.progs.filter(p=>p.eid===e.id&&p.dk===dk).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0)}
+function okProgs(e,dk){const b=baseOf(e,dk);return progsOf(e,dk).filter(p=>p.test==='Réussi'&&(!b.date||b.k==='debut'||p.date>=b.date))}
+function curLevel(e,dk){const ok=okProgs(e,dk);return ok.length?ok[ok.length-1].to:baseOf(e,dk).lvl}
+function lastPass(e,dk){const ok=okProgs(e,dk);return ok.length?ok[ok.length-1]:null}
+let PF=null; // formulaire de progression ouvert
+function openPF(eid,dk){const e=S.eleves.find(x=>x.id===eid);if(!e)return;const today=new Date().toISOString().slice(0,10);
+  const from=curLevel(e,dk);const nxt=DISC[dk].LV[lvIdx(dk,from)+1];
+  PF={eid,dk,to:nxt?nxt.k:'',date:today,obs:addD(today,-14),test:'Réussi',contre:'',note:''}}
+function pfHTML(){
+  if(!PF)return '';const e=S.eleves.find(x=>x.id===PF.eid);if(!e)return '';
+  const from=curLevel(e,PF.dk),fi=lvIdx(PF.dk,from);const N=LVN(PF.dk);
+  const higher=DISC[PF.dk].LV.filter((x,i)=>i>fi);
+  return `<div class="pform"><h4>Enregistrer une progression</h4>
+   <div class="grid g4">
+    <label class="f">Apprenant<select data-pf="eid">${S.eleves.map(x=>`<option value="${x.id}" ${x.id===PF.eid?'selected':''}>${esc(x.nom||'(sans nom)')}</option>`).join('')}</select></label>
+    <label class="f">Discipline<select data-pf="dk"><option value="lect" ${PF.dk==='lect'?'selected':''}>Lecture</option><option value="math" ${PF.dk==='math'?'selected':''}>Mathématiques</option></select></label>
+    <label class="f">Niveau actuel<input value="${esc(N[from]||'—')}" disabled></label>
+    <label class="f">Nouveau niveau<select data-pf="to">${higher.length?higher.map(x=>`<option value="${x.k}" ${PF.to===x.k?'selected':''}>${x.n}</option>`).join(''):'<option value="">Niveau le plus élevé déjà atteint</option>'}</select></label>
+    <label class="f">Début de l’observation (2 semaines)<input type="date" data-pf="obs" value="${PF.obs}"></label>
+    <label class="f">Date de progression<input type="date" data-pf="date" value="${PF.date}"></label>
+    <label class="f">Test de passage<select data-pf="test"><option ${PF.test==='Réussi'?'selected':''}>Réussi</option><option ${PF.test==='Non réussi'?'selected':''}>Non réussi</option></select></label>
+    <label class="f">Contre-test du directeur<input type="text" data-pf="contre" value="${esc(PF.contre)}" placeholder="ex. confirmé le …"></label>
+   </div>
+   <label class="f" style="margin-top:8px">Observation<input type="text" data-pf="note" value="${esc(PF.note)}" placeholder="facultatif"></label>
+   <div class="toolbar" style="margin:10px 0 0"><button class="primary" id="btnPFsave" ${higher.length?'':'disabled'}>Enregistrer la progression</button><button id="btnPFcancel">Annuler</button></div>
+   <p class="hint" style="margin:6px 0 0">La progression peut être enregistrée à tout moment, sans attendre le test ASER suivant. Si le test de passage est réussi, l’apprenant change de groupe dans les plans et les documents à partir de cette date.</p></div>`;
+}
+function histHTML(){
+  if(!S.progs.length)return '';
+  const rows=[...S.progs].sort((a,b)=>a.date<b.date?1:-1).map(p=>{const e=S.eleves.find(x=>x.id===p.eid);const N=LVN(p.dk);
+    return `<tr><td>${fmtD(p.date)}</td><td>${esc(e?e.nom:'?')}</td><td>${p.dk==='math'?'Maths':'Lecture'}</td><td>${N[p.from]||''} → <b>${N[p.to]||''}</b></td><td>${esc(p.test)}</td><td>${esc(p.contre)}</td><td><button class="del" data-delprog="${p.id}" title="Supprimer">✕</button></td></tr>`}).join('');
+  return `<details class="hist" open><summary>Historique des progressions (${S.progs.length})</summary><div class="tblwrap"><table class="eltab"><thead><tr><th>Date</th><th>Apprenant</th><th>Discipline</th><th>Passage</th><th>Test</th><th>Contre-test</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
+}
+function syncLevels(){
+  if(!S.eleves.length)return;
+  ['math','lect'].forEach(dk=>{
+    const st=S[dk];const b1=listOf(dk,'g1'),b2=listOf(dk,'g2');
+    DISC[dk].LV.forEach(x=>{const n=S.eleves.filter(e=>curLevel(e,dk)===x.k).length;st.levels[x.k].on=n>0;st.levels[x.k].eff=n?String(n):''});
+    if(listOf(dk,'g1')!==b1)st.step.g1=0;if(listOf(dk,'g2')!==b2)st.step.g2=0;
+  });
+}
+function newEleve(nom){const t={};TKEYS.forEach(k=>t[k]={l:'',m:'',ol:'',om:'',v:''});return {id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),nom:nom||'',sexe:'',arr:'',t,lect:'',math:''}}
+function nowCell(e,dk){const N=LVN(dk),c=curLevel(e,dk),lp=lastPass(e,dk);
+  return `<td class="now"><span class="${lp?'up':''}">${N[c]||'—'}</span>${lp?`<small>depuis le ${fmtD(lp.date)}</small>`:''}<button class="pbtn" data-prog="${e.id}.${dk}" title="Enregistrer une progression">↑ Progression</button></td>`}
+function renderEleves(){{const ef=document.querySelector('[data-k="effClasse"]');S.effClasse=String(effTestes());if(ef)ef.value=S.effClasse}
+  const box=document.getElementById('eleves');
+  const opt=(dk,v)=>`<option value="">—</option>`+DISC[dk].LV.map(x=>`<option value="${x.k}" ${v===x.k?'selected':''}>${x.n}</option>`).join('');
+  const tk=curT();const outil=v=>'<option value="">—</option>'+[1,2,3,4,5,6].map(n=>`<option ${String(v)===String(n)?'selected':''}>${n}</option>`).join('');
+  document.getElementById('tDate').value=(S.tests[tk]||{}).date||'';
+  const rows=S.eleves.map((e,i)=>`<tr>
+    <td class="num">${i+1}</td>
+    <td><input data-el="${i}.nom" value="${esc(e.nom)}" placeholder="Nom et prénoms"></td>
+    <td><select data-el="${i}.sexe"><option value="">—</option><option ${e.sexe==='G'?'selected':''}>G</option><option ${e.sexe==='F'?'selected':''}>F</option></select></td>
+    <td class="c"><input type="checkbox" data-el="${i}.arr" ${e.arr==='1'?'checked':''} title="Arrivé(e) après le test de début"></td>
+    <td><select data-et="${i}.l">${opt('lect',e.t[tk].l)}</select></td>
+    <td><select data-et="${i}.ol" class="outil">${outil(e.t[tk].ol)}</select></td>
+    <td><select data-et="${i}.m">${opt('math',e.t[tk].m)}</select></td>
+    <td><select data-et="${i}.om" class="outil">${outil(e.t[tk].om)}</select></td>
+    <td class="c"><input type="checkbox" data-et="${i}.v" ${e.t[tk].v==='1'?'checked':''} title="Résultat vérifié par un mentor"></td>
+    ${nowCell(e,'lect')}
+    ${nowCell(e,'math')}
+    <td><button class="del" data-del="${i}" title="Retirer">✕</button></td></tr>`).join('');
+  const cnt=S.eleves.length,g=S.eleves.filter(e=>e.sexe==='G').length,f=S.eleves.filter(e=>e.sexe==='F').length;
+  box.innerHTML=`<div class="tblwrap"><table class="eltab"><thead><tr><th rowspan="2">N°</th><th rowspan="2">Nom et prénoms</th><th rowspan="2">Sexe</th><th rowspan="2" title="Arrivé(e) après le test de début">Arrivé après le début</th><th colspan="5" class="tth">Test ASER : ${TNAME[tk]}${S.tests[tk].date?' – '+fmtD(S.tests[tk].date):''}</th><th colspan="2" class="tth2">Niveau actuel (après progressions)</th><th rowspan="2"></th></tr>
+    <tr><th>Français</th><th>N° outil</th><th>Maths</th><th>N° outil</th><th>Vérifié par un mentor</th><th>Lecture</th><th>Maths</th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="12" class="emptyrow">Aucun apprenant. Collez une liste de noms ci-dessous ou ajoutez-les un par un.</td></tr>'}</tbody></table></div>
+    <div class="elfoot"><span><b>${cnt}</b> apprenant${cnt>1?'s':''} (${g} G, ${f} F)</span>
+      <button id="btnAddEl">+ Ajouter un apprenant</button></div>
+    <details class="paste"><summary>Coller une liste de noms</summary>
+      <textarea id="pasteNames" rows="5" placeholder="Un nom par ligne. Option : nom ; sexe ; niveau lecture ; niveau maths&#10;ex. KOUASSI Aya ; F ; Mot ; 2 chiffres"></textarea>
+      <button id="btnPaste">Ajouter ces apprenants</button></details>${pfHTML()}${histHTML()}`;
+}
+function fmtD(iso){if(!iso)return '';const d=new Date(iso+'T12:00:00');return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})}
+function addD(iso,n){const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function findLevel(dk,txt){txt=(txt||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');if(!txt)return '';
+  const f=DISC[dk].LV.find(x=>x.n.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')===txt||x.k.toLowerCase()===txt);return f?f.k:''}
+function pasteEleves(text){
+  const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);let n=0;
+  lines.forEach(l=>{const p=l.split(/[;\t]/).map(x=>x.trim());const e=newEleve(p[0]);
+    if(p[1]){const s=p[1].toUpperCase();e.sexe=s.startsWith('F')?'F':(s.startsWith('G')||s.startsWith('M'))?'G':''}
+    const tk=curT();e.t[tk].l=findLevel('lect',p[2]);e.t[tk].m=findLevel('math',p[3]);if((e.t[tk].l||e.t[tk].m)&&!S.tests[tk].date)S.tests[tk].date=new Date().toISOString().slice(0,10);S.eleves.push(e);n++});
+  deriveAll();
+  return n;
+}
+
+/* =====================================================================
+   DOCUMENTS D'ACCOMPAGNEMENT
+   ===================================================================== */
+const DOCS=[
+ {id:'plans',n:'Plans de session (mathématiques et lecture)'},
+ {id:'aser',n:'Fiche de résultats ASER'},
+ {id:'groupes',n:'Composition des groupes de niveau et des petits groupes de travail'},
+ {id:'presence',n:'Liste de présence'},
+ {id:'progression',n:'Fiches de progression (lecture et mathématiques)'},
+ {id:'analyse',n:'Analyse de la session hebdomadaire'}
+];
+function docHead(title,sub){
+  const l=[['DRENA',S.drena],['IEPP',S.iepp],['École',S.ecole],['Classe',S.classe],['Année scolaire',S.annee]].filter(x=>x[1]).map(x=>`<b>${x[0]} :</b> ${esc(x[1])}`).join(' &nbsp;&nbsp; ');
+  const l2=[['Enseignant(e)',S.enseignant],['Directeur (DEP)',S.directeur]].filter(x=>x[1]).map(x=>`<b>${x[0]} :</b> ${esc(x[1])}`).join(' &nbsp;&nbsp; ');
+  return `<p style="margin:0 0 2px;font-size:10.5pt;">${l}</p>${l2?`<p style="margin:0 0 8px;font-size:10.5pt;">${l2}</p>`:''}
+   <p style="text-align:center;font-weight:bold;font-size:14pt;margin:8px 0 2px;">${esc(title)}</p>${sub?`<p style="text-align:center;margin:0 0 10px;font-size:11pt;">${sub}</p>`:''}`;
+}
+const wrapDoc=h=>`<div style="font-family:Arial,Helvetica,sans-serif;color:#000;">${h}</div>`;
+const weekTxt=()=>{const ad=activeDays();return `Semaine n° ${esc(S.semaine||'…')} du ${dateOf(ad[0].o)} au ${dateOf(ad[ad.length-1].o)}`};
+const noEleves='<p style="color:#900">Ajoutez d’abord la liste des apprenants (section 2) pour remplir ce document.</p>';
+const BC=B+'text-align:center;';
+
+function docASER(){
+  const LL=DISC.lect.LV,LM=DISC.math.LV,E=S.eleves;
+  const b='border:1px solid #000;padding:1px 2px;font-size:7pt;text-align:center;vertical-align:middle;';
+  const bh=b+'font-weight:bold;background:#f2f2f2;';
+  const vt='writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;padding:3px 1px;';
+  const blk='background:#000;';
+  const eff=effTestes();
+  let h=`<div style="font-size:8pt;margin-bottom:4px;">- Cette fiche doit être renseignée par l'enseignant pendant les tests ASER.<br>- Indiquez le niveau atteint par chaque élève en Français et Mathématiques. Vérifiez le total des élèves testés colonne par colonne. Le total d'élèves doit être égal à la somme des élèves testés aux différents niveaux en Français et Maths.<br>- Indiquez le numéro de l'outil ASER. Utilisez un outil ASER différent d'un test à un autre, pour un même élève. Utilisez un outil différent d'un élève à un autre.</div>`;
+  h+=`<table style="border-collapse:collapse;width:100%;font-size:8.5pt;margin-bottom:2px;"><tr>
+    <td style="border:1px solid #000;padding:3px;width:42%"><b>Nom de l'enseignant :</b> ${esc(S.enseignant)}</td><td style="border:1px solid #000;padding:3px;width:20%"><b>IEPP :</b> ${esc(S.iepp)}</td>
+    <td style="border:1px solid #000;padding:3px;width:26%"><b>Ecole :</b> ${esc(S.ecole)}</td><td style="border:1px solid #000;padding:3px"><b>Classe :</b> ${esc(S.classe)}</td></tr>
+    <tr><td style="border:1px solid #000;padding:3px"><b>Nombre total d'élèves dans la classe :</b> ${eff||''}</td><td colspan="3" style="border:1px solid #000;padding:3px"><b>Taux de passage en classe supérieure/CEPE l'année passée :</b> ${S.taux!==''&&S.taux!=null?esc(S.taux)+' %':''}</td></tr></table>`;
+  h+=`<table style="border-collapse:collapse;width:100%;"><tr>
+    <th style="${bh}${vt}" rowspan="3">Numéro de l'élève</th><th style="${bh}" rowspan="3">INFORMATIONS GÉNÉRALES<br><br>Nom et prénom de l'élève</th><th style="${bh}" colspan="2">Sexe</th>
+    ${TKEYS.map(k=>`<th style="${bh}text-align:left;" colspan="14">${{debut:'DÉBUT',mi:'MI-PARCOURS',fin:'FIN'}[k]} : PÉRIODE DU TEST ${S.tests[k].date?fmtD(S.tests[k].date):'………………'}</th>`).join('')}
+    <th style="${bh}${vt}" rowspan="3">Cet enfant est-il arrivé après l'enquête de début ? Écrivez "1" si oui.</th></tr>
+    <tr><th style="${bh}font-size:6pt;" colspan="2">Marquez "1" où applicable</th>
+    ${TKEYS.map(()=>`<th style="${bh}" colspan="7">Français<br><i style="font-weight:normal;font-size:6pt">Inscrivez "1" pour le niveau atteint par l'élève.</i></th><th style="${bh}" colspan="6">Mathématiques<br><i style="font-weight:normal;font-size:6pt">Inscrivez "1" pour le niveau atteint par l'élève.</i></th><th style="${bh}${vt}font-size:6pt;" rowspan="2">Le résultat de cet enfant a-t-il été vérifié par un mentor ?</th>`).join('')}</tr>
+    <tr><th style="${bh}">G</th><th style="${bh}">F</th>
+    ${TKEYS.map(()=>`<th style="${bh}${vt}">Numéro de l'outil ASER</th>${LL.map(x=>`<th style="${bh}${vt}">${x.n}</th>`).join('')}<th style="${bh}${vt}">Numéro de l'outil ASER</th>${LM.map(x=>`<th style="${bh}${vt}">${x.n}</th>`).join('')}`).join('')}</tr>`;
+  const n=Math.max(26,E.length);
+  for(let i=0;i<n;i++){const e=E[i];
+    if(!e){h+=`<tr><td style="${b}">${i+1}</td><td style="${b}height:12px"></td><td style="${b}"></td><td style="${b}"></td>${TKEYS.map(()=>Array(14).fill(`<td style="${b}"></td>`).join('')).join('')}<td style="${b}"></td></tr>`;continue}
+    h+=`<tr><td style="${b}">${i+1}</td><td style="${b}text-align:left;white-space:nowrap;">${esc(e.nom)}</td><td style="${b}">${e.sexe==='G'?1:''}</td><td style="${b}">${e.sexe==='F'?1:''}</td>
+      ${TKEYS.map(k=>{const t=e.t[k];return `<td style="${b}">${esc(t.ol)}</td>${LL.map(x=>`<td style="${b}">${t.l===x.k?1:''}</td>`).join('')}<td style="${b}">${esc(t.om)}</td>${LM.map(x=>`<td style="${b}">${t.m===x.k?1:''}</td>`).join('')}<td style="${b}">${t.v==='1'?1:''}</td>`}).join('')}
+      <td style="${b}">${e.arr==='1'?1:''}</td></tr>`}
+  const c=f=>E.filter(f).length;
+  h+=`<tr><td style="${bh}text-align:left" colspan="2">TOTAL PAGE <i style="font-weight:normal">(comptez le total des "1")</i></td><td style="${bh}">${c(e=>e.sexe==='G')}</td><td style="${bh}">${c(e=>e.sexe==='F')}</td>
+    ${TKEYS.map(k=>`<td style="${bh}" title="élèves testés">${c(e=>e.t[k].l)||''}</td>${LL.map(x=>`<td style="${bh}">${c(e=>e.t[k].l===x.k)||''}</td>`).join('')}<td style="${bh}">${c(e=>e.t[k].m)||''}</td>${LM.map(x=>`<td style="${bh}">${c(e=>e.t[k].m===x.k)||''}</td>`).join('')}<td style="${bh}">${c(e=>e.t[k].v==='1')||''}</td>`).join('')}
+    <td style="${bh}">${c(e=>e.arr==='1')||''}</td></tr></table>
+    <p style="font-size:7.5pt;margin:3px 0 0;">Dans la ligne « TOTAL PAGE », la colonne « Numéro de l'outil ASER » donne le total d'élèves testés.</p>`;
+  return `<div style="font-family:Arial,Helvetica,sans-serif;color:#000;">${h}</div>`;
+}
+function smallGroups(dk,g){
+  const lv=DISC[dk].LV.filter(x=>x.g===g).map(x=>x.k);
+  const list=S.eleves.filter(e=>lv.includes(curLevel(e,dk))).sort((a,b)=>lv.indexOf(curLevel(b,dk))-lv.indexOf(curLevel(a,dk)));
+  if(!list.length)return {list,groups:[]};
+  const max=dk==='math'?6:8;const k=Math.max(1,Math.ceil(list.length/max));
+  const groups=Array.from({length:k},()=>[]);
+  list.forEach((e,i)=>{const r=Math.floor(i/k),c=r%2?k-1-(i%k):i%k;groups[c].push(e)});
+  return {list,groups};
+}
+function docGroupes(){
+  if(!S.eleves.length)return wrapDoc(docHead('COMPOSITION DES GROUPES DE TRAVAIL')+noEleves);
+  const fin=S.lundi?fmtD(addD(S.lundi,11)):'…';
+  let h=docHead('COMPOSITION DES GROUPES DE NIVEAU ET DES PETITS GROUPES DE TRAVAIL',`Valable deux semaines : du ${S.lundi?fmtD(S.lundi):'…'} au ${fin}`);
+  ['lect','math'].forEach(dk=>{
+    const D=DISC[dk],N=LVN(dk);
+    h+=`<p style="font-weight:bold;font-size:12pt;margin:14px 0 4px;">${D.name.toUpperCase()}</p>`;
+    ['g1','g2'].forEach(g=>{
+      const {list,groups}=smallGroups(dk,g);
+      h+=`<p style="margin:8px 0 4px;"><b>${esc(D.G[g])}</b> – ${list.length} apprenant${list.length>1?'s':''}</p>`;
+      if(!list.length){h+=`<p style="font-size:10pt;">Aucun apprenant.</p>`;return}
+      h+=`<table style="border-collapse:collapse;width:100%;font-size:10pt;margin-bottom:6px;"><tr>${groups.map((gr,i)=>`<th style="${BH}">Petit groupe ${i+1}</th>`).join('')}</tr><tr>`;
+      groups.forEach(gr=>{h+=`<td style="${B}">${gr.map((e,j)=>`${esc(e.nom||'(sans nom)')} <span style="font-size:9pt;">(${N[curLevel(e,dk)]})</span>${j===0?' – <b>chef</b>':j===1?' – <b>rapporteur</b>':''}`).join('<br>')}</td>`});
+      h+=`</tr></table>`;
+    });
+  });
+  h+=`<p style="font-size:9.5pt;">Petits groupes de ${'4 à 6'} apprenants en mathématiques et de 5 à 8 en lecture, composés de façon que les apprenants de niveau supérieur aident les plus faibles. Le chef de groupe conduit l’activité ; le rapporteur écrit et présente les productions du groupe.</p>`;
+  return wrapDoc(h);
+}
+const isAbsW=(lundi,eid,key)=>!!(S.abs[lundi]&&S.abs[lundi][eid]&&S.abs[lundi][eid][key]);
+const isAbs=(eid,key)=>isAbsW(S.lundi,eid,key);
+function presGrid(){
+  if(!S.eleves.length)return '';
+  const ad=activeDays();
+  let h=`<div class="pform" style="border-color:var(--acc);background:var(--accs)"><h4>Pointage des présences – ${weekTxt()}</h4>
+   <p class="hint" style="margin:0 0 8px">Tous les apprenants sont présents par défaut : <b>décochez</b> ceux qui sont absents. La liste de présence (canevas officiel) se remplit avec « A » pour les absences et « O » le jour où un apprenant passe au niveau supérieur.</p>
+   <div class="tblwrap"><table class="eltab presgrid"><thead><tr><th rowspan="2">N°</th><th rowspan="2">Nom et prénoms</th>${ad.map(d=>`<th colspan="2">${d.n}</th>`).join('')}</tr>
+   <tr>${ad.map(()=>'<th>Lect.</th><th>Maths</th>').join('')}</tr></thead><tbody>`;
+  S.eleves.forEach((e,i)=>{const any=ad.some(d=>isAbs(e.id,d.k+'.lect')||isAbs(e.id,d.k+'.math'));
+    h+=`<tr class="${any?'abs':''}"><td>${i+1}</td><td class="nm">${esc(e.nom)}</td>${ad.map(d=>['lect','math'].map(x=>`<td><input type="checkbox" data-abs="${e.id}|${d.k}.${x}" ${isAbs(e.id,d.k+'.'+x)?'':'checked'} aria-label="${esc(e.nom)} ${d.n} ${x}"></td>`).join('')).join('')}</tr>`});
+  h+=`</tbody></table></div><div class="toolbar" style="margin:8px 0 0"><button id="btnAllPres">Tout le monde présent</button></div></div>`;
+  return h;
+}
+const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function mondaysOfMonth(iso){const d=new Date(iso+'T12:00:00');const y=d.getFullYear(),m=d.getMonth();const out=[];
+  const x=new Date(y,m,1,12);while(x.getDay()!==1)x.setDate(x.getDate()+1);while(x.getMonth()===m){out.push(x.toISOString().slice(0,10));x.setDate(x.getDate()+7)}return out}
+function groupMembers(dk,g){const lv=DISC[dk].LV.filter(x=>x.g===g).map(x=>x.k);return S.eleves.filter(e=>lv.includes(curLevel(e,dk)))}
+function docPresence(){
+  if(!S.eleves.length)return wrapDoc('<p style="text-align:center;font-weight:bold;font-size:13pt;">Liste de présence</p>'+noEleves);
+  const lund=S.lundi||new Date().toISOString().slice(0,10);const weeks=mondaysOfMonth(lund);const mo=new Date(lund+'T12:00:00');
+  const DK=['lun','mar','mer','jeu','ven'],DL=['L','M','M','J','V'];
+  const b='border:1px solid #000;padding:1px 2px;font-size:7.5pt;text-align:center;';const bh=b+'font-weight:bold;background:#f2f2f2;';
+  const sheets=[];
+  ['math','lect'].forEach(dk=>['g1','g2'].forEach(g=>{
+    const M=groupMembers(dk,g);if(!M.length)return;
+    let h=`<p style="text-align:center;font-weight:bold;font-size:13pt;margin:0 0 4px;">Liste de présence</p>
+     <p style="background:#e6e6e6;font-size:8pt;margin:0 0 6px;padding:3px;"><b><u>Instructions</u> :</b> <i>Mettre "A" lorsque l'élève est absent, ne rien écrire dans la case lorsque l'élève est présent et mettre un rond " <b>O</b> " lorsque l'élève passe au niveau supérieur.</i></p>
+     <table style="width:100%;font-size:9pt;margin-bottom:6px;border-collapse:collapse"><tr><td><b>IEPP</b> ${esc(S.iepp)}</td><td><b>Secteur Pédagogique</b> ${esc(S.secteur)}</td><td><b>École</b> ${esc(S.ecole)}</td></tr>
+     <tr><td><b>Discipline de la classe</b></td><td><b>Mathématiques</b> <span style="border:1px solid #000;padding:0 5px">${dk==='math'?'X':'&nbsp;&nbsp;'}</span></td><td><b>Français</b> <span style="border:1px solid #000;padding:0 5px">${dk==='lect'?'X':'&nbsp;&nbsp;'}</span> &nbsp; <b>Groupe de niveau</b> <span style="border:1px solid #000;padding:0 5px">${esc(groupComp(dk,g))}</span></td></tr>
+     <tr><td colspan="3"><b>Nom et prénoms du facilitateur</b> ${esc(S.enseignant)}</td></tr></table>`;
+    h+=`<table style="border-collapse:collapse;width:100%;"><tr><td style="${b}border:none" colspan="2"></td><td style="${b}border:none"></td><td style="${b}border:none"></td><th style="${bh}text-align:left" colspan="${weeks.length*5+1}">Mois : ${MOIS[mo.getMonth()]} ${mo.getFullYear()}</th></tr>
+      <tr><th style="${bh}text-align:right" colspan="2">Totaux</th><th style="${bh}">${M.filter(e=>e.sexe==='G').length}</th><th style="${bh}">${M.filter(e=>e.sexe==='F').length}</th>
+      ${weeks.map(w=>`<th style="${bh}font-weight:normal" colspan="5">Semaine du :<br>${fmtD(w)}</th>`).join('')}<th style="${bh}font-weight:normal">Nombre d'absence</th></tr>
+      <tr><th style="${bh}">N°</th><th style="${bh}">Nom et prénoms</th><th style="${bh}">G</th><th style="${bh}">F</th>${weeks.map(()=>DL.map(x=>`<th style="${bh}font-weight:normal">${x}</th>`).join('')).join('')}<th style="${bh}background:#000"></th></tr>`;
+    const today=new Date().toISOString().slice(0,10);
+    M.forEach((e,i)=>{let na=0,ns=0;
+      const cells=weeks.map(w=>DK.map((dkey,j)=>{const date=addD(w,j);const sess=(S.mer==='1'||dkey!=='mer');
+        if(!sess)return `<td style="${b}background:#d9d9d9"></td>`;
+        const passed=w<=lund;if(passed)ns++;
+        const A=isAbsW(w,e.id,dkey+'.'+dk);if(A)na++;
+        const O=S.progs.some(p=>p.eid===e.id&&p.dk===dk&&p.test==='Réussi'&&p.date===date);
+        return `<td style="${b}${A?'color:#b00;font-weight:bold':''}">${O?'<b>O</b>':A?'A':''}</td>`}).join('')).join('');
+      h+=`<tr><td style="${b}">${i+1}</td><td style="${b}text-align:left;white-space:nowrap">${esc(e.nom)}</td><td style="${b}">${e.sexe==='G'?'X':''}</td><td style="${b}">${e.sexe==='F'?'X':''}</td>${cells}<td style="${b}">${na}/${ns}</td></tr>`});
+    h+=`</table>`;
+    sheets.push(h);
+  }));
+  return `<div style="font-family:Arial,Helvetica,sans-serif;color:#000;">${sheets.join('<div style="page-break-before:always;height:14px"></div>')}</div>`;
+}
+function segmentsOf(e,dk){
+  const f=dk==='lect'?'l':'m';const first=TKEYS.find(k=>e.t[k][f]);
+  const segs=[];if(first)segs.push({lvl:e.t[first][f],date:S.tests[first].date||''});
+  progsOf(e,dk).filter(p=>p.test==='Réussi').forEach(p=>{if(!segs.length)segs.push({lvl:p.from,date:''});segs.push({lvl:p.to,date:p.date})});
+  return segs;
+}
+function docProgression(){
+  if(!S.eleves.length)return wrapDoc('<p style="text-align:center;font-weight:bold;font-size:13pt;">Fiche de Progression</p>'+noEleves);
+  const b='border:1px solid #000;padding:2px 4px;font-size:8.5pt;text-align:center;height:15px;';const bh=b+'font-weight:normal;';
+  const sheets=[];
+  ['lect','math'].forEach(dk=>{const N=LVN(dk);
+    ['g1','g2'].forEach(g=>{
+      const lv=DISC[dk].LV.filter(x=>x.g===g).map(x=>x.k);
+      const rows=[];
+      S.eleves.forEach(e=>{const sg=segmentsOf(e,dk);sg.forEach((s,i)=>{if(!lv.includes(s.lvl))return;const nx=sg[i+1];rows.push({nom:e.nom,niv:N[s.lvl]||'',de:s.date?fmtD(s.date):'',na:nx?N[nx.lvl]:'',ds:nx&&nx.date?fmtD(nx.date):''})})});
+      if(!rows.length)return;
+      const per=Math.max(20,Math.ceil(rows.length/2));const L=rows.slice(0,per),R=rows.slice(per,per*2);
+      const half=(arr,start)=>{let t='';for(let i=0;i<per;i++){const r=arr[i]||{};t+=`<tr><td style="${b}background:#f2f2f2">${start+i}</td><td style="${b}text-align:left;white-space:nowrap">${esc(r.nom||'')}</td><td style="${b}">${esc(r.niv||'')}</td><td style="${b}">${r.de||''}</td><td style="${b}font-weight:bold">${esc(r.na||'')}</td><td style="${b}">${r.ds||''}</td></tr>`}return t};
+      const head=`<tr><th style="${bh}" rowspan="2">n°</th><th style="${bh}font-weight:bold" rowspan="2">Nom de l'élève dans votre classe</th><th style="${bh}" colspan="2">Niveau initial</th><th style="${bh}" colspan="2">Niveau après progression</th></tr><tr><th style="${bh}">Niveau</th><th style="${bh}">Date d'entrée</th><th style="${bh}">Niveau</th><th style="${bh}">${dk==='math'?'Date de progression':'Date de sortie'}</th></tr>`;
+      sheets.push(`<table style="border-collapse:collapse;width:100%;border:1px solid #000;"><tr><td style="border:1px solid #000;text-align:center;font-weight:bold;font-size:13pt;padding:4px">Fiche de Progression - ${dk==='lect'?'LECTURE':'MATHEMATIQUES'}</td></tr>
+        <tr><td style="border:1px solid #000;font-size:8.5pt;padding:4px"><b><i>Instructions:</i></b><br><i>Après le test ASER de début, inscrivez sur cette fiche le nom de tous les élèves de votre groupe de niveau. Quand un élève progresse vers un groupe de niveau, indiquez la date à laquelle il intègre ce groupe. Lorsqu'un élève arrive d'un autre groupe de niveau, ajoutez son nom et sa date d'arrivée. Il n'est pas nécessaire d'attendre l'administration des tests ASER pour faire progresser les enfants.</i></td></tr>
+        <tr><td style="border:1px solid #000;font-size:9.5pt;padding:4px"><b>Nom de l'enseignant :</b> ${esc(S.enseignant)} <span style="margin-left:25%"><b>Groupe de niveau :</b> ${esc(DISC[dk].G[g].replace(/^Groupe \d : /,''))}</span></td></tr></table>
+        <table style="width:100%;border-collapse:collapse;margin-top:2px"><tr><td style="vertical-align:top;width:50%;padding:0 2px 0 0"><table style="border-collapse:collapse;width:100%">${head}${half(L,1)}</table></td>
+        <td style="vertical-align:top;padding:0 0 0 2px"><table style="border-collapse:collapse;width:100%">${head}${half(R,per+1)}</table></td></tr></table>`);
+    });
+  });
+  return `<div style="font-family:Calibri,Arial,Helvetica,sans-serif;color:#000;">${sheets.join('<div style="page-break-before:always;height:14px"></div>')}</div>`;
+}
+function weekRange(){const a=S.lundi,b=S.lundi?addD(S.lundi,6):'';return [a,b]}
+function docAnalyse(){
+  const [a,b]=weekRange();
+  let h=docHead('ANALYSE DE LA SESSION HEBDOMADAIRE',weekTxt());
+  ['lect','math'].forEach(dk=>{
+    const C=compute(dk),D=DISC[dk],N=LVN(dk);if(!C.classL)return;
+    h+=`<p style="font-weight:bold;font-size:12pt;margin:14px 0 4px;">${D.name.toUpperCase()}</p>`;
+    h+=`<p style="margin:6px 0 4px;"><b>1. Quelles sont les activités du plan qui ont été réellement menées ?</b></p>
+     <table style="border-collapse:collapse;width:100%;font-size:10pt;"><tr><th style="${BH}">Jour</th><th style="${BH}">Groupe</th><th style="${BH}">Activité prévue</th><th style="${BH}">Menée (oui / non)</th></tr>`;
+    C.days.forEach(({d,rows})=>rows.forEach((r,i)=>{h+=`<tr>${i===0?`<td style="${B}font-weight:bold;" rowspan="${rows.length}">${d.n}</td>`:''}<td style="${B}">${esc(r.lab)}</td><td style="${B}">${esc(r.actLabel)}</td><td style="${B}"></td></tr>`}));
+    h+=`</table>`;
+    const ch=[];C.days.forEach(({d,rows})=>rows.forEach(r=>{if(r.ovAct||r.ovObj)ch.push(`${d.n} – ${r.lab} : ${r.ovAct?'activité remplacée par « '+r.actLabel+' »':''}${r.ovAct&&r.ovObj?' ; ':''}${r.ovObj?'objectif modifié : « '+r.obj+' »':''}`)}));
+    h+=`<p style="margin:10px 0 4px;"><b>2. Quels changements avez-vous apportés au plan au cours de la semaine ? Pourquoi ?</b></p>
+     <div style="border:1px solid #000;min-height:50px;padding:5px;font-size:10pt;">${ch.length?ch.map(esc).join('<br>')+'<br><i>Pourquoi :</i>':''}</div>`;
+    const prog=S.progs.filter(p=>p.dk===dk&&p.test==='Réussi'&&a&&p.date>=a&&p.date<=b).map(p=>({p,e:S.eleves.find(x=>x.id===p.eid)})).filter(x=>x.e);
+    h+=`<p style="margin:10px 0 4px;"><b>3. Des apprenants ont-ils progressé dans la semaine ? Si oui, combien ?</b></p>
+     <div style="border:1px solid #000;min-height:30px;padding:5px;font-size:10pt;">${S.eleves.length?(prog.length?`Oui : ${prog.length} apprenant${prog.length>1?'s':''}.`:'Aucun passage enregistré cette semaine.'):''}</div>`;
+    h+=`<p style="margin:10px 0 4px;"><b>4. Avez-vous fait migrer les apprenants qui ont progressé dans le groupe de niveau supérieur ?</b></p>
+     <div style="border:1px solid #000;min-height:30px;padding:5px;font-size:10pt;">${prog.length?'Oui. '+prog.map(({p,e})=>`${esc(e.nom)} : ${N[p.from]} → ${N[p.to]} (le ${fmtD(p.date)})`).join('<br>'):(S.eleves.length?'Non : aucun passage cette semaine.':'')}</div>`;
+  });
+  h+=`<p style="margin-top:14px;font-size:10.5pt;">Visa du directeur (DEP) : ……………………………… &nbsp;&nbsp; Date : ………………</p>`;
+  return wrapDoc(h);
+}
+function docHTML(id){
+  if(id==='plans')return finalizeDoc(planCore('lect')+'<div style="page-break-before:always"></div>'+planCore('math'));
+  return finalizeDoc({aser:docASER,groupes:docGroupes,presence:docPresence,progression:docProgression,analyse:docAnalyse}[id]());
+}
+let DOCSEL='aser',DOCGEN=null;
+function renderDocs(){
+  document.getElementById('docBtns').innerHTML=DOCS.map(d=>`<button data-doc="${d.id}" class="${DOCSEL===d.id?'on':''}">${esc(d.n)}</button>`).join('');
+  const v=document.getElementById('docView'),bar=document.getElementById('docBar');
+  document.getElementById('presPanel').innerHTML=DOCSEL==='presence'?presGrid():'';
+  if(trialExpired()){v.innerHTML='<div class="empty">🔒 Documents indisponibles. '+esc(lockMsg())+'</div>';bar.hidden=true;return}
+  if(!DOCGEN){v.innerHTML='<div class="empty">Choisissez un document puis cliquez sur « Remplir le document ».</div>';bar.hidden=true;return}
+  v.innerHTML=`<div style="padding:16px;min-width:900px">${docHTML(DOCGEN)}</div>`;bar.hidden=false;
+  document.getElementById('btnDocDl').hidden=!canSave();document.getElementById('btnDocAll').hidden=!canSave();document.getElementById('btnPrintDoc').hidden=!OFFLINE;
+}
+async function copyHTML(html){
+  const tmp=document.createElement('div');tmp.innerHTML=html;const text=tmp.innerText;
+  try{if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([text],{type:'text/plain'})})])}else{await navigator.clipboard.writeText(text)}toast('Copié : collez dans Word (Ctrl+V)')}
+  catch(e){try{await navigator.clipboard.writeText(text);toast('Copié (texte simple)')}catch(e2){toast('Copie refusée par le navigateur')}}
+}
+async function saveDoc(name,bodies){
+  saveFile(name+'.html',wrapPrint(bodies.join('<div style="page-break-before:always"></div>')));
+}
+
+const DRENA_IEPP={"ABENGOUROU":["ABENGOUROU CENTRE","ABENGOUROU INDENIE","AGNIBILEKROU 1","AGNIBILEKROU 2","AMELEKIA","ANIASSUE","BETTIE","NIABLE","TANGUELAN","YAKASSE-FEYASSE","ZARANOU"],"ABIDJAN 1":["ADJAME 220 LGTS","COCODY BLOCKHAUS","COCODY AKOUEDO","ADJAME MUNICIPALITE","COCODY II PLATEAUX","COCODY ATTOBAN","PLATEAU","BINGERVILLE"],"ABIDJAN 2":["TREICHVILLE","MARCORY","BIETRY","KOUMASSI REMBLAIS","KOUMASSI SICOGI","KOUMASSI PRODOMO","VRIDI","PORT-BOUET"],"ABIDJAN 3":["ATTECOUBE","SONGON","YOPOUGON ANANERAIE","YOPOUGON ANDOKOI","YOPOUGON CENTRE","YOPOUGON GESCO","YOPOUGON KOUTE","YOPOUGON MAROC","YOPOUGON NIANGON","YOPOUGON SELMER","YOPOUGON SIDECI","YOPOUGON SIPOREX","YOPOUGON TOITS ROUGES"],"ABIDJAN 4":["ABOBO AGBEKOI","ABOBO AGNISSANKOI","ANONKOUA KOUTE","ANYAMA 1","ANYAMA 2","ABOBO AVOCATIER","ABOBO BANCO","ABOBO HOUANTOUE","ABOBO PLATEAU DOKUI"],"ABOISSO":["ABOISSO","ADIAKE","AYAME","MAFERE","MAFERE 2","TIAPOUM"],"ADZOPE":["ADZOPÉ 1","ADZOPÉ 2","YAKASSÉ","AGOU","AKOUPÉ","ALEPE","ABOISSO-COMOE"],"AGBOVILE":["AGBOVILLE 1","AGBOVILLE 2","AGBOVILLE 3","AZAGUIE","GRAND MORIE","RUBINO"],"BONDOUKOU":["ASSUEFRY","BONDOUKOU 2","KOUN FAO","SANDEGUE","SOROBANGO","LAOUDI-BA","TABAGNE","GOUMERE","TAOUDI","TANDA","YEZIMALA","KOUASSI-DATEKRO","TRANSUA","BONDOUKOU 1","BONDO","TANKESSE","TIEDIO"],"BONGOUANOU":["IEPP ANDE","IEPP ARRAH","IEPP BONGOUANOU","IEPP M'BATTO","IEPP TIEMELEKRO","IEPP KREGBE"],"BOUAFLE":["BONON","BOUAFLE CENTRE","BOUAFLE NORD","BOUAFLE SUD","GOHITAFLA","KANZRA","MAMINIGUI","PAKOUABO","ZAGUIETA","ZUENOULA"],"BOUAKE 1":["BOUAKE BELLEVILLE","BODOKRO","BOTRO","DIABO","BOUAKE GONFR","BOUAKE KOKO","MARABADIASSA","BOUAKE SOKOURA"],"BOUAKE 2":["AYAOU-SRAN","BEOUMI 1","BEOUMI 2","BOUAKE-AIR FRANCE","BOUAKE-N'GATTAKRO","BROBO","DJEBOBOUA","SAKASSOU"],"BOUNA":["IEPP BOUNA","IEPP DOROPO","IEPP TEHINI","IEPP NASSIAN"],"BOUNDIALI":["BOUNDIALI 1","BOUNDIALI 2","KOLIA","GBON","KOUTO","KASSERE","TENGRELA 1","TENGRELA 2"],"DABOU":["DABOU 1","DABOU 2","EBOUNOU","GRAND LAHOU","JACQUEVILLE","AHOUANOU"],"DALOA":["BEDIALA","DALOA-LABIA","GBOGUHE","DALOA SUD","DALOA-GBEULIVILLE","GONATE","VAVOUA 3","DANIA","VAVOUA 2","GADOUAN","DALOA TAZIBOUO","DALOA KENNEDY","VAVOUA 1","DALOA-DIOULABOUGOU","KETRO-BASSAM","SEITIFLA","ZOUKOUGBEU"],"DANANE":["TEAPLEU","ZOUAN - HOUNIEN","KOUAN - HOULE","DANEU","MAHAPLEU","BANNEU","BIN - HOUYE","DANANE"],"DAOUKRO":["BONGUERA","DAOUKRO","ETTROKRO","M'BAHIAKRO","OUELLE","PRIKRO"],"DIMBOKRO":["N'ZECREZESSOU","DIMBOKRO-NOFOU","BOCANDA","DIMBOKRO","KOUADIOBLEKRO","BENGASSOU","KOUASSI-KOUASSIKRO"],"DIVO":["DIVO PLATEAU","DIVO 3","DIVO MUNICIPALITE","GUITRY","HIRE","OGOUDOU","DIDOKO","YOCOBOUE","DAIRO_DIDIZO","LAKOTA COMMERCE","LAKOTA 2","NIAMBEZARIA","ZIKISSO"],"DUEKOUE":["BAGOHOUO","BANGOLO","DIEOUZON","DUEKOUE 1","DUEKOUE 2","FACOBLY","GBAPLEU","GUEHIEBLY","GUEZON","KAEIN","KOUIBLY","SEMIEN"],"FERKESSEDOUGOU":["FERKE SUD","FERKE NORD","KOUMBALA","KONG","OUANGOLODOUGOU","NIELLE","DIAWALA"],"GAGNOA":["APFC/IEPP","DIGNAGO","OURAGAHIO","SERIHIO","BAYOTA","GNAGBODOUGNOA","DIEGONEFLA","GAGNOA DIOULABOUGOU","GUEPAHOUO","GAGNOA LONACI","GALEBRE","OUME","GUEBEROUA"],"GRAND-BASSAM":["GRAND-BASSAM","BONOUA","BONGO"],"GUIGLO":["GUIGLO 1","GUIGLO 2","BLOLÉQUIN","TAÏ","TOULEPLEU","ZÉAGLO"],"ISSIA":["BOGUEDIA","IBOGUHE","ISSIA 1","ISSIA 2","NAHIO","NAMANE","SAIOUA 1","SAIOUA 2"],"KATIOLA":["TAFIRE","KATIOLA","BONIEREDOUGOU","SATAMA-SOKOURA","DABAKALA 1","DABAKALA 2","NIAKARA","FRONAN","TORTIYA"],"KORHOGO":["M'BENGUÉ 2","KORHOGO EST","M'BENGUE1","KAGBOLODOUGOU","DIKODOUGOU","SINEMATIALI","KORHOGO NORD","NAPIE","NIOFOIN","KARAKORO","SIRASSO","KORHOGO CENTRE","KORHOGO SUD"],"MAN":["BIANKOUMA","GBONNÉ","MAN DOYAGOUINÉ","MAN LIBREVILLE","MAN KOKO","LOGOUALÉ","SANGOUINÉ","SIPILOU"],"MANKONO":["BOUANDOUGOU","DIANRA 1","DIANRA 2","KONGASSO","KOUNAHIRI","MANKONO 1","MANKONO 2","SARHALA","TIÉNINGBOUÉ"],"MINIGNAN":["MINIGNAN","KANIASSO","TIENKO"],"ODIENNE":["ODIENNE 1","ODIENNE 2","BAKO","GBELEBAN","MADINANI","SEGUELON"],"SAN PEDRO":["DJOUROUTOU","DOBA","DOGBO","GABIADJI","GRABO","GRAND-BEREBY","SAN PEDRO BARDOT","SAN PEDRO SEWEKE","SAN PEDRO ZONE INDUSTRIELLE","TABOU"],"SASSANDRA":["IEPP SASSANDRA","IEPP FRESCO","IEPP SAGO","IEPP DAKPADOU","IEPP LOBAKUYA"],"SEGUELA":["KANI","MASSALA","MORONDO","SEGUELA","SEGUELA 2","SIFIE","WOROFLA"],"SINFRA":["SINFRA","KONONFLA","KOUETINFLA","SINFRA 2","BAZRE"],"SOUBRE":["BUYO 1","BUYO 2","GRAND-ZATTRY","GUEYO 1","GUEYO 2","LILIYO","MAYO","MEAGUI 1","MEAGUI 2","OKROUYO 1","OKROUYO 2","OUPOYO 1","OUPOYO 2","SOUBRE 1","SOUBRE 2","SOUBRE 3","APFC"],"TIASSALE":["N'DOUCI","SIKENSI","TAABO","TIASSALE 1","TIASSALE 2"],"TOUBA":["TOUBA","KORO","OUIANINOU","GUINTEGUELA"],"YAMOUSSOUKRO":["ATTIEGOUAKRO","DIDIEVI","DJEKANOU","KOKUMBO","LOMOKANKRO","RAVIART","TIEBISSOU","TOUMODI","YAMOUSSOUKRO FONDATION","YAMOUSSOUKRO MOROFE","YAMOUSSOUKRO SINZIBO"]};
+
+/* =====================================================================
+   IDENTIFICATION : DRENA → IEPP (listes déroulantes)
+   ===================================================================== */
+function renderIdent(){
+  const ds=document.getElementById('drenaSel'),is=document.getElementById('ieppSel');
+  const keys=Object.keys(DRENA_IEPP);
+  const dFree=S.drenaFree||(S.drena&&!keys.includes(S.drena));
+  ds.innerHTML='<option value="">— Choisir la DRENA —</option>'+keys.map(k=>`<option ${!dFree&&S.drena===k?'selected':''}>${esc(k)}</option>`).join('')+`<option value="*" ${dFree?'selected':''}>Autre (saisir)…</option>`;
+  document.getElementById('drenaTxt').hidden=!dFree;
+  const list=(!dFree&&DRENA_IEPP[S.drena])||[];
+  const iFree=S.ieppFree||dFree||(S.iepp&&!list.includes(S.iepp));
+  is.innerHTML=(list.length?'<option value="">— Choisir l’IEPP —</option>':'<option value="">— Choisir d’abord la DRENA —</option>')+list.map(k=>`<option ${!iFree&&S.iepp===k?'selected':''}>${esc(k)}</option>`).join('')+`<option value="*" ${iFree?'selected':''}>Autre (saisir)…</option>`;
+  document.getElementById('ieppTxt').hidden=!iFree;
+}
+
+/* =====================================================================
+   MES CLASSES : liste, alerte « aucun apprenant n'a progressé »
+   ===================================================================== */
+function classLabel(C){return `${C.classe||'Classe ?'} – ${C.ecole||'École non renseignée'}${C.enseignant?' ('+C.enseignant+')':''}`}
+/* ---- Règle d'alerte : après 4 plans de session enregistrés dans une discipline,
+        50 % ou plus des apprenants n'ont pas progressé dans cette discipline.
+        Les apprenants déjà au niveau le plus élevé (Compréhension, Division) ne sont pas comptés. ---- */
+const ALERT_PLANS=4,ALERT_PCT=50;
+function baseLvlRaw(e,dk){const f=dk==='lect'?'l':'m';if(e.t)for(const k of ['fin','mi','debut']){const v=e.t[k]&&e.t[k][f];if(v)return v}return e[dk]||''}
+function discAlert(C,dk){
+  const E=C.eleves||[],P=C.progs||[];const top=DISC[dk].LV[DISC[dk].LV.length-1].k;
+  const plans=Object.values(C.sessLog||{}).filter(v=>v&&v[dk]>0).length;
+  const prog=new Set(P.filter(p=>p.dk===dk&&p.test==='Réussi').map(p=>p.eid));
+  const elig=E.filter(e=>{const b=baseLvlRaw(e,dk);return b&&b!==top||prog.has(e.id)});
+  const np=elig.filter(e=>!prog.has(e.id)).length;const pct=elig.length?Math.round(100*np/elig.length):0;
+  return {plans,elig:elig.length,np,pct,alert:plans>=ALERT_PLANS&&elig.length>0&&pct>=ALERT_PCT};
+}
+function classStats(C){
+  const eff=(C.eleves||[]).length;const ok=(C.progs||[]).filter(p=>p.test==='Réussi'&&(C.eleves||[]).some(e=>e.id===p.eid));
+  const last=ok.map(p=>p.date).sort().pop()||'';
+  const A={lect:discAlert(C,'lect'),math:discAlert(C,'math')};
+  return {eff,last,A,alert:A.lect.alert||A.math.alert};
+}
+function alertCell(a){
+  if(!a.elig)return '<span class="st0">—</span>';
+  const txt=`${a.pct} % sans progression (${a.np}/${a.elig}) · ${a.plans} plan${a.plans>1?'s':''}`;
+  if(a.alert)return `<span class="st2">⚠ ${txt}</span>`;
+  if(a.plans<ALERT_PLANS)return `<span class="st0">${txt} – contrôle après ${ALERT_PLANS} plans</span>`;
+  return `<span class="st3">✓ ${txt}</span>`;
+}
+function renderClasses(){
+  const ids=Object.keys(STORE.list).filter(id=>STORE.list[id].saved||id===S.classId);
+  STORE.list[S.classId]=S;
+  const rows=ids.map(id=>{const C=STORE.list[id],t=classStats(C),curr=id===S.classId;
+    return `<tr class="${curr?'curr':''} ${t.alert?'alrow':''}"><td>${esc(C.drena||'')}<br><small>${esc(C.iepp||'')}</small></td><td><b>${esc(C.classe||'?')}</b> – ${esc(C.ecole||'')}<br><small>${esc(C.enseignant||'')}</small>${!C.saved?'<br><small>non enregistrée</small>':''}</td>
+      <td class="c">${t.eff}</td><td>${alertCell(t.A.lect)}</td><td>${alertCell(t.A.math)}</td><td>${t.last?fmtD(t.last):'—'}</td>
+      <td>${curr?'<b>Ouverte</b>':`<button data-open="${id}">Ouvrir</button>`} <button class="del2" data-delclass="${id}">Supprimer</button></td></tr>`}).join('');
+  document.getElementById('classList').innerHTML=`<div class="tblwrap"><table class="eltab cltab"><thead><tr><th>DRENA / IEPP</th><th>Classe – École</th><th>Effectif</th><th>Lecture</th><th>Mathématiques</th><th>Dernière progression</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  const al=ids.map(id=>STORE.list[id]).filter(C=>classStats(C).alert);
+  const dd=(C,dk,n)=>{const a=classStats(C).A[dk];return a.alert?`${n} : ${a.pct} % des apprenants sans progression (${a.np} sur ${a.elig}) après ${a.plans} plans de session`:''};
+  document.getElementById('alarm').innerHTML=al.length?`<div class="alarm"><div class="ai">⚠</div><div><b>Attention : ${al.length} classe${al.length>1?'s':''} où au moins ${ALERT_PCT} % des apprenants n’ont pas progressé après ${ALERT_PLANS} plans de session</b>
+     <ul>${al.map(C=>`<li><b>${esc(classLabel(C))}</b> – ${[dd(C,'lect','Lecture'),dd(C,'math','Mathématiques')].filter(Boolean).map(esc).join(' ; ')}</li>`).join('')}</ul>
+     <small>Vérifiez la conduite des activités, le suivi des apprenants en observation et l’enregistrement des progressions (bouton « ↑ Progression »).</small></div></div>`:'';
+  document.getElementById('btnOffline').hidden=OFFLINE;
+  document.getElementById('offlineNote').textContent=OFFLINE?'Version hors ligne : les données restent dans ce navigateur ; pensez à « Sauvegarder toutes les classes » régulièrement.':'';
+}
+function importClasses(file){
+  if(!file)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);const list=d.list||d;let n=0;
+      Object.values(list).forEach(C=>{if(C&&C.math&&C.lect){if(!C.classId)C.classId=newId();C.saved=true;STORE.list[C.classId]=C;n++}});
+      if(!n)throw 0;persist();renderAll();toast(n+' classe(s) restaurée(s)')}catch(e){toast('Fichier non reconnu')}};
+  r.readAsText(file);
+}
+async function downloadOffline(){}
+function APP_SOURCE(){const c=document.documentElement.cloneNode(true);['#classList','#alarm','#levels','#progress','#days','#plan','#docView','#eleves','#docBtns','#presPanel'].forEach(q=>{const n=c.querySelector(q);if(n)n.innerHTML=''});return c.outerHTML}
+
+
+
+
+const LOCKED_BTNS=['btnGen','btnDocGen','btnCopy','btnDocCopy','btnDl','btnDlBoth','btnDocDl','btnDocAll','btnPrintPlan','btnPrintDoc','btnOffline'];
+
+
+/* =====================================================================
+   PARTAGE : ENSEIGNANT → DIRECTEUR
+   ===================================================================== */
+async function encodeShare(obj){
+  const bytes=new TextEncoder().encode(JSON.stringify(obj));let out=bytes,pre='PNAPAS1:';
+  try{if(window.CompressionStream){const cs=new Blob([bytes]).stream().pipeThrough(new CompressionStream('gzip'));out=new Uint8Array(await new Response(cs).arrayBuffer());pre='PNAPAS1Z:'}}catch(e){out=bytes;pre='PNAPAS1:'}
+  let bin='';out.forEach(c=>bin+=String.fromCharCode(c));return pre+btoa(bin);
+}
+function classPayload(){
+  const okp=dk=>S.progs.filter(p=>p.dk===dk&&p.test==='Réussi'&&S.eleves.some(e=>e.id===p.eid));
+  const last=S.progs.filter(p=>p.test==='Réussi').map(p=>p.date).sort().pop()||'';
+  return {app:'PNAPAS',type:'classe',v:1,exportedAt:new Date().toISOString(),
+    classe:{id:S.classId,drena:S.drena,iepp:S.iepp,secteur:S.secteur,ecole:S.ecole,codeEcole:S.codeEcole,classe:S.classe,enseignant:S.enseignant,sexeEns:S.sexeEns,forme:S.forme,directeur:S.directeur,annee:S.annee,
+      effClasse:effTestes(),taux:S.taux===''?null:+S.taux},
+    tests:{debut:{date:S.tests.debut.date},mi:{date:S.tests.mi.date},fin:{date:S.tests.fin.date}},
+    eleves:S.eleves.map(e=>({s:e.sexe,arr:e.arr==='1'?1:0,t:Object.fromEntries(TKEYS.map(k=>[k,{l:e.t[k].l,m:e.t[k].m,v:e.t[k].v==='1'?1:0}])),cl:curLevel(e,'lect'),cm:curLevel(e,'math')})),
+    progs:{lect:okp('lect').length,math:okp('math').length,last},
+    alerte:{lect:discAlert(S,'lect'),math:discAlert(S,'math'),plans:ALERT_PLANS,pct:ALERT_PCT},
+    sessions:Object.entries(S.sessLog||{}).map(([d,v])=>({d,math:v.math||0,lect:v.lect||0}))};
+}
+let SHARE_OPEN=false,SHARE_CODE='';
+function shareName(){return ('ASER_'+(S.ecole||'ecole')+'_'+(S.classe||'classe')+'_'+(S.enseignant||'')).replace(/[^\wÀ-ÿ-]+/g,'_').replace(/_+$/,'')}
+function renderShare(){
+  const box=document.getElementById('sharePanel');if(!box)return;
+  if(!SHARE_OPEN){box.innerHTML='';return}
+  const miss=[];if(!S.ecole)miss.push('école');if(!S.classe)miss.push('classe');if(!S.eleves.length)miss.push('liste des apprenants');
+  box.innerHTML=`<div class="share"><h4>Envoyer la fiche de résultats ASER au directeur</h4>
+    ${miss.length?`<p class="notice">À compléter avant l’envoi : ${miss.join(', ')}.</p>`:''}
+    <p class="hint" style="margin:0 0 6px">Le directeur importe ce fichier (ou ce code) dans son application : la <b>fiche de suivi de l’école</b> se remplit automatiquement. Les noms des apprenants ne sont pas transmis : seulement le sexe, les niveaux ASER des trois tests, les progressions et le nombre de séances.</p>
+    <div class="toolbar" style="margin:0"><button class="primary" id="btnShareFile">⬇ Télécharger le fichier à envoyer</button><button id="btnShareCode">📋 Copier le code de partage</button><button id="btnShareClose">Fermer</button></div>
+    <textarea id="shareTxt" rows="3" readonly placeholder="Le code de partage apparaîtra ici">${esc(SHARE_CODE)}</textarea>
+    <p class="hint" style="margin:0">Envoyez le fichier (WhatsApp, courriel, clé USB) ou collez le code dans un message.</p></div>`;
+}
+
+if(FRESH){applyAlternation('math');applyAlternation('lect')}
+renderAll();
+</script>
+<div id="pwaBar" hidden style="position:fixed;right:12px;bottom:14px;z-index:60"><button id="pwaInstall" style="font:inherit;font-weight:700;background:#1f8a5b;color:#fff;border:none;border-radius:24px;padding:11px 18px;box-shadow:0 3px 10px rgba(0,0,0,.25);cursor:pointer">📲 Installer l’application</button></div>
+<div id="pwaHelp" hidden style="position:fixed;left:10px;right:10px;bottom:70px;z-index:61;background:#fff;border:2px solid #1f8a5b;border-radius:12px;padding:14px 16px;box-shadow:0 6px 20px rgba(0,0,0,.25);font-size:15px;line-height:1.45">
+ <b>Installer sur l’écran d’accueil</b><br><span id="pwaHelpTxt"></span><br><button id="pwaHelpClose" style="margin-top:8px;font:inherit;border:1px solid #ccc;background:#fff;border-radius:6px;padding:5px 12px">Fermer</button></div>
+<script>
+(function(){
+  var standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+  if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(function(){})}
+  if(standalone)return;
+  var bar=document.getElementById('pwaBar'),btn=document.getElementById('pwaInstall'),help=document.getElementById('pwaHelp'),txt=document.getElementById('pwaHelpTxt');
+  var ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),deferred=null;
+  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;bar.hidden=false});
+  window.addEventListener('appinstalled',function(){bar.hidden=true;help.hidden=true});
+  if(ios&&/^https?:/.test(location.protocol))bar.hidden=false;
+  btn.addEventListener('click',function(){
+    if(deferred){deferred.prompt();deferred.userChoice.then(function(){deferred=null;bar.hidden=true});return}
+    txt.innerHTML=ios?'Dans Safari, touchez le bouton <b>Partager</b> (carré avec une flèche vers le haut), puis <b>« Sur l’écran d’accueil »</b>, puis <b>Ajouter</b>.'
+      :'Ouvrez le menu du navigateur (⋮ ou ⋯) puis choisissez <b>« Installer l’application »</b> ou <b>« Ajouter à l’écran d’accueil »</b>.';
+    help.hidden=false});
+  document.getElementById('pwaHelpClose').addEventListener('click',function(){help.hidden=true});
+})();
+</script>
+</body>
+</html>

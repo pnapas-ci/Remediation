@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche de suivi de l’école – Directeur (remédiation PNAPAS)</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2b5d9b">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Suivi école">
+
+<style>:root{--ink:#1d2a24;--muted:#5d6b64;--line:#d9e0dc;--bg:#f6f7f4;--card:#fff;--acc:#2b5d9b;--accs:#e8eff8;--g2:#1f8a5b;--g2s:#e6f4ed;--warn:#9a5b00;--warns:#fff6e0}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;font-family:"Source Sans 3",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.4}
+header.top{background:#fff;border-bottom:1px solid var(--line);padding:16px 22px}
+header.top h1{margin:0;font-size:21px}header.top p{margin:4px 0 0;color:var(--muted)}
+.role{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 9px;border-radius:12px;background:var(--ink);color:#fff;margin-bottom:6px}
+main{max-width:1200px;margin:0 auto;padding:18px 14px 60px}
+section.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+section.card h2{margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:10px}
+.step{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-size:14px;flex:none}
+.hint{color:var(--muted);font-size:13.5px;margin:0 0 12px}
+.grid{display:grid;gap:12px}.g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}
+input,select,textarea{font:inherit;color:inherit;border:1px solid #c5cec9;border-radius:6px;padding:7px 9px;background:#fff;width:100%}
+textarea{font-family:monospace;font-size:12.5px}
+button,.filebtn{font:inherit;font-weight:600;border:1px solid #c5cec9;background:#fff;border-radius:6px;padding:7px 12px;cursor:pointer;color:var(--ink);display:inline-block}
+button:hover,.filebtn:hover{background:#f1f3f0}
+button.primary,.filebtn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 12px}
+.tblwrap{overflow-x:auto}
+table.lst{width:100%;border-collapse:collapse;font-size:13.5px}
+.lst th{background:#f1f3f0;font-size:12.5px;text-align:left;padding:6px;border:1px solid var(--line)}
+.lst td{border:1px solid var(--line);padding:6px;vertical-align:top}.lst td.c{text-align:center}
+.lst tr.alrow td{background:#fff0f0}
+.st1{color:var(--warn);font-weight:700}.st2{color:#b00;font-weight:700}.st3{color:var(--g2);font-weight:700}.st0{color:var(--muted)}
+.del{font-size:12px;padding:3px 8px;color:#a33}
+.alarm{display:flex;gap:12px;align-items:flex-start;background:#ffecec;border:2px solid #d33;color:#7a0000;border-radius:10px;padding:12px 16px;margin-bottom:16px;animation:pulse 2s ease-in-out 3}
+.alarm.soft{background:var(--warns);border-color:#e0b050;color:var(--warn);animation:none}
+.alarm .ai{font-size:30px;line-height:1}.alarm ul{margin:6px 0;padding-left:18px}.alarm small{display:block;margin-top:4px}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(221,51,51,.5)}50%{box-shadow:0 0 0 8px rgba(221,51,51,0)}}
+.tabs{display:flex;gap:6px;margin:0 0 12px}.tabs button{flex:1}.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.docview{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px}
+.vis input{width:64px;padding:4px}
+.empty{padding:26px;text-align:center;color:var(--muted)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast.show{opacity:1}
+@media(max-width:640px){header.top{padding:12px}header.top h1{font-size:18px}main{padding:10px 8px 50px}section.card{padding:14px 12px}.toolbar>*{flex:1 1 auto}table.lst{min-width:640px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="role">Espace directeur</span>
+  <h1>Fiche de suivi de l’école</h1>
+  <p>Remédiation PNAPAS (CE1–CM2). Importez les fiches de résultats ASER envoyées par les enseignants : la fiche de suivi de l’école se remplit automatiquement.</p>
+</header>
+<main>
+<div id="trial"></div>
+<div id="alarm"></div>
+
+<section class="card">
+  <h2><span class="step">1</span> Informations générales</h2>
+  <p class="hint">À renseigner en début d’année. Les champs vides se remplissent avec les informations des fiches importées.</p>
+  <div class="grid g4">
+    <label class="f">DRENA<select id="drenaSel"></select><input id="drenaTxt" data-k="drena" placeholder="Saisir la DRENA" hidden></label>
+    <label class="f">IEPP<select id="ieppSel"></select><input id="ieppTxt" data-k="iepp" placeholder="Saisir l’IEPP" hidden></label>
+    <label class="f">Nom du secteur pédagogique<input data-k="secteur"></label>
+    <label class="f">Nom de l’école<input data-k="ecole"></label>
+    <label class="f">Code de l’école<input data-k="code"></label>
+    <label class="f">Nom du directeur d’école<input data-k="directeur"></label>
+    <label class="f">Sigles du directeur (impression)<input data-k="sigles" placeholder="automatique : initiales"></label>
+    <label class="f">Année scolaire<input data-k="annee" readonly></label>
+    <label class="f">Total enseignants<input type="number" min="0" data-k="totalEns" placeholder="auto"></label>
+    <label class="f">Enseignants formés – masculin<input type="number" min="0" data-k="formesM" placeholder="auto"></label>
+    <label class="f">Enseignants formés – féminin<input type="number" min="0" data-k="formesF" placeholder="auto"></label>
+  </div>
+</section>
+
+<section class="card">
+  <h2><span class="step">2</span> Importer les fiches ASER des classes</h2>
+  <p class="hint">Chaque enseignant envoie sa fiche depuis son application (« 📤 Envoyer ma fiche ASER au directeur ») : un fichier <b>.json</b> ou un <b>code de partage</b>. Une nouvelle fiche de la même classe remplace l’ancienne (mise à jour après chaque test ASER ou progression).</p>
+  <div class="toolbar">
+    <label class="filebtn primary">📂 Importer des fichiers<input type="file" id="files" accept=".json,application/json,text/plain" multiple hidden></label>
+  </div>
+  <textarea id="codes" rows="3" placeholder="… ou collez ici un ou plusieurs codes de partage (PNAPAS1…), puis cliquez sur « Importer les codes »"></textarea>
+  <div class="toolbar" style="margin-top:6px"><button id="btnCodes">Importer les codes</button></div>
+  <div id="classList"></div>
+</section>
+
+<section class="card">
+  <h2><span class="step">3</span> Visites des mentors PNAPAS</h2>
+  <p class="hint">À renseigner après les tests de mi-parcours et de fin : nombre de visites reçues par niveau.</p>
+  <div id="visites"></div>
+</section>
+
+<section class="card">
+  <h2><span class="step">4</span> Fiche de suivi de l’école</h2>
+  <div class="toolbar">
+    <button class="primary" id="btnFill">▶ Remplir la fiche de suivi</button>
+    <button id="btnCopy">Copier (coller dans Word)</button>
+    <button id="btnDl">Télécharger</button>
+    <button id="btnPrint" hidden>🖨 Imprimer</button>
+  </div>
+  <div class="docview wmable" id="doc"><div class="empty">Cliquez sur « Remplir la fiche de suivi ».</div></div>
+</section>
+
+<section class="card">
+  <h2><span class="step">5</span> Envoyer au conseiller pédagogique (CPPP)</h2>
+  <p class="hint">Le conseiller importe ce fichier (ou ce code) dans son application : la <b>fiche de suivi du secteur pédagogique</b> se remplit automatiquement.</p>
+  <div class="toolbar"><button class="primary" id="btnSendFile">⬇ Télécharger le fichier à envoyer</button><button id="btnSendCode">📋 Copier le code de partage</button></div>
+  <textarea id="sendTxt" rows="3" readonly placeholder="Le code de partage apparaîtra ici"></textarea>
+  <div class="toolbar" style="margin-top:12px"><button id="btnBackup">Sauvegarder les données (fichier)</button><label class="filebtn">Restaurer<input type="file" id="restore" accept=".json" hidden></label><button id="btnReset">Tout effacer</button></div>
+</section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const DRENA_IEPP={"ABENGOUROU":["ABENGOUROU CENTRE","ABENGOUROU INDENIE","AGNIBILEKROU 1","AGNIBILEKROU 2","AMELEKIA","ANIASSUE","BETTIE","NIABLE","TANGUELAN","YAKASSE-FEYASSE","ZARANOU"],"ABIDJAN 1":["ADJAME 220 LGTS","COCODY BLOCKHAUS","COCODY AKOUEDO","ADJAME MUNICIPALITE","COCODY II PLATEAUX","COCODY ATTOBAN","PLATEAU","BINGERVILLE"],"ABIDJAN 2":["TREICHVILLE","MARCORY","BIETRY","KOUMASSI REMBLAIS","KOUMASSI SICOGI","KOUMASSI PRODOMO","VRIDI","PORT-BOUET"],"ABIDJAN 3":["ATTECOUBE","SONGON","YOPOUGON ANANERAIE","YOPOUGON ANDOKOI","YOPOUGON CENTRE","YOPOUGON GESCO","YOPOUGON KOUTE","YOPOUGON MAROC","YOPOUGON NIANGON","YOPOUGON SELMER","YOPOUGON SIDECI","YOPOUGON SIPOREX","YOPOUGON TOITS ROUGES"],"ABIDJAN 4":["ABOBO AGBEKOI","ABOBO AGNISSANKOI","ANONKOUA KOUTE","ANYAMA 1","ANYAMA 2","ABOBO AVOCATIER","ABOBO BANCO","ABOBO HOUANTOUE","ABOBO PLATEAU DOKUI"],"ABOISSO":["ABOISSO","ADIAKE","AYAME","MAFERE","MAFERE 2","TIAPOUM"],"ADZOPE":["ADZOPÉ 1","ADZOPÉ 2","YAKASSÉ","AGOU","AKOUPÉ","ALEPE","ABOISSO-COMOE"],"AGBOVILE":["AGBOVILLE 1","AGBOVILLE 2","AGBOVILLE 3","AZAGUIE","GRAND MORIE","RUBINO"],"BONDOUKOU":["ASSUEFRY","BONDOUKOU 2","KOUN FAO","SANDEGUE","SOROBANGO","LAOUDI-BA","TABAGNE","GOUMERE","TAOUDI","TANDA","YEZIMALA","KOUASSI-DATEKRO","TRANSUA","BONDOUKOU 1","BONDO","TANKESSE","TIEDIO"],"BONGOUANOU":["IEPP ANDE","IEPP ARRAH","IEPP BONGOUANOU","IEPP M'BATTO","IEPP TIEMELEKRO","IEPP KREGBE"],"BOUAFLE":["BONON","BOUAFLE CENTRE","BOUAFLE NORD","BOUAFLE SUD","GOHITAFLA","KANZRA","MAMINIGUI","PAKOUABO","ZAGUIETA","ZUENOULA"],"BOUAKE 1":["BOUAKE BELLEVILLE","BODOKRO","BOTRO","DIABO","BOUAKE GONFR","BOUAKE KOKO","MARABADIASSA","BOUAKE SOKOURA"],"BOUAKE 2":["AYAOU-SRAN","BEOUMI 1","BEOUMI 2","BOUAKE-AIR FRANCE","BOUAKE-N'GATTAKRO","BROBO","DJEBOBOUA","SAKASSOU"],"BOUNA":["IEPP BOUNA","IEPP DOROPO","IEPP TEHINI","IEPP NASSIAN"],"BOUNDIALI":["BOUNDIALI 1","BOUNDIALI 2","KOLIA","GBON","KOUTO","KASSERE","TENGRELA 1","TENGRELA 2"],"DABOU":["DABOU 1","DABOU 2","EBOUNOU","GRAND LAHOU","JACQUEVILLE","AHOUANOU"],"DALOA":["BEDIALA","DALOA-LABIA","GBOGUHE","DALOA SUD","DALOA-GBEULIVILLE","GONATE","VAVOUA 3","DANIA","VAVOUA 2","GADOUAN","DALOA TAZIBOUO","DALOA KENNEDY","VAVOUA 1","DALOA-DIOULABOUGOU","KETRO-BASSAM","SEITIFLA","ZOUKOUGBEU"],"DANANE":["TEAPLEU","ZOUAN - HOUNIEN","KOUAN - HOULE","DANEU","MAHAPLEU","BANNEU","BIN - HOUYE","DANANE"],"DAOUKRO":["BONGUERA","DAOUKRO","ETTROKRO","M'BAHIAKRO","OUELLE","PRIKRO"],"DIMBOKRO":["N'ZECREZESSOU","DIMBOKRO-NOFOU","BOCANDA","DIMBOKRO","KOUADIOBLEKRO","BENGASSOU","KOUASSI-KOUASSIKRO"],"DIVO":["DIVO PLATEAU","DIVO 3","DIVO MUNICIPALITE","GUITRY","HIRE","OGOUDOU","DIDOKO","YOCOBOUE","DAIRO_DIDIZO","LAKOTA COMMERCE","LAKOTA 2","NIAMBEZARIA","ZIKISSO"],"DUEKOUE":["BAGOHOUO","BANGOLO","DIEOUZON","DUEKOUE 1","DUEKOUE 2","FACOBLY","GBAPLEU","GUEHIEBLY","GUEZON","KAEIN","KOUIBLY","SEMIEN"],"FERKESSEDOUGOU":["FERKE SUD","FERKE NORD","KOUMBALA","KONG","OUANGOLODOUGOU","NIELLE","DIAWALA"],"GAGNOA":["APFC/IEPP","DIGNAGO","OURAGAHIO","SERIHIO","BAYOTA","GNAGBODOUGNOA","DIEGONEFLA","GAGNOA DIOULABOUGOU","GUEPAHOUO","GAGNOA LONACI","GALEBRE","OUME","GUEBEROUA"],"GRAND-BASSAM":["GRAND-BASSAM","BONOUA","BONGO"],"GUIGLO":["GUIGLO 1","GUIGLO 2","BLOLÉQUIN","TAÏ","TOULEPLEU","ZÉAGLO"],"ISSIA":["BOGUEDIA","IBOGUHE","ISSIA 1","ISSIA 2","NAHIO","NAMANE","SAIOUA 1","SAIOUA 2"],"KATIOLA":["TAFIRE","KATIOLA","BONIEREDOUGOU","SATAMA-SOKOURA","DABAKALA 1","DABAKALA 2","NIAKARA","FRONAN","TORTIYA"],"KORHOGO":["M'BENGUÉ 2","KORHOGO EST","M'BENGUE1","KAGBOLODOUGOU","DIKODOUGOU","SINEMATIALI","KORHOGO NORD","NAPIE","NIOFOIN","KARAKORO","SIRASSO","KORHOGO CENTRE","KORHOGO SUD"],"MAN":["BIANKOUMA","GBONNÉ","MAN DOYAGOUINÉ","MAN LIBREVILLE","MAN KOKO","LOGOUALÉ","SANGOUINÉ","SIPILOU"],"MANKONO":["BOUANDOUGOU","DIANRA 1","DIANRA 2","KONGASSO","KOUNAHIRI","MANKONO 1","MANKONO 2","SARHALA","TIÉNINGBOUÉ"],"MINIGNAN":["MINIGNAN","KANIASSO","TIENKO"],"ODIENNE":["ODIENNE 1","ODIENNE 2","BAKO","GBELEBAN","MADINANI","SEGUELON"],"SAN PEDRO":["DJOUROUTOU","DOBA","DOGBO","GABIADJI","GRABO","GRAND-BEREBY","SAN PEDRO BARDOT","SAN PEDRO SEWEKE","SAN PEDRO ZONE INDUSTRIELLE","TABOU"],"SASSANDRA":["IEPP SASSANDRA","IEPP FRESCO","IEPP SAGO","IEPP DAKPADOU","IEPP LOBAKUYA"],"SEGUELA":["KANI","MASSALA","MORONDO","SEGUELA","SEGUELA 2","SIFIE","WOROFLA"],"SINFRA":["SINFRA","KONONFLA","KOUETINFLA","SINFRA 2","BAZRE"],"SOUBRE":["BUYO 1","BUYO 2","GRAND-ZATTRY","GUEYO 1","GUEYO 2","LILIYO","MAYO","MEAGUI 1","MEAGUI 2","OKROUYO 1","OKROUYO 2","OUPOYO 1","OUPOYO 2","SOUBRE 1","SOUBRE 2","SOUBRE 3","APFC"],"TIASSALE":["N'DOUCI","SIKENSI","TAABO","TIASSALE 1","TIASSALE 2"],"TOUBA":["TOUBA","KORO","OUIANINOU","GUINTEGUELA"],"YAMOUSSOUKRO":["ATTIEGOUAKRO","DIDIEVI","DJEKANOU","KOKUMBO","LOMOKANKRO","RAVIART","TIEBISSOU","TOUMODI","YAMOUSSOUKRO FONDATION","YAMOUSSOUKRO MOROFE","YAMOUSSOUKRO SINZIBO"]};
+
+/* ===================== OUTILS COMMUNS (directeur / CPPP) ===================== */
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function fmtD(iso){if(!iso)return '';const d=new Date(String(iso).slice(0,10)+'T12:00:00');return isNaN(d)?'':d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2600)}
+const TKEYS=['debut','mi','fin'];
+const TNAME={debut:'Début',mi:'Mi-parcours',fin:'Fin'};
+const NIV=['CE1','CE2','CM1','CM2'];
+const LVL_L=[['DEB','Débutant'],['LET','Lettre'],['MOT','Mot'],['PAR','Paragraphe'],['HIS','Histoire'],['COM','Compréhension']];
+const LVL_M=[['DEB','Débutant'],['C1','1 Chiffre'],['C2','2 Chiffres'],['SOU','Soustraction'],['DIV','Division']];
+let DL=null;const OFFLINE=true;
+async function saveFile(name,data){
+  if(DL){try{await DL.save({filename:name,data});toast('Fichier enregistré')}catch(err){if(err&&err.code==='declined')return;toast('Téléchargement indisponible ici')}return}
+  try{const mime=name.endsWith('.json')?'application/json':name.endsWith('.csv')?'text/csv':'text/html';const url=URL.createObjectURL(new Blob([data],{type:mime+';charset=utf-8'}));
+    const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500);toast('Fichier enregistré dans vos téléchargements')}catch(e){toast('Téléchargement impossible')}
+}
+function printHTML(html){const f=document.createElement('iframe');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';document.body.appendChild(f);
+  const d=f.contentWindow.document;d.open();d.write(html);d.close();setTimeout(()=>{try{f.contentWindow.focus();f.contentWindow.print()}catch(e){toast('Impression impossible ici')}setTimeout(()=>f.remove(),2000)},300)}
+const wrapPrint=(b,portrait)=>printWrap(b,portrait,'Fiche');
+async function copyHTML(html){const tmp=document.createElement('div');tmp.innerHTML=html;const text=tmp.innerText;
+  try{if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([text],{type:'text/plain'})})])}else{await navigator.clipboard.writeText(text)}toast('Copié : collez dans Word (Ctrl+V)')}
+  catch(e){try{await navigator.clipboard.writeText(text);toast('Copié (texte simple)')}catch(e2){toast('Copie refusée par le navigateur')}}}
+async function encodeShare(obj){
+  const bytes=new TextEncoder().encode(JSON.stringify(obj));let out=bytes,pre='PNAPAS1:';
+  try{if(window.CompressionStream){const cs=new Blob([bytes]).stream().pipeThrough(new CompressionStream('gzip'));out=new Uint8Array(await new Response(cs).arrayBuffer());pre='PNAPAS1Z:'}}catch(e){out=bytes;pre='PNAPAS1:'}
+  let bin='';out.forEach(c=>bin+=String.fromCharCode(c));return pre+btoa(bin);
+}
+async function decodeShare(txt){
+  txt=String(txt||'').trim();
+  if(txt.startsWith('{'))return JSON.parse(txt);
+  const z=txt.startsWith('PNAPAS1Z:'),p=txt.startsWith('PNAPAS1:');if(!z&&!p)throw new Error('format');
+  const b64=txt.slice(z?9:8).replace(/\s+/g,'');const bin=atob(b64);const bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+  if(z){const ds=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));return JSON.parse(await new Response(ds).text())}
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+const readFileText=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsText(f)});
+function identSelects(state,dSel,iSel,dTxt,iTxt){
+  const keys=Object.keys(DRENA_IEPP);const dFree=state.drenaFree||(state.drena&&!keys.includes(state.drena));
+  dSel.innerHTML='<option value="">— Choisir la DRENA —</option>'+keys.map(k=>`<option ${!dFree&&state.drena===k?'selected':''}>${esc(k)}</option>`).join('')+`<option value="*" ${dFree?'selected':''}>Autre (saisir)…</option>`;
+  dTxt.hidden=!dFree;dTxt.value=state.drena||'';
+  const list=(!dFree&&DRENA_IEPP[state.drena])||[];const iFree=state.ieppFree||dFree||(state.iepp&&!list.includes(state.iepp));
+  iSel.innerHTML=(list.length?'<option value="">— Choisir l’IEPP —</option>':'<option value="">— Choisir d’abord la DRENA —</option>')+list.map(k=>`<option ${!iFree&&state.iepp===k?'selected':''}>${esc(k)}</option>`).join('')+`<option value="*" ${iFree?'selected':''}>Autre (saisir)…</option>`;
+  iTxt.hidden=!iFree;iTxt.value=state.iepp||'';
+}
+
+
+async function shareFile(name,data,mime){
+  try{const f=new File([data],name,{type:mime||'text/html'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
+  saveFile(name,data);
+}
+
+const LICKEY='pnapas-directeur-licence-v1';
+function AUTHOR(){return {role:'Le Directeur',name:D.directeur,sig:D.sigles,lieu:D.ecole}}
+/* =====================================================================
+   VERSION D'ESSAI (3 jours), LICENCE ANNUELLE 2026-2027 (+ 1 renouvellement 2027-2028), ACTIVATION, SIGLES ET SIGNATURE DES DOCUMENTS
+   (LICKEY et AUTHOR() sont définis par chaque application)
+   ===================================================================== */
+const TRIAL_DAYS=3,DAYMS=86400000;
+const LIC_SALT='PNAPAS-b285bdde5780fa4bb98a2664';
+const B32='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+/* Licence annuelle : 2026-2027, puis un seul et dernier renouvellement pour 2027-2028 */
+const YEARS=[{y:'2026-2027',end:new Date(2027,7,31,23,59,59).getTime()},{y:'2027-2028',end:new Date(2028,7,31,23,59,59).getTime()}];
+function fnv(str,seed){let h=seed>>>0;for(const c of str){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h>>>0}
+function licCode(id,yi){id=(id||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const salt=LIC_SALT+(yi?'|'+YEARS[yi].y:'');
+  let a=fnv(salt+'|'+id,2166136261),b=fnv(id+'|'+salt,0x9E3779B9),out='';
+  for(let i=0;i<10;i++){const v=i<5?a:b;out+=B32[(v>>>((i%5)*6))&31]}return out.slice(0,5)+'-'+out.slice(5)}
+let LIC=null;try{LIC=JSON.parse(localStorage.getItem(LICKEY))}catch(e){LIC=null}
+if(!LIC||!LIC.id){let id='';for(let i=0;i<8;i++)id+=B32[Math.floor(Math.random()*32)];LIC={id:id.slice(0,4)+'-'+id.slice(4),start:Date.now(),last:Date.now(),code:''}}
+LIC.last=Math.max(LIC.last||0,Date.now());if(LIC.code&&LIC.yi==null)LIC.yi=0;
+function saveLic(){try{localStorage.setItem(LICKEY,JSON.stringify(LIC))}catch(e){}}
+saveLic();
+function devFP(){const sc=[screen.width,screen.height].sort((a,b)=>b-a);let tz='';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){}
+  return [navigator.platform||'',navigator.hardwareConcurrency||0,tz,sc[0]+'x'+sc[1],(navigator.maxTouchPoints>0)?'t':'n']}
+function sameDevice(a){if(!Array.isArray(a))return true;const b=devFP();let diff=0;for(let i=0;i<b.length;i++)if(String(a[i])!==String(b[i]))diff++;return diff<2}
+if(!LIC.fp){LIC.fp=devFP();saveLic()}
+if(!sameDevice(LIC.fp)){let id='';for(let i=0;i<8;i++)id+=B32[Math.floor(Math.random()*32)];LIC={id:id.slice(0,4)+'-'+id.slice(4),start:LIC.start,last:LIC.last,code:'',yi:LIC.yi,fp:devFP(),moved:true};saveLic()}
+const nowT=()=>Math.max(Date.now(),LIC.last||0);
+/* période en cours : 0 = 2026-2027, 1 = 2027-2028, 2 = au-delà (application arrivée à terme) */
+function periodIdx(){const t=nowT();return t<=YEARS[0].end?0:t<=YEARS[1].end?1:2}
+const codeOk=()=>!!LIC.code&&LIC.yi!=null&&LIC.code===licCode(LIC.id,LIC.yi)&&sameDevice(LIC.fp);
+const isActivated=()=>codeOk()&&nowT()<=YEARS[LIC.yi].end;
+const elapsed=()=>nowT()-LIC.start;
+function licState(){const p=periodIdx();if(isActivated())return 'actif';if(p>=2)return 'termine';
+  if(codeOk()&&LIC.yi<p)return 'renouveler';if(elapsed()<TRIAL_DAYS*DAYMS)return 'essai';return 'essai_fini'}
+const trialExpired=()=>{const s=licState();return s!=='actif'&&s!=='essai'};
+function SCHOOL_YEAR(){return isActivated()?YEARS[LIC.yi].y:YEARS[Math.min(periodIdx(),1)].y}
+function trialEnd(){return new Date(LIC.start+TRIAL_DAYS*DAYMS)}
+const fmtDay=t=>new Date(t).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
+function lockMsg(){const s=licState();
+  return s==='termine'?'L’application est arrivée à terme (fin de l’année scolaire 2027-2028) : aucun renouvellement n’est plus possible.'
+   :s==='renouveler'?'Licence '+YEARS[LIC.yi].y+' expirée : saisissez le code de renouvellement pour '+YEARS[1].y+'.'
+   :'Période d’essai terminée : saisissez votre code d’activation.'}
+function tryActivate(v){v=(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const p=periodIdx();if(p>=2||!v)return false;
+  const c=licCode(LIC.id,p);if(v===c.replace('-','')){LIC.code=c;LIC.yi=p;LIC.moved=false;saveLic();return true}return false}
+function actForm(lbl){return `<div class="act">Identifiant de cet appareil : <b class="lid">${LIC.id}</b> – communiquez-le pour obtenir votre ${lbl}.
+      <span class="actf"><input id="licInput" placeholder="${lbl[0].toUpperCase()+lbl.slice(1)}" autocomplete="off"><button class="primary" id="btnActivate">Activer</button></span></div>`}
+function renderTrial(){
+  const box=document.getElementById('trial');const st=licState();const act=st==='actif';
+  document.body.classList.toggle('trialmode',!act);document.body.classList.toggle('locked',trialExpired());
+  if(typeof LIC_YEAR_HOOK==='function')LIC_YEAR_HOOK(SCHOOL_YEAR());
+  document.querySelectorAll('[data-k="annee"]').forEach(el=>{el.value=SCHOOL_YEAR();el.readOnly=true;el.title='Année scolaire fixée par la licence'});
+  if(act){const end=YEARS[LIC.yi].end,left=Math.ceil((end-nowT())/DAYMS);const last=LIC.yi>=YEARS.length-1;
+    box.innerHTML=`<div class="trial ok"><div class="ti">✅</div><div class="tb"><b>Licence activée – année scolaire ${YEARS[LIC.yi].y}</b> (valable jusqu’au ${fmtDay(end)}).
+      ${left<=45?(last?` <b>Attention :</b> c’est la dernière année d’utilisation ; l’application s’arrêtera le ${fmtDay(end)}.`:` <b>Pensez au renouvellement</b> pour l’année ${YEARS[LIC.yi+1].y} (dernier renouvellement).`)
+        :(last?' Dernière année d’utilisation (aucun autre renouvellement possible).':` Un seul et dernier renouvellement sera nécessaire pour l’année ${YEARS[1].y}.`)}</div></div>`;return}
+  const left=Math.max(0,TRIAL_DAYS*DAYMS-elapsed());const d=Math.floor(left/DAYMS),h=Math.floor((left%DAYMS)/3600000);
+  const end=trialEnd().toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const keep=' Vos données sont conservées : vous pouvez toujours les consulter et les sauvegarder.';
+  let body;
+  if(st==='termine')body=`<b>L’application est arrivée à terme.</b> Elle était utilisable pour les années scolaires ${YEARS[0].y} et ${YEARS[1].y} ; aucun renouvellement n’est plus possible. La production des documents est bloquée.${keep}`;
+  else if(st==='renouveler')body=`<b>Votre licence ${YEARS[LIC.yi].y} est expirée.</b> Pour l’année scolaire ${YEARS[1].y}, un <b>dernier renouvellement</b> est nécessaire. La production des documents est bloquée jusqu’au renouvellement.${keep}`+actForm('code de renouvellement '+YEARS[1].y);
+  else if(st==='essai_fini')body=`<b>La période d’essai de ${TRIAL_DAYS} jours est terminée.</b> La production des documents (remplissage, copie, téléchargement, impression, envoi) est bloquée.${keep}`+actForm('code d’activation '+SCHOOL_YEAR());
+  else body=`<b>Version d’essai : il reste ${d} jour${d>1?'s':''} et ${h} heure${h>1?'s':''}</b> (jusqu’au ${end}). Les documents produits portent la mention « VERSION D’ESSAI » tant que l’application n’est pas activée. La licence est valable pour l’année scolaire ${SCHOOL_YEAR()}.`+actForm('code d’activation '+SCHOOL_YEAR());
+  box.innerHTML=`<div class="trial ${st==='essai'?'':'exp'}"><div class="ti">${st==='essai'?'⏳':'🔒'}</div><div class="tb">
+    ${LIC.moved&&st!=='termine'?'<div class="moved">Ces données proviennent d’un autre appareil : l’activation n’est valable que sur l’appareil pour lequel le code a été donné. Un nouveau code est nécessaire pour cet appareil.</div>':''}${body}</div></div>`;
+}
+/* ---- noms en MAJUSCULES (personnes, école, secteur) ---- */
+const UPKEYS=new Set(['enseignant','directeur','ecole','secteur','conseiller','drena','iepp']);
+const UP=s=>String(s??'').toLocaleUpperCase('fr-FR');
+function upField(el){return !!el&&el.tagName==='INPUT'&&(!el.type||el.type==='text')&&(UPKEYS.has(el.dataset.k)||/\.nom$/.test(el.dataset.el||'')||el.hasAttribute('data-up'))}
+document.addEventListener('input',e=>{const el=e.target;if(!upField(el))return;const u=UP(el.value);
+  if(u!==el.value){const a=el.selectionStart,b=el.selectionEnd;el.value=u;try{el.setSelectionRange(a,b)}catch(_){}}},true);
+function upObj(o,keys){if(o)keys.forEach(k=>{if(typeof o[k]==='string')o[k]=UP(o[k])});return o}
+/* ---- sigles et signature ---- */
+function initials(name){return String(name||'').trim().split(/[\s\-]+/).filter(w=>/[A-Za-zÀ-ÿ]/.test(w)).map(w=>w.replace(/[^A-Za-zÀ-ÿ]/g,'')[0].toUpperCase()+'.').join('')}
+function authorSig(){const A=AUTHOR();return (A.sig||initials(A.name)||'').trim()}
+const todayFR=()=>new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
+const TRIAL_STRIP=`<div style="border:2px solid #c00;color:#c00;text-align:center;font-weight:bold;font-family:Arial,sans-serif;font-size:11pt;letter-spacing:2px;padding:3px;margin:4px 0">VERSION D’ESSAI – DOCUMENT NON VALABLE SANS ACTIVATION</div>`;
+function signBlock(){const A=AUTHOR();const sig=authorSig();
+  return `<table style="width:100%;margin-top:14px;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:10pt;page-break-inside:avoid"><tr>
+   <td style="vertical-align:bottom;width:45%;border:none">${sig?`Sigles : <b>${esc(sig)}</b>`:''}</td>
+   <td style="text-align:center;border:none">Fait à ${esc(A.lieu||'……………………')}, le ${todayFR()}<br><b>${esc(A.role)}</b><br><br>
+     <span style="font-family:'Segoe Script','Brush Script MT','Lucida Handwriting',cursive;font-size:17pt">${esc(A.name||'')}</span><br>${esc(A.name||'……………………………')}</td></tr></table>`}
+function finalizeDoc(inner){const wm=!isActivated();return `<div>${wm?TRIAL_STRIP:''}${inner}${signBlock()}${wm?TRIAL_STRIP:''}</div>`}
+function printWrap(body,portrait,title){const wm=!isActivated();const sig=authorSig();
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>${esc(title||'Document')}</title><style>@page{size:A4 ${portrait?'portrait':'landscape'};margin:12mm}body{margin:0}tr{page-break-inside:avoid}
+  .wmk{position:fixed;top:42%;left:-10%;right:-10%;text-align:center;transform:rotate(-28deg);font:bold 86px Arial,sans-serif;color:rgba(200,0,0,.13);z-index:999;pointer-events:none;white-space:nowrap}
+  .sgl{position:fixed;top:0;right:0;font:bold 9pt Arial,sans-serif;color:#333}</style></head><body>${wm?'<div class="wmk">VERSION D’ESSAI</div>':''}${sig?`<div class="sgl">${esc(sig)}</div>`:''}${body}</body></html>`}
+(function(){const st=document.createElement('style');
+  const svg=encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='420' height='260'><text x='50%' y='55%' text-anchor='middle' transform='rotate(-28 210 130)' font-family='Arial' font-weight='bold' font-size='38' fill='rgba(200,0,0,0.10)'>VERSION D’ESSAI</text></svg>`);
+  st.textContent=`.trial{display:flex;gap:12px;align-items:flex-start;background:#e8eff8;border:2px solid #2b5d9b;color:#183a66;border-radius:10px;padding:12px 16px;margin-bottom:12px}
+  .trial.exp{background:#fff0f0;border-color:#b00;color:#6a0000}.trial .ti{font-size:28px;line-height:1}.trial .tb{flex:1}.trial .moved{font-weight:700;margin-bottom:6px}
+  .trial .act{margin-top:8px;font-size:13.5px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .trial .lid{font-family:monospace;font-size:15px;letter-spacing:1px;background:#fff;padding:1px 6px;border-radius:4px;border:1px solid #d9e0dc}
+  .trial .actf{display:inline-flex;gap:6px}.trial .actf input{width:230px;text-transform:uppercase}
+  .trial .tb{min-width:0}.trial.ok{background:#eaf6ef;border-color:#1f8a5b;color:#0f4d31;padding:8px 14px;font-size:13.5px}.trial.ok .ti{font-size:20px}.trial .actf button{flex:none}
+  @media(max-width:640px){.trial{padding:10px 10px}.trial .ti{font-size:22px}.trial .actf{display:flex;width:100%;max-width:100%}.trial .actf input{flex:1;min-width:0;width:auto}}
+  body.trialmode .wmable{background-image:url("data:image/svg+xml,${svg}");background-repeat:repeat}
+  body.locked .lockable{opacity:.5}`;
+  document.head.appendChild(st)})();
+
+const LOCKED_BTNS=['btnFill','btnCopy','btnDl','btnPrint','btnSendFile','btnSendCode'];
+/* ===================== ÉTAT ===================== */
+const KEY='pnapas-directeur-v1';
+function blank(){const v={};['mi','fin'].forEach(k=>{v[k]={};NIV.forEach(n=>v[k][n]={cppp:'',autre:''})});
+  return {drena:'',iepp:'',secteur:'',ecole:'',code:'',directeur:'',annee:'',totalEns:'',formesM:'',formesF:'',visites:v,classes:{}}}
+let D;try{D=JSON.parse(localStorage.getItem(KEY))}catch(e){D=null}
+if(!D||typeof D.classes!=='object')D=blank();
+D.annee=SCHOOL_YEAR();Object.values(D.classes).forEach(p=>upObj(p.classe,['drena','iepp','secteur','ecole','enseignant','directeur']));upObj(D,['drena','iepp','secteur','ecole','directeur']);
+function LIC_YEAR_HOOK(y){if(D.annee!==y){D.annee=y;persist()}}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}}
+
+/* ===================== IMPORT ===================== */
+function addClass(p){
+  if(!p||p.app!=='PNAPAS'||p.type!=='classe'||!p.classe)throw new Error('type');
+  const id=p.classe.id||(p.classe.ecole+'|'+p.classe.classe+'|'+p.classe.enseignant);
+  const old=D.classes[id];
+  if(old&&old.exportedAt>p.exportedAt)return 'ancienne';
+  upObj(p.classe,['drena','iepp','secteur','ecole','enseignant','directeur']);p.importedAt=new Date().toISOString();D.classes[id]=p;
+  ['drena','iepp','secteur','ecole','directeur'].forEach(k=>{if(!D[k]&&p.classe[k])D[k]=p.classe[k]});
+  if(!D.code&&p.classe.codeEcole)D.code=p.classe.codeEcole;
+  return old?'maj':'new';
+}
+async function importTexts(list){
+  let n=0,u=0,bad=0,other=0;
+  for(const t of list){try{const p=await decodeShare(t);const r=addClass(p);if(r==='new')n++;else if(r==='maj')u++;
+      if(D.ecole&&p.classe.ecole&&p.classe.ecole.trim().toLowerCase()!==D.ecole.trim().toLowerCase())other++}catch(e){bad++}}
+  persist();render();
+  toast(`${n} classe(s) ajoutée(s), ${u} mise(s) à jour${bad?`, ${bad} non reconnue(s)`:''}${other?` – attention : ${other} fiche(s) d’une autre école`:''}`);
+}
+
+/* ===================== CALCULS ===================== */
+const CL=()=>Object.values(D.classes);
+/* Alerte : après 4 plans de session dans une discipline, 50 % ou plus des apprenants sans progression (calcul fait par l'application de l'enseignant) */
+function stats(c){const E=c.eleves||[];const L=(c.progs||{}).lect||0,M=(c.progs||{}).math||0;const A=c.alerte||null;
+  return {eff:c.classe.effClasse||E.length,L,M,A,alert:!!(A&&(A.lect.alert||A.math.alert)),last:(c.progs||{}).last||''}}
+function alertCell(a,old){if(old)return '<span class="st0">fiche à renvoyer (ancienne version)</span>';if(!a||!a.elig)return '<span class="st0">—</span>';
+  const t=`${a.pct} % sans progression (${a.np}/${a.elig}) · ${a.plans} plan${a.plans>1?'s':''}`;
+  return a.alert?`<span class="st2">⚠ ${t}</span>`:a.plans<4?`<span class="st0">${t} – contrôle après 4 plans</span>`:`<span class="st3">✓ ${t}</span>`}
+function sessionsUpTo(c,k){const date=(c.tests&&c.tests[k]&&c.tests[k].date)||'';
+  return (c.sessions||[]).filter(s=>!date||s.d<=date).reduce((a,s)=>a+Math.max(s.math||0,s.lect||0),0)}
+function cellStats(k,niv){
+  const cs=CL().filter(c=>c.classe.classe===niv);
+  const r={n:cs.length,nb:0,G:0,F:0,T:0,fr:LVL_L.map(()=>0),ma:LVL_M.map(()=>0),re:0,sess:0,tauxW:0,tauxN:0,cppp:0,autre:0};
+  cs.forEach(c=>{r.nb+=+c.classe.effClasse||0;
+    (c.eleves||[]).forEach(e=>{const t=e.t&&e.t[k];if(!t||!(t.l||t.m))return;r.T++;if(e.s==='G')r.G++;if(e.s==='F')r.F++;
+      const i=LVL_L.findIndex(x=>x[0]===t.l);if(i>=0)r.fr[i]++;const j=LVL_M.findIndex(x=>x[0]===t.m);if(j>=0)r.ma[j]++;
+      if(k!=='debut'&&e.t.debut&&(e.t.debut.l||e.t.debut.m))r.re++});
+    if(k!=='debut')r.sess+=sessionsUpTo(c,k);
+    if(c.classe.taux!=null&&c.classe.taux!==''){const w=+c.classe.effClasse||1;r.tauxW+=(+c.classe.taux)*w;r.tauxN+=w}});
+  if(k!=='debut'){const v=D.visites[k][niv];r.cppp=+v.cppp||0;r.autre=+v.autre||0}
+  r.taux=r.tauxN?Math.round(r.tauxW/r.tauxN):null;return r;
+}
+function sumStats(arr){const t={n:0,nb:0,G:0,F:0,T:0,fr:LVL_L.map(()=>0),ma:LVL_M.map(()=>0),re:0,sess:0,tauxW:0,tauxN:0,cppp:0,autre:0};
+  arr.forEach(r=>{['n','nb','G','F','T','re','sess','tauxW','tauxN','cppp','autre'].forEach(k=>t[k]+=r[k]);r.fr.forEach((v,i)=>t.fr[i]+=v);r.ma.forEach((v,i)=>t.ma[i]+=v)});
+  t.taux=t.tauxN?Math.round(t.tauxW/t.tauxN):null;return t}
+function ensStats(){const cs=CL();const ens={};cs.forEach(c=>{const k=(c.classe.enseignant||c.classe.id||'').trim().toLowerCase();if(k)ens[k]=c.classe});
+  const L=Object.values(ens);return {total:L.length,H:L.filter(x=>x.sexeEns==='H').length,F:L.filter(x=>x.sexeEns==='F').length,
+    fM:L.filter(x=>x.forme==='1'&&x.sexeEns==='H').length,fF:L.filter(x=>x.forme==='1'&&x.sexeEns==='F').length}}
+const val=(v,auto)=>v!==''&&v!=null?+v:auto;
+
+/* ===================== FICHE DE SUIVI DE L'ÉCOLE (canevas officiel) ===================== */
+function ficheHTML(){return finalizeDoc(ficheCore())}
+function ficheCore(){
+  const b='border:1px solid #000;padding:2px 3px;font-size:8pt;text-align:center;vertical-align:middle;';const bh=b+'font-weight:bold;background:#f2f2f2;';const bk=b+'background:#000;';
+  const es=ensStats();
+  let h=`<table style="border-collapse:collapse;width:100%;font-family:Arial,Helvetica,sans-serif;">
+   <tr><td colspan="22" style="${b}font-size:13pt;font-weight:bold;">Fiche de suivi de l'école</td></tr>
+   <tr><td colspan="22" style="${b}text-align:left;font-size:7.5pt;"><b>Instructions :</b><br><b>Informations générales:</b> renseignez cette partie en début d'année.<br>Résultats du test ASER: A renseigner après chaque test ASER. Vérifiez les totaux pour chaque classe. Le total de l'école doit correspondre à la somme totale des différents niveaux en français et en maths.<br>La colonne "<b>Nombre de visites des mentors</b>" est à renseigner après les tests de mi-parcours et de fin.</td></tr>
+   <tr><td colspan="22" style="${bh}font-size:10pt;">Informations générales</td></tr>
+   <tr><td colspan="12" style="${b}text-align:left"><b>IEPP</b> &nbsp; ${esc(D.iepp)}</td><td colspan="4" style="${bh}">Nom du secteur pédagogique</td><td colspan="6" style="${b}">${esc(D.secteur)}</td></tr>
+   <tr><td colspan="12" style="${b}text-align:left"><b>Nom de l'école</b> &nbsp; ${esc(D.ecole)}</td><td colspan="2" style="${b}"><b>Code de l'école</b></td><td colspan="4" style="${b}">${esc(D.code)}</td><td colspan="2" style="${bh}">Total enseignants</td><td colspan="2" style="${b}">${val(D.totalEns,es.total)||''}</td></tr>
+   <tr><td colspan="12" style="${b}text-align:left"><b>Nom du directeur d'école</b> &nbsp; ${esc(D.directeur)}</td><td colspan="3" style="${bh}">Nombre d'enseignants formés</td><td style="${b}"><b>Masculin</b></td><td colspan="2" style="${b}">${val(D.formesM,es.fM)}</td><td colspan="2" style="${b}"><b>Féminin</b></td><td colspan="3" style="${b}">${val(D.formesF,es.fF)}</td></tr>
+   <tr><td colspan="22" style="${bk}height:10px"></td></tr>
+   <tr><td colspan="17" style="${bh}font-size:10pt;">Résultats des tests ASER</td><td rowspan="3" style="${bh}font-size:7pt;">Nombre d'élèves re-testés</td><td rowspan="3" style="${bh}font-size:7pt;">Nombre de sessions de remédiation effectuées par les facilitateurs</td><td rowspan="3" style="${bh}font-size:7pt;">Taux de passage en classe supérieure/ CEPE des enfants l'année passée</td><td colspan="2" style="${bh}font-size:7pt;">Nombre de visites des mentors PNAPAS</td></tr>
+   <tr><td rowspan="2" style="${bh}">Cycle des tests ASER</td><td rowspan="2" style="${bh}">Classes</td><td rowspan="2" style="${bh}font-size:7pt;">Nombre total d'élèves dans la classe</td><td colspan="3" style="${bh}">Nombre d'élèves testés</td><td colspan="6" style="${bh}">Français<br><i style="font-weight:normal">Lecture</i></td><td colspan="5" style="${bh}">Mathématiques<br><i style="font-weight:normal">Nombres et opérations</i></td><td rowspan="2" style="${bh}">CPPP</td><td rowspan="2" style="${bh}font-size:7pt;">Autre (MT, IEPP, MENA)</td></tr>
+   <tr><td style="${bh}">G</td><td style="${bh}">F</td><td style="${bh}">Total</td>${LVL_L.map(x=>`<td style="${bh}font-size:7pt;">${x[1]}</td>`).join('')}${LVL_M.map(x=>`<td style="${bh}font-size:7pt;">${x[1]}</td>`).join('')}</tr>`;
+  TKEYS.forEach(k=>{
+    const rows=NIV.map(n=>({n,r:cellStats(k,n)}));const tot=sumStats(rows.map(x=>x.r));
+    [...rows,{n:'TOTAL',r:tot}].forEach((x,i)=>{const r=x.r;const isT=x.n==='TOTAL';const bb=isT?bh:b;
+      h+=`<tr>${i===0?`<td rowspan="5" style="${bh}font-size:10pt;">${{debut:'Début',mi:'Mi-projet',fin:'Fin'}[k]}</td>`:''}<td style="${bh}">${x.n}</td>
+        <td style="${bb}">${r.nb||''}</td><td style="${bb}">${r.G||''}</td><td style="${bb}">${r.F||''}</td><td style="${bb}">${r.T||''}</td>
+        ${r.fr.map(v=>`<td style="${bb}">${v||''}</td>`).join('')}${r.ma.map(v=>`<td style="${bb}">${v||''}</td>`).join('')}
+        <td style="${bb}">${k==='debut'?'':(r.re||'')}</td>
+        <td style="${k==='debut'?bk:bb}">${k==='debut'?'':(r.sess||'')}</td>
+        <td style="${k==='debut'?bb:bk}">${k==='debut'&&r.taux!=null?r.taux+' %':''}</td>
+        <td style="${k==='debut'||isT?bk:bb}">${k!=='debut'&&!isT?(r.cppp||''):''}</td><td style="${k==='debut'||isT?bk:bb}">${k!=='debut'&&!isT?(r.autre||''):''}</td></tr>`});
+    h+=`<tr><td colspan="22" style="${bk}height:5px;padding:0"></td></tr>`;
+  });
+  h+=`</table>`;
+  const n=CL().length;
+  h+=`<p style="font-family:Arial;font-size:8pt;margin:4px 0 0;">Fiche remplie automatiquement à partir de ${n} fiche${n>1?'s':''} de classe importée${n>1?'s':''}. Le nombre de sessions correspond aux journées de remédiation planifiées dans l’application de l’enseignant jusqu’à la date du test.</p>`;
+  return `<div style="font-family:Arial,Helvetica,sans-serif;color:#000;">${h}</div>`;
+}
+
+/* ===================== ENVOI AU CPPP ===================== */
+function ecolePayload(){
+  const es=ensStats();const fiche={};
+  TKEYS.forEach(k=>{fiche[k]={};NIV.forEach(n=>{const r=cellStats(k,n);fiche[k][n]={nb:r.nb,G:r.G,F:r.F,T:r.T,fr:r.fr,ma:r.ma,re:r.re,sess:r.sess,taux:r.taux,tw:r.tauxN,cppp:r.cppp,autre:r.autre}})});
+  return {app:'PNAPAS',type:'ecole',v:1,exportedAt:new Date().toISOString(),
+    ecole:{drena:D.drena,iepp:D.iepp,secteur:D.secteur,ecole:D.ecole,code:D.code,directeur:D.directeur,annee:D.annee,
+      totalEns:val(D.totalEns,es.total),ensH:es.H,ensF:es.F,formesM:val(D.formesM,es.fM),formesF:val(D.formesF,es.fF)},
+    fiche,classes:CL().map(c=>{const s=stats(c);return {classe:c.classe.classe,enseignant:c.classe.enseignant,eff:s.eff,progL:s.L,progM:s.M,last:s.last,alerte:s.A,exportedAt:c.exportedAt}})};
+}
+
+/* ===================== RENDU ===================== */
+function render(){
+  renderTrial();
+  identSelects(D,document.getElementById('drenaSel'),document.getElementById('ieppSel'),document.getElementById('drenaTxt'),document.getElementById('ieppTxt'));
+  document.querySelectorAll('[data-k]').forEach(el=>{if(el.id!=='drenaTxt'&&el.id!=='ieppTxt')el.value=D[el.dataset.k]??''});
+  const es=ensStats();
+  document.querySelector('[data-k="totalEns"]').placeholder=`auto : ${es.total}`;document.querySelector('[data-k="formesM"]').placeholder=`auto : ${es.fM}`;document.querySelector('[data-k="formesF"]').placeholder=`auto : ${es.fF}`;
+  const cs=Object.entries(D.classes).sort((a,b)=>NIV.indexOf(a[1].classe.classe)-NIV.indexOf(b[1].classe.classe));
+  document.getElementById('classList').innerHTML=cs.length?`<div class="tblwrap" style="margin-top:10px"><table class="lst"><thead><tr><th>Classe</th><th>Enseignant(e)</th><th>Effectif</th><th>Élèves testés (début / mi / fin)</th><th>Lecture</th><th>Mathématiques</th><th>Dernière progression</th><th>Fiche envoyée le</th><th></th></tr></thead><tbody>${
+    cs.map(([id,c])=>{const s=stats(c);const tt=TKEYS.map(k=>(c.eleves||[]).filter(e=>e.t&&e.t[k]&&(e.t[k].l||e.t[k].m)).length).join(' / ');
+      return `<tr class="${s.alert?'alrow':''}"><td><b>${esc(c.classe.classe)}</b></td><td>${esc(c.classe.enseignant)}</td><td class="c">${s.eff}</td><td class="c">${tt}</td><td>${alertCell(s.A&&s.A.lect,!s.A)}</td><td>${alertCell(s.A&&s.A.math,!s.A)}</td><td>${s.last?fmtD(s.last):'—'}</td><td>${fmtD(c.exportedAt)}</td><td><button class="del" data-del="${esc(id)}">Retirer</button></td></tr>`}).join('')}</tbody></table></div>`
+    :'<div class="empty">Aucune fiche de classe importée pour l’instant.</div>';
+  document.getElementById('visites').innerHTML=`<div class="tblwrap"><table class="lst vis"><thead><tr><th>Cycle</th>${NIV.map(n=>`<th colspan="2">${n}</th>`).join('')}</tr><tr><th></th>${NIV.map(()=>'<th>CPPP</th><th>Autre (MT, IEPP, MENA)</th>').join('')}</tr></thead><tbody>${
+    ['mi','fin'].map(k=>`<tr><td><b>${k==='mi'?'Mi-projet':'Fin'}</b></td>${NIV.map(n=>`<td><input type="number" min="0" data-vis="${k}.${n}.cppp" value="${esc(D.visites[k][n].cppp)}"></td><td><input type="number" min="0" data-vis="${k}.${n}.autre" value="${esc(D.visites[k][n].autre)}"></td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  const al=cs.filter(([,c])=>stats(c).alert);
+  const dd=(a,n)=>a&&a.alert?`${n} : ${a.pct} % sans progression (${a.np} sur ${a.elig}) après ${a.plans} plans`:'';
+  document.getElementById('alarm').innerHTML=al.length?`<div class="alarm"><div class="ai">⚠</div><div><b>Attention : ${al.length} classe${al.length>1?'s':''} où au moins 50 % des apprenants n’ont pas progressé après 4 plans de session</b>
+    <ul>${al.map(([,c])=>{const A=stats(c).A;return `<li><b>${esc(c.classe.classe)} – ${esc(c.classe.enseignant||'')}</b> : ${[dd(A.lect,'Lecture'),dd(A.math,'Mathématiques')].filter(Boolean).join(' ; ')}</li>`}).join('')}</ul>
+    <small>Accompagnez ces enseignants : conduite des activités, suivi des apprenants en observation, enregistrement des progressions.</small></div></div>`:'';
+  document.getElementById('btnPrint').hidden=!OFFLINE;
+  persist();
+}
+let FILLED=false;
+function renderDoc(){document.getElementById('doc').innerHTML=FILLED?ficheHTML():'<div class="empty">Cliquez sur « Remplir la fiche de suivi ».</div>'}
+
+/* ===================== ÉVÉNEMENTS ===================== */
+document.addEventListener('input',e=>{const el=e.target;
+  if(el.dataset.k&&el.tagName==='INPUT'){D[el.dataset.k]=el.value;persist();if(FILLED)renderDoc();return}
+  if(el.dataset.vis){const [k,n,f]=el.dataset.vis.split('.');D.visites[k][n][f]=el.value;persist();if(FILLED)renderDoc();return}});
+document.addEventListener('change',e=>{const el=e.target;
+  if(el.id==='drenaSel'){if(el.value==='*'){D.drenaFree=true;D.drena=''}else{D.drenaFree=false;D.drena=el.value}D.iepp='';D.ieppFree=false;render();return}
+  if(el.id==='ieppSel'){if(el.value==='*'){D.ieppFree=true;D.iepp=''}else{D.ieppFree=false;D.iepp=el.value}render();return}
+  if(el.id==='files'){const fs=[...el.files];Promise.all(fs.map(readFileText)).then(importTexts);el.value='';return}
+  if(el.id==='restore'){const f=el.files[0];if(f)readFileText(f).then(t=>{try{const o=JSON.parse(t);if(!o||typeof o.classes!=='object')throw 0;D=Object.assign(blank(),o);render();renderDoc();toast('Données restaurées')}catch(x){toast('Fichier non reconnu')}});el.value='';return}
+  if(el.dataset.k||el.dataset.vis)render();});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='licInput')document.getElementById('btnActivate').click()});
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.id==='btnActivate'){if(tryActivate(document.getElementById('licInput').value)){render();renderDoc();toast('Application activée. Merci !')}else toast(periodIdx()>=2?lockMsg():'Code incorrect pour cet identifiant et l’année '+YEARS[Math.min(periodIdx(),1)].y);return}
+  if(LOCKED_BTNS.includes(b.id)&&trialExpired()){renderTrial();window.scrollTo({top:0,behavior:'smooth'});toast(lockMsg());return}
+  if(b.id==='btnCodes'){const t=document.getElementById('codes').value;const parts=t.split(/\s+/).filter(x=>/^PNAPAS1Z?:/.test(x));
+    if(!parts.length){toast('Aucun code reconnu');return}importTexts(parts).then(()=>{document.getElementById('codes').value=''});return}
+  if(b.dataset.del){if(b.dataset.arm){delete D.classes[b.dataset.del];render();if(FILLED)renderDoc();toast('Classe retirée');return}
+    b.dataset.arm='1';b.textContent='Confirmer ?';setTimeout(()=>{if(b.isConnected){b.textContent='Retirer';delete b.dataset.arm}},3000);return}
+  if(b.id==='btnFill'){FILLED=true;renderDoc();toast('Fiche de suivi remplie');return}
+  if(b.id==='btnCopy'){copyHTML(ficheHTML());return}
+  if(b.id==='btnDl'){saveFile('Fiche_suivi_ecole_'+(D.ecole||'ecole').replace(/[^\wÀ-ÿ-]+/g,'_')+'.html',wrapPrint(ficheHTML()));return}
+  if(b.id==='btnPrint'){printHTML(wrapPrint(ficheHTML()));return}
+  if(b.id==='btnSendFile'){saveFile('SUIVI_ECOLE_'+(D.ecole||'ecole').replace(/[^\wÀ-ÿ-]+/g,'_')+'.json',JSON.stringify(ecolePayload()));return}
+  if(b.id==='btnSendCode'){encodeShare(ecolePayload()).then(async c=>{const t=document.getElementById('sendTxt');t.value=c;try{await navigator.clipboard.writeText(c);toast('Code copié : collez-le dans un message au conseiller')}catch(x){t.focus();t.select();toast('Sélectionnez le code puis copiez-le')}});return}
+  if(b.id==='btnBackup'){saveFile('sauvegarde_directeur_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(D));return}
+  if(b.id==='btnReset'){if(b.dataset.arm){D=blank();FILLED=false;render();renderDoc();toast('Données effacées');b.textContent='Tout effacer';delete b.dataset.arm;return}
+    b.dataset.arm='1';b.textContent='Cliquer encore pour confirmer';setTimeout(()=>{b.textContent='Tout effacer';delete b.dataset.arm},3000);return}
+});
+render();
+</script>
+<div id="pwaBar" hidden style="position:fixed;right:12px;bottom:14px;z-index:60"><button id="pwaInstall" style="font:inherit;font-weight:700;background:#2b5d9b;color:#fff;border:none;border-radius:24px;padding:11px 18px;box-shadow:0 3px 10px rgba(0,0,0,.25);cursor:pointer">📲 Installer l’application</button></div>
+<div id="pwaHelp" hidden style="position:fixed;left:10px;right:10px;bottom:70px;z-index:61;background:#fff;border:2px solid #2b5d9b;border-radius:12px;padding:14px 16px;box-shadow:0 6px 20px rgba(0,0,0,.25);font-size:15px;line-height:1.45">
+ <b>Installer sur l’écran d’accueil</b><br><span id="pwaHelpTxt"></span><br><button id="pwaHelpClose" style="margin-top:8px;font:inherit;border:1px solid #ccc;background:#fff;border-radius:6px;padding:5px 12px">Fermer</button></div>
+<script>
+(function(){
+  var standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+  if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(function(){})}
+  if(standalone)return;
+  var bar=document.getElementById('pwaBar'),btn=document.getElementById('pwaInstall'),help=document.getElementById('pwaHelp'),txt=document.getElementById('pwaHelpTxt');
+  var ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),deferred=null;
+  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;bar.hidden=false});
+  window.addEventListener('appinstalled',function(){bar.hidden=true;help.hidden=true});
+  if(ios&&/^https?:/.test(location.protocol))bar.hidden=false;
+  btn.addEventListener('click',function(){
+    if(deferred){deferred.prompt();deferred.userChoice.then(function(){deferred=null;bar.hidden=true});return}
+    txt.innerHTML=ios?'Dans Safari, touchez le bouton <b>Partager</b> (carré avec une flèche vers le haut), puis <b>« Sur l’écran d’accueil »</b>, puis <b>Ajouter</b>.'
+      :'Ouvrez le menu du navigateur (⋮ ou ⋯) puis choisissez <b>« Installer l’application »</b> ou <b>« Ajouter à l’écran d’accueil »</b>.';
+    help.hidden=false});
+  document.getElementById('pwaHelpClose').addEventListener('click',function(){help.hidden=true});
+})();
+</script>
+</body>
+</html>
