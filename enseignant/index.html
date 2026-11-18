@@ -770,7 +770,7 @@ const LECT_STEPS=flatPlan(LECT_PLAN);
    DISCIPLINES
    ===================================================================== */
 const DISC={
- math:{name:'Mathématiques',acts:MATH_ACTS,steps:MATH_STEPS,plan:MATH_PLAN,first:'g2',
+ math:{name:'Mathématiques',acts:MATH_ACTS,steps:MATH_STEPS,plan:MATH_PLAN,first:'g1',
   LN:{L1:'Débutant / 1 chiffre',L2:'2 chiffres',L3:'Soustraction / Division'},
   G:{g1:'Groupe 1 : Débutant / 1 chiffre / 2 chiffres',g2:'Groupe 2 : Soustraction / Division'},
   LV:[{k:'DEB',n:'Débutant',g:'g1',l:'L1'},{k:'C1',n:'1 chiffre',g:'g1',l:'L1'},{k:'C2',n:'2 chiffres',g:'g1',l:'L2'},{k:'SOU',n:'Soustraction',g:'g2',l:'L3'},{k:'DIV',n:'Division',g:'g2',l:'L3'}],
@@ -992,7 +992,11 @@ function weekNo(){return Math.max(1,parseInt(S.semaine)||1)}
 function stepsOf(dk,g){const l=listOf(dk,g);return l?DISC[dk].steps[l]:[]}
 function stepIdx(dk,g){const n=stepsOf(dk,g).length;return Math.min(Math.max(0,S[dk].step[g]||0),Math.max(0,n-1))}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2400)}
-function applyAlternation(dk){let c=S[dk].first;activeDays().forEach(d=>{S[dk].days[d.k].active=c;c=c==='g1'?'g2':'g1'})}
+function applyAlternation(dk){if(weekNo()===1)S[dk].first='g1';let c=S[dk].first;activeDays().forEach(d=>{S[dk].days[d.k].active=c;c=c==='g1'?'g2':'g1'})}
+/* Semaine 1, jour 1 : le Groupe 1 est obligatoirement avec l'enseignant (jamais en autonomie) */
+function isW1D1(d){const ad=activeDays();return weekNo()===1&&ad.length&&ad[0].k===d}
+function enforceW1(dk){if(weekNo()!==1||!S[dk]||!S[dk].days)return;const ad=activeDays();if(!ad.length)return;
+  if(S[dk].first!=='g1'||S[dk].days[ad[0].k].active!=='g1'){S[dk].first='g1';applyAlternation(dk)}}
 
 /* =====================================================================
    CALCUL DU PLAN (cœur de la génération automatique)
@@ -1149,7 +1153,7 @@ function renderProgress(){
 function renderDays(){
   const dk=cur(),D=DISC[dk],st=S[dk],C=compute(dk);
   document.getElementById('dayHint').textContent=D.hint;
-  document.getElementById('firstSel').value=st.first;
+  document.getElementById('firstSel').value=st.first;document.getElementById('firstSel').disabled=weekNo()===1;document.getElementById('firstSel').title=weekNo()===1?'Semaine 1 : le Groupe 1 commence obligatoirement avec l’enseignant':'';
   {const C0=listOf(dk,'g1')||listOf(dk,'g2');const w=document.getElementById('trWrap');w.style.display=(dk==='math'&&(C0==='L1'||C0==='L2'))?'flex':'none';
    document.getElementById('trSel').innerHTML=TRANCHES.map(t=>`<option ${ (st.tranche||TRANCHES[0])===t?'selected':''}>${t}</option>`).join('')}
   document.getElementById('days').innerHTML=C.days.map(({d,rows})=>`<div class="day"><div class="dh">${d.n} <small>${dateOf(d.o)}</small></div>
@@ -1262,7 +1266,7 @@ function renderPlan(){
    RENDU GLOBAL
    ===================================================================== */
 function renderAll(){
-  renderTrial();renderIdent();renderClasses();
+  enforceW1('math');enforceW1('lect');renderTrial();renderIdent();renderClasses();
   S.effClasse=String(effTestes());document.querySelectorAll('[data-k]').forEach(el=>{el.value=S[el.dataset.k]??''});
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===cur()));
   document.querySelectorAll('.dn').forEach(x=>x.textContent=DISC[cur()].name);
@@ -1346,6 +1350,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.reroll){const [d,k]=b.dataset.reroll.split('.');const o=S[dk].days[d].ov[k];o.seed=(o.seed||0)+1;renderAll();return}
   if(b.dataset.step){const [g,k]=b.dataset.step.split('.');S[dk].step[g]=parseInt(k);renderAll();return}
   if(b.dataset.mode){const p=b.dataset.mode.split('.');const d=p[0],g=p[1],aut=p[2]==='aut';
+    if(isW1D1(d)&&((g==='g1'&&aut)||(g==='g2'&&!aut))){toast('Semaine 1, jour 1 : le Groupe 1 est obligatoirement avec l’enseignant');return}
     S[dk].days[d].active=aut?(g==='g1'?'g2':'g1'):g;renderAll();return}
   if(b.id==='btnAlt'){applyAlternation(dk);renderAll();toast('Alternance réappliquée');return}
   if(b.id==='btnGen'){generate();return}
