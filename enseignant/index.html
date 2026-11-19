@@ -185,17 +185,17 @@ body.locked #btnGen,body.locked #btnDocGen{background:#9aa39e;border-color:#9aa3
 <div id="trial"></div>
 <div id="alarm"></div>
 <section class="card" id="classCard">
-  <h2><span class="step">★</span> Mes classes</h2>
+  <h2><span class="step">★</span> Ma classe</h2>
   <p class="hint">Chaque classe est enregistrée dans ce navigateur, avec ses apprenants, ses progressions et ses plans. Une <b>alerte</b> signale les classes où, après 4 plans de session enregistrés dans une discipline, au moins 50 % des apprenants n’ont pas progressé. <span id="offlineNote"></span></p>
   <div class="toolbar">
     <button class="primary" id="btnSaveClass">💾 Enregistrer la classe</button>
-    <button id="btnNewClass">+ Nouvelle classe</button>
     <span style="flex:1"></span>
-    <button id="btnExport">Sauvegarder toutes les classes (fichier)</button>
+    <button id="btnExport">Sauvegarder ma classe (fichier)</button>
     <label class="filebtn">Restaurer depuis un fichier<input type="file" id="importFile" accept=".json,application/json" hidden></label>
     <button id="btnOffline" hidden>⬇ Télécharger l'application hors ligne</button>
   </div>
   <div id="classList"></div>
+  <p class="hint" id="oneClassNote"></p>
 </section>
 
 <section class="card">
@@ -406,6 +406,15 @@ function printWrap(body,portrait,title){const wm=!isActivated();const sig=author
   document.head.appendChild(st)})();
 
 function LIC_YEAR_HOOK(y){if(S&&S.annee!==y){S.annee=y;persist()}}
+/* Verrouillage de la classe : une application = une classe */
+const IDK=['drena','iepp','secteur','ecole','classe','enseignant'];
+const idLocked=()=>!!(LIC.cls&&LIC.cls.ecole);
+const normId=v=>UP(String(v||'').trim()).replace(/\s+/g,' ');
+function sameClass(C){return normId(C.ecole)===normId(LIC.cls.ecole)&&normId(C.classe)===normId(LIC.cls.classe)&&normId(C.enseignant)===normId(LIC.cls.enseignant)}
+function lockClass(){if(idLocked())return;LIC.cls={};IDK.forEach(k=>LIC.cls[k]=normId(S[k]));LIC.cls.at=Date.now();saveLic()}
+function applyIdLock(){if(!idLocked())return;IDK.forEach(k=>{if(LIC.cls[k]!=null&&LIC.cls[k]!=='')S[k]=LIC.cls[k]});
+  IDK.forEach(k=>document.querySelectorAll('[data-k="'+k+'"]').forEach(el=>{if(el.tagName==='SELECT')el.disabled=true;else el.readOnly=true;el.title='Verrouillé : cette application est réservée à cette classe'}));
+  ['drenaSel','ieppSel'].forEach(i=>{const e=document.getElementById(i);if(e){e.disabled=true;e.title='Verrouillé : cette application est réservée à cette classe'}})}
 
 /* =====================================================================
    MATHÉMATIQUES – activités (Guide de remédiation mathématiques)
@@ -953,6 +962,8 @@ let STORE=null;try{STORE=JSON.parse(localStorage.getItem(KEYC))}catch(e){STORE=n
 if(!STORE||typeof STORE.list!=='object'){STORE={current:null,list:{}};
   let old=null;try{old=JSON.parse(localStorage.getItem(KEY))}catch(e){}
   if(old&&old.math&&old.lect){old.classId=newId();STORE.list[old.classId]=old;STORE.current=old.classId}}
+/* Une seule classe par application (et par licence) */
+{const ids=Object.keys(STORE.list);if(ids.length>1){const keep=STORE.current&&STORE.list[STORE.current]?STORE.current:ids[0];STORE.list={[keep]:STORE.list[keep]};STORE.current=keep;try{localStorage.setItem(KEYC,JSON.stringify(STORE))}catch(e){}}}
 let S=STORE.current?STORE.list[STORE.current]:null;
 let FRESH=false;if(!S||!S.math||!S.lect){S=defaults();FRESH=true}
 if(!S.classId)S.classId=newId();
@@ -1248,13 +1259,13 @@ function renderPlan(){
    RENDU GLOBAL
    ===================================================================== */
 function renderAll(){
-  enforceW1('math');enforceW1('lect');renderTrial();renderIdent();renderClasses();
+  enforceW1('math');enforceW1('lect');if(idLocked())IDK.forEach(k=>{if(LIC.cls[k])S[k]=LIC.cls[k]});renderTrial();renderIdent();renderClasses();
   S.effClasse=String(effTestes());document.querySelectorAll('[data-k]').forEach(el=>{el.value=S[el.dataset.k]??''});
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===cur()));
   document.querySelectorAll('.dn').forEach(x=>x.textContent=DISC[cur()].name);
   deriveAll();syncLevels();renderEleves();renderShare();
   S.effClasse=String(effTestes());document.querySelectorAll('[data-k]').forEach(el=>{el.value=S[el.dataset.k]??''});
-  renderLevels();renderProgress();renderDays();renderPlan();renderDocs();persist();
+  renderLevels();renderProgress();renderDays();renderPlan();renderDocs();applyIdLock();persist();
 }
 
 /* =====================================================================
@@ -1304,12 +1315,9 @@ document.addEventListener('click',e=>{
   if(b.id==='btnShareClose'){SHARE_OPEN=false;renderShare();return}
   if(b.id==='btnShareFile'){S.sharedAt=Date.now();persist();saveFile(shareName()+'.json',JSON.stringify(classPayload()));return}
   if(b.id==='btnShareCode'){encodeShare(classPayload()).then(async c=>{SHARE_CODE=c;renderShare();try{await navigator.clipboard.writeText(c);toast('Code copié : collez-le dans un message au directeur')}catch(e){const t=document.getElementById('shareTxt');if(t){t.focus();t.select()}toast('Sélectionnez le code puis copiez-le')}});return}
-  if(b.id==='btnSaveClass'){S.saved=true;S.savedAt=Date.now();persist();renderClasses();toast('Classe enregistrée : '+classLabel(S));return}
-  if(b.id==='btnNewClass'){persist();S=defaults();S.classId=newId();normalizeS();applyAlternation('math');applyAlternation('lect');GEN={math:null,lect:null};DOCGEN=null;PF=null;renderAll();toast('Nouvelle classe : remplissez l’identification puis enregistrez');window.scrollTo({top:0,behavior:'smooth'});return}
+  if(b.id==='btnSaveClass'){if(!idLocked()){const m=['ecole','classe','enseignant'].filter(k=>!String(S[k]||'').trim());if(m.length){toast('Renseignez d’abord l’école, la classe et l’enseignant(e)');return}}
+    S.saved=true;S.savedAt=Date.now();lockClass();persist();renderAll();toast('Classe enregistrée : '+classLabel(S)+'. L’identification de la classe est maintenant verrouillée.');return}
   if(b.dataset.open){persist();const C=STORE.list[b.dataset.open];if(C){S=C;normalizeS();GEN={math:null,lect:null};DOCGEN=null;PF=null;renderAll();toast('Classe ouverte : '+classLabel(S))}return}
-  if(b.dataset.delclass){const id=b.dataset.delclass;
-    if(b.dataset.arm){delete STORE.list[id];if(id===S.classId){S=defaults();S.classId=newId();normalizeS();applyAlternation('math');applyAlternation('lect')}persist();renderAll();toast('Classe supprimée');return}
-    b.dataset.arm='1';b.textContent='Confirmer ?';setTimeout(()=>{if(b.isConnected){b.textContent='Supprimer';delete b.dataset.arm}},3000);return}
   if(b.id==='btnExport'){persist();saveFile('classes-remediation-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({app:'plan-session-remediation',version:1,date:new Date().toISOString(),list:STORE.list},null,1));return}
   if(b.id==='btnOffline'){downloadOffline();return}
   if(b.id==='btnPrintPlan'){printHTML(fullDoc([cur()]));return}
@@ -1775,26 +1783,31 @@ function alertCell(a){
   return `<span class="st3">✓ ${txt}</span>`;
 }
 function renderClasses(){
-  const ids=Object.keys(STORE.list).filter(id=>STORE.list[id].saved||id===S.classId);
+  const ids=[S.classId];
   STORE.list[S.classId]=S;
   const rows=ids.map(id=>{const C=STORE.list[id],t=classStats(C),curr=id===S.classId;
     return `<tr class="${curr?'curr':''} ${t.alert?'alrow':''}"><td>${esc(C.drena||'')}<br><small>${esc(C.iepp||'')}</small></td><td><b>${esc(C.classe||'?')}</b> – ${esc(C.ecole||'')}<br><small>${esc(C.enseignant||'')}</small>${!C.saved?'<br><small>non enregistrée</small>':''}</td>
       <td class="c">${t.eff}</td><td>${alertCell(t.A.lect)}</td><td>${alertCell(t.A.math)}</td><td>${t.last?fmtD(t.last):'—'}</td>
-      <td>${curr?'<b>Ouverte</b>':`<button data-open="${id}">Ouvrir</button>`} <button class="del2" data-delclass="${id}">Supprimer</button></td></tr>`}).join('');
+      <td>${idLocked()?'🔒 Classe verrouillée':'<b>Ouverte</b>'}</td></tr>`}).join('');
   document.getElementById('classList').innerHTML=`<div class="tblwrap"><table class="eltab cltab"><thead><tr><th>DRENA / IEPP</th><th>Classe – École</th><th>Effectif</th><th>Lecture</th><th>Mathématiques</th><th>Dernière progression</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
   const al=ids.map(id=>STORE.list[id]).filter(C=>classStats(C).alert);
   const dd=(C,dk,n)=>{const a=classStats(C).A[dk];return a.alert?`${n} : ${a.pct} % des apprenants sans progression (${a.np} sur ${a.elig}) après ${a.plans} plans de session`:''};
   document.getElementById('alarm').innerHTML=al.length?`<div class="alarm"><div class="ai">⚠</div><div><b>Attention : ${al.length} classe${al.length>1?'s':''} où au moins ${ALERT_PCT} % des apprenants n’ont pas progressé après ${ALERT_PLANS} plans de session</b>
      <ul>${al.map(C=>`<li><b>${esc(classLabel(C))}</b> – ${[dd(C,'lect','Lecture'),dd(C,'math','Mathématiques')].filter(Boolean).map(esc).join(' ; ')}</li>`).join('')}</ul>
      <small>Vérifiez la conduite des activités, le suivi des apprenants en observation et l’enregistrement des progressions (bouton « ↑ Progression »).</small></div></div>`:'';
+  document.getElementById('oneClassNote').innerHTML=idLocked()?`🔒 Cette application est réservée à la classe <b>${esc(LIC.cls.classe)}</b> de l’école <b>${esc(LIC.cls.ecole)}</b> (enseignant(e) : <b>${esc(LIC.cls.enseignant)}</b>). Elle ne peut pas enregistrer une autre classe : chaque enseignant(e) doit utiliser sa propre application, sur son propre appareil, avec son propre code d’activation.`
+    :'Une seule classe peut être enregistrée dans cette application. Dès que vous cliquez sur « Enregistrer la classe », l’école, la classe et le nom de l’enseignant(e) sont verrouillés définitivement.';
   document.getElementById('btnOffline').hidden=OFFLINE;
   document.getElementById('offlineNote').textContent=OFFLINE?'Version hors ligne : les données restent dans ce navigateur ; pensez à « Sauvegarder toutes les classes » régulièrement.':'';
 }
 function importClasses(file){
   if(!file)return;const r=new FileReader();
   r.onload=()=>{try{const d=JSON.parse(r.result);const list=d.list||d;let n=0;
-      Object.values(list).forEach(C=>{if(C&&C.math&&C.lect){if(!C.classId)C.classId=newId();C.saved=true;STORE.list[C.classId]=C;n++}});
-      if(!n)throw 0;persist();renderAll();toast(n+' classe(s) restaurée(s)')}catch(e){toast('Fichier non reconnu')}};
+      const cands=Object.values(list).filter(C=>C&&C.math&&C.lect);if(!cands.length)throw 0;
+      const C=idLocked()?cands.find(c=>sameClass(c)):cands[0];
+      if(!C){toast('Ce fichier ne correspond pas à la classe de cette application ('+classLabel(LIC.cls)+')');return}
+      C.classId=S.classId;C.saved=true;S=C;normalizeS();if(idLocked())Object.assign(S,{ecole:LIC.cls.ecole,classe:LIC.cls.classe,enseignant:LIC.cls.enseignant});else if(C.ecole&&C.classe&&C.enseignant)lockClass();
+      STORE.list={[S.classId]:S};GEN={math:null,lect:null};DOCGEN=null;PF=null;persist();renderAll();toast('Classe restaurée : '+classLabel(S))}catch(e){toast('Fichier non reconnu')}};
   r.readAsText(file);
 }
 async function downloadOffline(){}
