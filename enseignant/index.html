@@ -441,9 +441,9 @@ const MATH_ACTS=[
   o:{L1:['Identifier les signes <, > et =','Comparer les nombres compris entre 0 et 99'],L2:['Identifier les signes <, > et =','Comparer les nombres compris entre 0 et 999']},
   m:{L1:'Bâtonnets, élastiques, tableau des nombres',L2:'La monnaie des enfants, tableau des nombres'},sp:SP3,d:15,
   nt:{L1:'Manipuler les paquets et bâtonnets ; nombres de 0 à 99.',L2:'Manipuler la monnaie des enfants ; nombres de 0 à 999.'}},
- {id:'cercle',t:'R',n:'Cercle des nombres',L:['L1','L2','L3'],
+ {id:'cercle',t:'R',n:'Cercle des nombres',L:['L2','L3'],
   o:['Identifier la valeur de position d’un chiffre'],m:'9 objets (cailloux, graines…) ; craie',sp:['TC','TG'],d:15,
-  nt:{L1:'Jusqu’à 3 cercles concentriques (unités, dizaines, centaines).',L2:'Jusqu’à 4 cercles (unités, dizaines, centaines, milliers).',L3:'Jusqu’à 6 cercles (jusqu’aux centaines de mille).'}},
+  nt:{L2:'Jusqu’à 3 ou 4 cercles concentriques (unités, dizaines, centaines, milliers) : nécessite de savoir former des nombres d’au moins 2 ou 3 chiffres.',L3:'Jusqu’à 6 cercles (jusqu’aux centaines de mille).'}},
  {id:'decomp',t:'R',n:'Décomposition additive d’un nombre',L:['L1','L2'],
   o:['Contextualiser le vocabulaire propre à l’addition et à la soustraction','Résoudre oralement des problèmes d’addition et de soustraction','Identifier des quantités sans compter en observant des groupements d’objets'],
   m:'Cailloux, bâtonnets, capsules ; tableau des grands nombres',sp:SP3,d:15,
@@ -490,36 +490,36 @@ const MATH_ACTS=[
   o:['Résoudre des opérations dans des situations de vie courante','Identifier la valeur de chaque monnaie','Pratiquer le calcul mental'],
   m:'La monnaie des enfants ; articles avec étiquettes de prix',sp:['TC','TG'],d:30,
   nt:{L2:'Rôles : commerçant, client, banquier ; prix de 2 à 3 chiffres.',L3:'Introduire le rendu de monnaie ; prix de 3 à 4 chiffres.'}},
- {id:'multBat',t:'O',n:'Multiplication avec les bâtonnets',L:['L2','L3'],
+ {id:'multBat',t:'O',n:'Multiplication avec les bâtonnets',L:['L3'],
   o:['Expliquer le concept de la multiplication sous forme d’addition itérée (répétée)','Multiplier des nombres à un chiffre','Utiliser le vocabulaire de la multiplication'],
   m:'Bâtonnets ; élastiques',sp:SP3,d:30,
-  nt:{L2:'Partir des tas (ex. 4 tas de 3 = 3 + 3 + 3 + 3 = 4 × 3).',L3:'Ajouter la décomposition des termes et le tableau de numération.'}},
- {id:'echMult',t:'O',n:'Multiplication par la méthode de l’échelle',L:['L2','L3'],
+  nt:{L3:'Partir des tas (ex. 4 tas de 3 = 3 + 3 + 3 + 3 = 4 × 3), puis la décomposition des termes et le tableau de numération.'}},
+ {id:'echMult',t:'O',n:'Multiplication par la méthode de l’échelle',L:['L3'],
   o:['Multiplier les nombres à un chiffre'],m:'Craie, stylo, cahier, ardoise',sp:SP3,d:30,
-  nt:{L2:'Ex. : 2 × 3 (2 lignes verticales, 3 horizontales, compter les croisements).',L3:'Ex. : 3 × 4, 5 × 2… puis passer aux tables.'}},
- {id:'tabMult',t:'O',n:'Lecture de la table de multiplication',L:['L2','L3'],
+  nt:{L3:'Ex. : 2 × 3 (2 lignes verticales, 3 horizontales, compter les croisements), puis 3 × 4, 5 × 2… et passer aux tables.'}},
+ {id:'tabMult',t:'O',n:'Lecture de la table de multiplication',L:['L3'],
   o:['Comprendre la technique de la multiplication des nombres à un chiffre','Calculer mentalement','Construire des tables de multiplication','Mémoriser des tables de multiplication'],
   m:'Table de multiplication',sp:SP3,d:30,
-  nt:{L2:'Lire une table portion par portion (ex. table de 2).',L3:'Apprendre les différentes tables de 2 à 10.'}},
- {id:'divBat',t:'O',n:'Division avec les bâtonnets',L:['L2','L3'],
+  nt:{L3:'Lire une table portion par portion (ex. table de 2), puis apprendre les tables de 2 à 10.'}},
+ {id:'divBat',t:'O',n:'Division avec les bâtonnets',L:['L3'],
   o:['Expliquer le concept de la division','Exprimer la division sous forme de soustraction ou de partages répétés','Utiliser le vocabulaire de la division'],
   m:'Craie, bâtonnets, élastiques',sp:SP3,d:30,
-  nt:{L2:'Partager 18 bâtonnets en parts égales (2, 3, 6, 9 apprenants).',L3:'Activité surtout destinée au niveau soustraction ; introduire le reste (18 : 7).'}},
+  nt:{L3:'Partager 18 bâtonnets en parts égales (2, 3, 6, 9 apprenants), puis introduire le reste (18 : 7).'}},
  {id:'divMon',t:'O',n:'Division avec la monnaie des enfants',L:['L3'],
   o:['Exprimer la division sous forme de partage ou de soustraction répétée','Diviser les nombres à deux et trois chiffres par des nombres à un chiffre'],
   m:'Craie ; la monnaie des enfants ; livret de situations',sp:SP3,d:30,nt:{L3:'Ex. : partager 63 F entre 3 enfants.'}},
- {id:'divTab',t:'O',n:'Division avec la table de multiplication',L:['L2','L3'],
+ {id:'divTab',t:'O',n:'Division avec la table de multiplication',L:['L3'],
   o:['Résoudre la division en utilisant une table de multiplication','Résoudre des problèmes de division sans matériel en mémorisant les tables de 1 à 10'],
   m:'Table de multiplication ; livret de situations',sp:SP3,d:30,
-  nt:{L2:'Résoudre des situations simples (ex. 86 : 5).',L3:'Aller vers des divisions comme 238 : 7.'}},
+  nt:{L3:'Résoudre des situations simples (ex. 86 : 5), puis aller vers des divisions comme 238 : 7.'}},
  {id:'balle',t:'O',n:'Lancer la balle',L:['L1','L2','L3'],
   o:['Familiariser les apprenants avec les nombres et les opérations','Compter selon un ordre'],
   m:'Une balle',sp:['TC','TG'],d:30,
-  nt:{L1:'Questions d’addition et de soustraction.',L2:'Questions d’addition, de soustraction et de multiplication.',L3:'Récitation des tables de 2 à 10 (10 min) et calcul mental.'}},
- {id:'parts',t:'O',n:'Chasse aux parts égales (division par partage)',L:['L2','L3'],
+  nt:{L1:'Questions d’addition et de soustraction.',L2:'Questions d’addition et de soustraction (nombres à 2 et 3 chiffres).',L3:'Récitation des tables de 2 à 10 (10 min) et calcul mental.'}},
+ {id:'parts',t:'O',n:'Chasse aux parts égales (division par partage)',L:['L3'],
   o:['Expliquer la notion de partage en parts égales','Résoudre des situations de division par manipulation'],
   m:'Graines ou cailloux ; paniers, cartons, seaux',sp:SP3,d:30,
-  nt:{L2:'Ex. : 30 graines dans 6 paniers.',L3:'Déterminer des parts égales à partir d’une situation de division.'}},
+  nt:{L3:'Ex. : 30 graines dans 6 paniers ; déterminer des parts égales à partir d’une situation de division.'}},
  {id:'devine',t:'O',n:'Devine mes nombres',L:['L3'],ni:true,
   o:['Pratiquer le calcul mental','Effectuer des opérations de multiplication'],
   m:'Cartes nombres de 1 à 10 ; 2 paniers ou calebasses',sp:['TC','TG'],d:30,nt:{L3:'Ne se joue pas individuellement.'}},
@@ -595,25 +595,7 @@ const MATH_PLAN={
    {sem:'Effectuer des soustractions avec retenue de deux nombres à 2 chiffres',ex:'sub22a',rc:['tab2','decomp','grands','decomp','compar'],
     s:[['sousBat','Retrancher deux nombres à 2 chiffres avec une retenue (ex. 76 − 38)','avec','sub22a'],['sousBat','Résoudre une situation de soustraction avec retenue','avec','sub22a'],['sousBat','Poser et effectuer une soustraction avec retenue sans matériel','avec','sub22a']]},
    {sem:M_SUB,ex:'sub33a',rc:['monnaie','grands','cercle','monnaie','grands'],
-    s:[['sousMon','Soustraire des nombres à 3 chiffres avec retenue avec la monnaie des enfants (ex. 331 − 115)','avec','sub33a'],['marche','Rendre la monnaie lors d’un achat','','sub33a'],['sousMon','Résoudre une situation de soustraction de sommes d’argent','avec','sub33a']]}]},
-  {mois:M_MUL,op:'Multiplication',weeks:[
-   {sem:'Comprendre la multiplication comme une addition répétée',ex:'multRep',rc:['tab2','grands','gestes','bingo','cercle'],
-    s:[['multBat','Former des tas égaux et écrire l’addition répétée (ex. 3 + 3 + 3 + 3)','','multRep'],['multBat','Exprimer une addition répétée sous forme de produit (ex. 4 × 3 = 12)','','multRep'],['multBat','Utiliser le vocabulaire de la multiplication (facteur, produit)','','multRep']]},
-   {sem:'Multiplier des nombres à un chiffre par la méthode de l’échelle',ex:'mult11',rc:['grands','cercle','monnaie','bingo','tab2'],
-    s:[['echMult','Représenter un produit par des lignes qui se croisent (ex. 2 × 3)','','mult11'],['echMult','Trouver le produit de deux nombres à un chiffre par la méthode de l’échelle','','mult11'],['multBat','Vérifier un produit avec les bâtonnets','','mult11']]},
-   {sem:'Mémoriser les tables de multiplication de 2 à 9',ex:'tab',rc:['tab2','grands','compar','cercle','monnaie'],
-    s:[['tabMult','Lire et mémoriser les tables de multiplication de 2 à 5','','tab'],['tabMult','Lire et mémoriser les tables de multiplication de 6 à 9','','tab'],['balle','Réciter les tables de multiplication de 2 à 10','','tab']]},
-   {sem:M_MUL,ex:'mult11',rc:['grands','monnaie','cercle','tab2','grands'],
-    s:[['balle','Calculer mentalement des produits des tables','','mult11'],['multBat','Résoudre une situation de multiplication','','mult11'],['tabMult','Effectuer des multiplications à l’aide de la table','','mult11']]}]},
-  {mois:M_DIV,op:'Division',weeks:[
-   {sem:'Partager une quantité en parts égales',ex:'divPart',rc:['grands','cercle','monnaie','compar','tab2'],
-    s:[['divBat','Partager une quantité de bâtonnets en parts égales (ex. 18 : 3)','','divPart'],['divBat','Identifier le dividende, le diviseur, le quotient et le reste','','divPart'],['parts','Partager des graines en parts égales','','divPart']]},
-   {sem:'Résoudre des situations de partage en parts égales',ex:'divPart',rc:['monnaie','grands','cercle','tab2','compar'],
-    s:[['parts','Résoudre une situation de partage en parts égales (ex. 30 : 6)','','divPart'],['parts','Écrire l’opération correspondant à un partage','','divPart'],['divBat','Partager avec un reste (ex. 18 : 7)','','div21']]},
-   {sem:'Diviser à l’aide de la table de multiplication',ex:'div21',rc:['grands','cercle','monnaie','compar','tab2'],
-    s:[['divTab','Trouver dans la table de multiplication le multiple le plus proche du dividende','','div21'],['divTab','Diviser un nombre à 2 chiffres par un nombre à 1 chiffre (ex. 86 : 5)','','div21'],['parts','Résoudre une situation de division avec reste','','div21']]},
-   {sem:M_DIV,ex:'div21',rc:['monnaie','grands','cercle','tab2','compar'],
-    s:[['divTab','Effectuer des divisions d’un nombre à 2 chiffres par un nombre à 1 chiffre','','div21'],['parts','Résoudre une situation de division','','div21'],['divTab','Poser et effectuer une division sans matériel','','div21']]}]}
+    s:[['sousMon','Soustraire des nombres à 3 chiffres avec retenue avec la monnaie des enfants (ex. 331 − 115)','avec','sub33a'],['marche','Rendre la monnaie lors d’un achat','','sub33a'],['sousMon','Résoudre une situation de soustraction de sommes d’argent','avec','sub33a']]}]}
  ],
  L3:[
   {mois:M_MUL,op:'Multiplication',weeks:[
@@ -1365,15 +1347,16 @@ document.addEventListener('click',e=>{
   if(b.id==='btnDlBoth'){downloadPlan(['math','lect']);return}
 });
 function nextWeek(){
+  const ENDMSG=[];
   S.semaine=String(weekNo()+1);
   if(S.lundi){const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+7);S.lundi=d.toISOString().slice(0,10)}
   ['math','lect'].forEach(dk=>{
-    ['g1','g2'].forEach(g=>{const n=stepsOf(dk,g).length;if(n)S[dk].step[g]=Math.min(stepIdx(dk,g)+1,n-1)});
+    ['g1','g2'].forEach(g=>{const n=stepsOf(dk,g).length;if(n){if(stepIdx(dk,g)>=n-1)ENDMSG.push(DISC[dk].name+' – '+(g==='g1'?'Groupe 1':'Groupe 2'));S[dk].step[g]=Math.min(stepIdx(dk,g)+1,n-1)}});
     DAYS.forEach(d=>S[dk].days[d.k].ov={common:blankOv(),g1:blankOv(),g2:blankOv()});
     S[dk].vary={g1:0,g2:0};
     applyAlternation(dk);
   });
-  renderAll();toast(`Semaine ${S.semaine} : chaque groupe passe à l’objectif suivant`);
+  renderAll();toast(ENDMSG.length?`Programmation terminée pour : ${ENDMSG.join(', ')}. Faites passer le test ASER : les apprenants qui réussissent passent au niveau supérieur (ex. 2 chiffres → Soustraction).`:`Semaine ${S.semaine} : chaque groupe passe à l’objectif suivant`);
 }
 function repeatWeek(){
   S.semaine=String(weekNo()+1);
