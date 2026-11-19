@@ -41,6 +41,11 @@ input:focus,select:focus{outline:2px solid var(--acc);outline-offset:0;border-co
 .grp{border-radius:8px;padding:12px 14px;border:1px solid var(--line)}
 .grp.g1{background:var(--g1s);border-color:#f3cfb3}
 .grp.g2{background:var(--g2s);border-color:#b9dfcb}
+.grp.g3{background:#fdf3e7;border-color:#efcf9f}
+.hom3{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+@media(max-width:820px){.hom3{grid-template-columns:1fr!important}}
+.homh{margin:14px 0 6px;font-size:15px;padding:6px 10px;border-radius:6px;background:#eef3f0}.homh.g3{background:#fdf3e7}
+.slot.g3{background:#fdf3e7}
 .grp h3{margin:0 0 8px;font-size:15px}
 .lvl{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px dashed rgba(0,0,0,.1)}
 .lvl:first-of-type{border-top:none}
@@ -208,6 +213,7 @@ body.locked #btnGen,body.locked #btnDocGen{background:#9aa39e;border-color:#9aa3
     <label class="f">École<input data-k="ecole"></label>
     <label class="f">Code de l’école<input data-k="codeEcole"></label>
     <label class="f">Directeur (DEP)<input data-k="directeur"></label>
+    <label class="f">Type de classe<select data-k="typeClasse"><option value="het">Classe hétérogène (2 groupes de niveau)</option><option value="hom">Classe homogène (3 groupes de niveau)</option></select></label>
     <label class="f">Classe<select data-k="classe"><option value="">— Choisir —</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option></select></label>
     <label class="f">Année scolaire<input data-k="annee" readonly></label>
     <label class="f">Enseignant(e) / facilitateur<input data-k="enseignant"></label>
@@ -258,7 +264,7 @@ body.locked #btnGen,body.locked #btnDocGen{background:#9aa39e;border-color:#9aa3
   <h2><span class="step">5</span> Déroulement de la semaine : <span class="dn"></span></h2>
   <p class="hint" id="dayHint"></p>
   <div class="toolbar">
-    <label class="f" style="flex-direction:row;align-items:center;gap:6px">Le lundi, l'enseignant travaille avec
+    <label class="f" id="firstWrap" style="flex-direction:row;align-items:center;gap:6px">Le lundi, l'enseignant travaille avec
       <select id="firstSel" style="width:auto"><option value="g1">le Groupe 1</option><option value="g2">le Groupe 2</option></select>
     </label>
     <label class="f" id="trWrap" style="flex-direction:row;align-items:center;gap:6px">Tranche de nombres (reconnaissance)
@@ -760,6 +766,8 @@ const LECT_STEPS=flatPlan(LECT_PLAN);
 /* =====================================================================
    DISCIPLINES
    ===================================================================== */
+const HINT_HOM={math:'Classe homogène : 3 groupes de niveau (Débutant / 1 chiffre ; 2 chiffres ; Soustraction / Division). Pour chaque groupe de niveau présent, chaque jour : 15 min d’activité de reconnaissance des nombres puis 30 min d’activité d’opération, conduites par l’enseignant (travail collectif, en petits groupes puis individuel). Pas d’alternance ni d’autonomie.',
+ lect:'Classe homogène : 3 groupes de niveau (Débutant / Lettre ; Mot / Paragraphe ; Histoire / Compréhension). Pour chaque groupe de niveau présent, chaque jour : 15 min d’activité orale puis 30 min d’activité de lecture, conduites par l’enseignant (travail collectif, en petits groupes puis individuel). Pas d’alternance ni d’autonomie.'};
 const DISC={
  math:{name:'Mathématiques',acts:MATH_ACTS,steps:MATH_STEPS,plan:MATH_PLAN,first:'g1',
   LN:{L1:'Débutant / 1 chiffre',L2:'2 chiffres',L3:'Soustraction / Division'},
@@ -951,8 +959,8 @@ function blankOv(){return {act:'',obj:'',obs:'',seed:0}}
 function discState(dk){
   const D=DISC[dk];const lv={};D.LV.forEach(x=>lv[x.k]={on:false,eff:''});
   if(dk==='math'){lv.C1.on=lv.C2.on=lv.SOU.on=lv.DIV.on=true}else{lv.LET.on=lv.MOT.on=lv.PAR.on=lv.HIS.on=true}
-  const days={};DAYS.forEach(d=>days[d.k]={active:'g1',ov:{common:blankOv(),g1:blankOv(),g2:blankOv()}});
-  return {levels:lv,step:{g1:0,g2:0},first:D.first,days};
+  const days={};DAYS.forEach(d=>days[d.k]={active:'g1',ov:{common:blankOv(),g1:blankOv(),g2:blankOv(),g3:blankOv(),cg1:blankOv(),cg2:blankOv(),cg3:blankOv()}});
+  return {levels:lv,step:{g1:0,g2:0,g3:0},first:D.first,days};
 }
 function defaults(){return {progs:[],abs:{},eleves:[],drena:'',iepp:'',directeur:'',annee:'',aser:'Début d\u2019année',ecole:'',classe:'',enseignant:'',semaine:'1',lundi:nextMonday(),mer:'0',tab:'math',math:discState('math'),lect:discState('lect')}}
 function nextMonday(){const t=new Date();const day=t.getDay();const add=day===1?0:((8-day)%7);t.setDate(t.getDate()+add);return t.toISOString().slice(0,10)}
@@ -975,10 +983,19 @@ function persist(){S.updatedAt=Date.now();STORE.list[S.classId]=S;STORE.current=
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const pick=(x,l)=>(x&&typeof x==='object'&&!Array.isArray(x))?(x[l]||Object.values(x)[0]):x;
 const cur=()=>S.tab;
-function listOf(dk,g){const D=DISC[dk],st=S[dk];const f=D.LV.find(x=>x.g===g&&st.levels[x.k].on);return f?f.l:null}
-function lowestName(dk,g){const D=DISC[dk],st=S[dk];const f=D.LV.find(x=>(!g||x.g===g)&&st.levels[x.k].on);return f?f.n:''}
-function groupComp(dk,g){const D=DISC[dk],st=S[dk];return D.LV.filter(x=>x.g===g&&st.levels[x.k].on).map(x=>x.n).join(' / ')}
-function groupEff(dk,g){const D=DISC[dk],st=S[dk];return D.LV.filter(x=>x.g===g&&st.levels[x.k].on).reduce((s,x)=>s+(parseInt(st.levels[x.k].eff)||0),0)}
+/* Type de classe : hétérogène (2 groupes) ou homogène (3 groupes de niveau, un par palier) */
+const isHom=()=>S&&S.typeClasse==='hom';
+const HOM_G={L1:'g1',L2:'g2',L3:'g3',DL:'g1',MP:'g2',HC:'g3'};
+const gOf=(dk,x)=>isHom()?HOM_G[x.l]:x.g;
+const GRS=()=>isHom()?['g1','g2','g3']:['g1','g2'];
+const GNUM=g=>'Groupe '+g.slice(1);
+function GNAME(dk,g){const D=DISC[dk];if(!isHom())return D.G[g];const l=Object.keys(HOM_G).find(k=>HOM_G[k]===g&&D.LN[k]);return GNUM(g)+' : '+D.LN[l]}
+const presentGroups=dk=>GRS().filter(g=>listOf(dk,g));
+function computeAll(dk){return isHom()?presentGroups(dk).map(g=>compute(dk,g)):[compute(dk)]}
+function listOf(dk,g){const D=DISC[dk],st=S[dk];const f=D.LV.find(x=>gOf(dk,x)===g&&st.levels[x.k].on);return f?f.l:null}
+function lowestName(dk,g){const D=DISC[dk],st=S[dk];const f=D.LV.find(x=>(!g||gOf(dk,x)===g)&&st.levels[x.k].on);return f?f.n:''}
+function groupComp(dk,g){const D=DISC[dk],st=S[dk];return D.LV.filter(x=>gOf(dk,x)===g&&st.levels[x.k].on).map(x=>x.n).join(' / ')}
+function groupEff(dk,g){const D=DISC[dk],st=S[dk];return D.LV.filter(x=>gOf(dk,x)===g&&st.levels[x.k].on).reduce((s,x)=>s+(parseInt(st.levels[x.k].eff)||0),0)}
 function activeDays(){return DAYS.filter(d=>S.mer==='1'||d.k!=='mer')}
 function dateOf(o){if(!S.lundi)return '';const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+o);return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})}
 function weekNo(){return Math.max(1,parseInt(S.semaine)||1)}
@@ -1022,45 +1039,48 @@ function variantOf(dk,op,id,l,k){
   return id;
 }
 const stripMat=o=>o.replace(/ avec les bâtonnets| avec la monnaie des enfants| par la méthode de l’échelle| dans la table d’addition| dans la table de soustraction| avec la table de multiplication| tirées au panier| tirés au panier| à partir de cartes lettres/g,'');
-function compute(dk){
-  const D=DISC[dk],st=S[dk],A=D.A;
-  const g1L=listOf(dk,'g1'),g2L=listOf(dk,'g2'),classL=g1L||g2L,both=!!(g1L&&g2L);
+function compute(dk,focus){
+  const D=DISC[dk],st=S[dk],A=D.A;const hom=isHom()&&!!focus;
+  const GL=hom?[focus]:['g1','g2'];
+  const g1L=hom?null:listOf(dk,'g1'),g2L=hom?null:listOf(dk,'g2'),classL=hom?listOf(dk,focus):(g1L||g2L),both=!hom&&!!(g1L&&g2L);
+  const solo=hom?focus:(g1L?'g1':'g2');const cKey=hom?'c'+focus:'common';
   const ad=activeDays(),wk=weekNo();
   const steps={};
-  ['g1','g2'].forEach(g=>{const l=listOf(dk,g);if(!l)return;const i=stepIdx(dk,g);const arr=D.steps[l];
+  GL.forEach(g=>{const l=listOf(dk,g);if(!l)return;const i=stepIdx(dk,g);const arr=D.steps[l];
     steps[g]={list:l,idx:i,step:arr[i],mastered:i>0?arr[i-1].sem:D.prereq[l],arr}});
-  const teach={g1:0,g2:0},last={g1:null,g2:null};
+  const teach={g1:0,g2:0,g3:0},last={g1:null,g2:null,g3:null};
   // nombre de séances avec l'enseignant de chaque groupe dans la semaine : la dernière porte l'objectif de la semaine
-  const nTeach={g1:0,g2:0};ad.forEach(d=>{const act=both?st.days[d.k].active:(g1L?'g1':'g2');nTeach[act]++});
+  const nTeach={g1:0,g2:0,g3:0};ad.forEach(d=>{const act=both?st.days[d.k].active:solo;nTeach[act]++});
   const out=[];
   ad.forEach((d,j)=>{
     const day=st.days[d.k];const rows=[];
-    const active=both?day.active:(g1L?'g1':'g2');
+    const active=both?day.active:solo;
     // ---- activité commune
     if(classL){
       let id;
       if(dk==='math'){
-        const rc=(steps.g1&&steps.g1.step.rc)||null;
+        const fg=GL.find(g=>steps[g]);const rc=(hom?(steps[fg]&&steps[fg].step.rc):(steps.g1&&steps.g1.step.rc))||null;
         const seq=rc||MATH_COMMON_DEFAULT[classL];
-        const vo=(st.vary&&(st.vary.g1||st.vary.g2))||0;
+        const vo=(st.vary&&(hom?st.vary[focus]:(st.vary.g1||st.vary.g2)))||0;
         id=rc?seq[(j+vo)%seq.length]:seq[(j+wk-1+vo)%seq.length];
       }else{
         id=wk<=2?(j%2?'desc':'dial'):(['desc','desc','dial','desc','desc'][j]||'desc');
       }
-      const ov=day.ov.common;
+      const ov=day.ov[cKey]||(day.ov[cKey]=blankOv());
       if(ov.act&&A[ov.act]&&A[ov.act].c&&A[ov.act].L.includes(classL))id=ov.act;
       const a=A[id];const os=pick(a.o,classL);
       let autoObj=dk==='lect'?os[(j+wk-1)%os.length]:os[0];
-      let tr='',note=a.nt&&a.nt[classL]?`Niveau ${lowestName(dk)} : ${a.nt[classL]}`:'';
-      if(useTranche(dk,classL,id)){tr=ov.tr||st.tranche||TRANCHES[0];autoObj=trObj(os.find(o=>/nombre/i.test(o))||os[0],tr);note=`Tranche de nombres étudiée : ${tr} (niveau de référence : ${lowestName(dk)}).`}
-      rows.push({slot:'common',lab:both?'Les 2 groupes de niveau':'Tout le groupe',a,actLabel:a.n,obj:ov.obj||autoObj,autoObj,tr,
+      const lowN=hom?lowestName(dk,focus):lowestName(dk);
+      let tr='',note=a.nt&&a.nt[classL]?`Niveau ${lowN} : ${a.nt[classL]}`:'';
+      if(useTranche(dk,classL,id)){tr=ov.tr||st.tranche||TRANCHES[0];autoObj=trObj(os.find(o=>/nombre/i.test(o))||os[0],tr);note=`Tranche de nombres étudiée : ${tr} (niveau de référence : ${lowN}).`}
+      rows.push({slot:'common',ovk:cKey,lab:both?'Les 2 groupes de niveau':hom?GNUM(focus):'Tout le groupe',a,actLabel:a.n,obj:ov.obj||autoObj,autoObj,tr,
         mat:pick(a.m,classL),sp:a.sp.join(' '),dur:'15 min',note,
         mode:null,ovAct:ov.act&&ov.act===id,ovObj:!!ov.obj,list:classL,obs:ov.obs,res:RESUME[id]||''});
     }
     // ---- groupes
-    ['g1','g2'].forEach(g=>{
+    GL.forEach(g=>{
       const sg=steps[g];if(!sg)return;
-      const ov=day.ov[g];const l=sg.list;
+      const ov=day.ov[g]||(day.ov[g]=blankOv());const l=sg.list;
       if(active===g){
         const si=Math.min(teach[g],sg.step.s.length-1);const ses=sg.step.s[si];teach[g]++;
         const isLast=teach[g]===nTeach[g];
@@ -1071,7 +1091,7 @@ function compute(dk){
         if(ov.act&&A[ov.act]&&A[ov.act].g&&A[ov.act].L.includes(l)&&ov.act!==vid){a=A[ov.act];obj=pick(a.o,l)[0];v='';manual=true}
         const autoObj=obj;obj=ov.obj||obj;
         last[g]={obj,j,x:xt};
-        rows.push({slot:g,lab:groupComp(dk,g),a,actLabel:a.n+(a.v&&v?` (${v} retenue)`:''),obj,autoObj,mat:pick(a.m,l),
+        rows.push({slot:g,ovk:g,lab:hom?GNUM(g):groupComp(dk,g),a,actLabel:a.n+(a.v&&v?` (${v} retenue)`:''),obj,autoObj,mat:pick(a.m,l),
           sp:a.sp.join(' '),dur:'30 min',note:a.nt&&a.nt[l]?`Niveau ${lowestName(dk,g)} : ${a.nt[l]}`:'',
           mode:both?'teach':null,ovAct:manual,ovObj:!!ov.obj,list:l,obs:ov.obs,res:RESUME[a.id]||''});
       }else{
@@ -1085,7 +1105,7 @@ function compute(dk){
         const AU=D.auto[g];
         let actLabel=`${AU.n} : ${lbl}`,mat=AU.m,sp='TI',a=null,manual=false;
         if(ov.act&&A[ov.act]&&A[ov.act].g&&A[ov.act].L.includes(l)){a=A[ov.act];actLabel=a.n+' (en autonomie)';mat=pick(a.m,l);sp=a.ni?'TG':'TI';manual=true}
-        rows.push({slot:g,lab:groupComp(dk,g),a,actLabel,obj:ov.obj||src,autoObj:src,mat,sp,dur:'30 min',
+        rows.push({slot:g,ovk:g,lab:groupComp(dk,g),a,actLabel,obj:ov.obj||src,autoObj:src,mat,sp,dur:'30 min',
           note:kind==='maitrise'?'Rappel d’un objectif déjà acquis : aucun objectif n’a encore été travaillé avec l’enseignant cette semaine.':'',
           mode:'auto',kind,ovAct:manual,ovObj:!!ov.obj,list:l,obs:ov.obs,exo,
           res:manual?(RESUME[a.id]||''):(dk==='math'?RESUME_AUTO.math:RESUME_AUTO['lect_'+g])});
@@ -1093,7 +1113,7 @@ function compute(dk){
     });
     out.push({d,rows,active});
   });
-  return {days:out,steps,g1L,g2L,classL,both};
+  return {days:out,steps,g1L,g2L,classL,both,hom,focus:hom?focus:null};
 }
 
 /* =====================================================================
@@ -1103,16 +1123,17 @@ function renderLevels(){
   const dk=cur(),D=DISC[dk],st=S[dk];
   const part=g=>{
     const l=listOf(dk,g);
-    return `<div class="grp ${g}"><h3>${D.G[g]}</h3>
-    ${D.LV.filter(x=>x.g===g).map(x=>`<div class="lvl"><input type="checkbox" id="lv_${x.k}" data-lv="${x.k}" ${st.levels[x.k].on?'checked':''} ${S.eleves.length?'disabled':''}>
+    return `<div class="grp ${g}"><h3>${GNAME(dk,g)}</h3>
+    ${D.LV.filter(x=>gOf(dk,x)===g).map(x=>`<div class="lvl"><input type="checkbox" id="lv_${x.k}" data-lv="${x.k}" ${st.levels[x.k].on?'checked':''} ${S.eleves.length?'disabled':''}>
       <label class="nm" for="lv_${x.k}">${x.n}</label>
       <input type="number" min="0" placeholder="Effectif" data-eff="${x.k}" value="${esc(st.levels[x.k].eff)}" ${st.levels[x.k].on&&!S.eleves.length?'':'disabled'} aria-label="Effectif ${x.n}"></div>`).join('')}
     <div class="lowest">${l?`Niveau le plus faible : <b>${lowestName(dk,g)}</b>. Activités du niveau <span class="badge">${D.LN[l]}</span>`:'<i>Aucun niveau coché.</i>'}</div></div>`;
   };
-  document.getElementById('levels').innerHTML=part('g1')+part('g2');
+  document.getElementById('levels').innerHTML=GRS().map(part).join('');document.getElementById('levels').classList.toggle('hom3',isHom());
   const msgs=[];
   if(S.eleves.length)msgs.push('Niveaux et effectifs calculés automatiquement à partir de la liste des apprenants (section 2).');
-  if(!listOf(dk,'g1')&&!listOf(dk,'g2'))msgs.push('Cochez au moins un niveau.');
+  if(!presentGroups(dk).length)msgs.push('Cochez au moins un niveau.');
+  else if(isHom())msgs.push('Classe homogène : 3 groupes de niveau. Un plan de session est établi pour chaque groupe de niveau présent ; chaque jour, l’enseignant conduit le groupe (15 min de reconnaissance puis 30 min d’activité), sans alternance ni autonomie.');
   else if(!(listOf(dk,'g1')&&listOf(dk,'g2')))msgs.push('Un seul grand groupe est présent : la classe est homogène pour cette discipline. Le plan reste généré, sans alternance.');
   document.getElementById('lvlNotice').innerHTML=msgs.map(esc).join('<br>');
 }
@@ -1123,11 +1144,11 @@ function renderLevels(){
 function renderProgress(){
   const dk=cur(),D=DISC[dk];
   const part=g=>{
-    const l=listOf(dk,g);if(!l)return `<div class="grp ${g}"><h3>${D.G[g]}</h3><i>Aucun niveau coché.</i></div>`;
+    const l=listOf(dk,g);if(!l)return `<div class="grp ${g}"><h3>${GNAME(dk,g)}</h3><i>Aucun niveau coché.</i></div>`;
     const arr=D.steps[l],i=stepIdx(dk,g),c=arr[i],months=D.plan[l];
     const weeks=arr.map((s,k)=>({s,k})).filter(x=>x.s.m===c.m);
-    const nT=activeDays().filter((d,j)=>{const both=listOf(dk,'g1')&&listOf(dk,'g2');return !both||S[dk].days[d.k].active===g}).length;
-    return `<div class="grp ${g}"><h3>${D.G[g]}</h3>
+    const nT=activeDays().filter((d,j)=>{const both=!isHom()&&listOf(dk,'g1')&&listOf(dk,'g2');return !both||S[dk].days[d.k].active===g}).length;
+    return `<div class="grp ${g}"><h3>${GNAME(dk,g)}</h3>
       <label class="f lbl1">① Objectif du mois
         <select data-month="${g}">${months.map((M,m)=>`<option value="${m}" ${m===c.m?'selected':''}>${esc(M.mois)}</option>`).join('')}</select></label>
       <div class="lbl1">② Objectifs de la semaine qui mènent à l’objectif du mois <small>(cliquez sur la semaine en cours)</small></div>
@@ -1137,39 +1158,40 @@ function renderProgress(){
       <div class="toolbar" style="margin:8px 0 0"><button data-vary="${g}">🔀 Varier les activités (même objectif)</button>${(S[dk].vary&&S[dk].vary[g])?`<small style="color:var(--muted)">Variante n° ${S[dk].vary[g]+1}</small>`:''}</div>
     </div>`;
   };
-  document.getElementById('progress').innerHTML=part('g1')+part('g2');
+  document.getElementById('progress').innerHTML=GRS().map(part).join('');document.getElementById('progress').classList.toggle('hom3',isHom());
 }
 
 /* =====================================================================
    RENDU : JOURS
    ===================================================================== */
 function renderDays(){
-  const dk=cur(),D=DISC[dk],st=S[dk],C=compute(dk);
-  document.getElementById('dayHint').textContent=D.hint;
+  const dk=cur(),D=DISC[dk],st=S[dk],CS=computeAll(dk),hom=isHom();
+  document.getElementById('dayHint').textContent=hom?HINT_HOM[dk]:D.hint;
+  document.getElementById('firstWrap').style.display=hom?'none':'';document.getElementById('btnAlt').style.display=hom?'none':'';
   document.getElementById('firstSel').value=st.first;document.getElementById('firstSel').disabled=weekNo()===1;document.getElementById('firstSel').title=weekNo()===1?'Semaine 1 : le Groupe 1 commence obligatoirement avec l’enseignant':'';
-  {const C0=listOf(dk,'g1')||listOf(dk,'g2');const w=document.getElementById('trWrap');w.style.display=(dk==='math'&&(C0==='L1'||C0==='L2'))?'flex':'none';
+  {const C0s=hom?presentGroups(dk).map(g=>listOf(dk,g)):[listOf(dk,'g1')||listOf(dk,'g2')];const w=document.getElementById('trWrap');w.style.display=(dk==='math'&&C0s.some(C0=>C0==='L1'||C0==='L2'))?'flex':'none';
    document.getElementById('trSel').innerHTML=TRANCHES.map(t=>`<option ${ (st.tranche||TRANCHES[0])===t?'selected':''}>${t}</option>`).join('')}
-  document.getElementById('days').innerHTML=C.days.map(({d,rows})=>`<div class="day"><div class="dh">${d.n} <small>${dateOf(d.o)}</small></div>
+  document.getElementById('days').innerHTML=CS.map(C=>(hom?`<h3 class="homh ${C.focus}">${esc(GNAME(dk,C.focus))} – plan de session de la classe homogène</h3>`:'')+C.days.map(({d,rows})=>`<div class="day"><div class="dh">${d.n} <small>${dateOf(d.o)}</small></div>
    ${rows.map(r=>{
      const isC=r.slot==='common';
-     const who=isC?`Les 2 groupes<small>Activité commune · 15 min<br>Référence : ${esc(lowestName(dk))}</small>`
-       :`${r.slot==='g1'?'Groupe 1':'Groupe 2'}<small>${esc(r.lab)} · 30 min</small>`+
+     const who=isC?(hom?`${GNUM(C.focus)}<small>${dk==='math'?'Reconnaissance des nombres':'Activité orale'} · 15 min<br>Référence : ${esc(lowestName(dk,C.focus))}</small>`:`Les 2 groupes<small>Activité commune · 15 min<br>Référence : ${esc(lowestName(dk))}</small>`)
+       :`${GNUM(r.slot)}<small>${esc(hom?groupComp(dk,r.slot):r.lab)} · 30 min${hom?' · avec l’enseignant':''}</small>`+
         (C.both?`<div class="mode"><button data-mode="${d.k}.${r.slot}" class="${r.mode==='teach'?'on act':''}">Avec l'enseignant</button><button data-mode="${d.k}.${r.slot}.aut" class="${r.mode==='auto'?'on aut':''}">Autonomie</button></div>`:'');
      const opts=D.acts.filter(a=>(isC?a.c:a.g)&&a.L.includes(r.list));
-     const ov=st.days[d.k].ov[r.slot];
+     const ov=st.days[d.k].ov[r.ovk]||blankOv();
      return `<div class="slot ${isC?'c':r.slot}"><div class="who">${who}</div><div class="res">
        <b>${esc(r.actLabel)}</b>${r.ovAct?'<span class="src man">modifié</span>':'<span class="src">automatique</span>'}
        <div class="ob">Objectif : ${esc(r.obj)}${r.ovObj?' <span class="src man">modifié</span>':''}</div>
        ${r.note?`<div class="nt">${esc(r.note)}</div>`:''}
        ${r.res?`<div class="rs"><b>Déroulement :</b> ${esc(r.res)}</div>`:''}
-       ${r.exo?`<div class="exwrap"><div class="exh"><b>Exercices proposés pour l’autonomie</b><button data-reroll="${d.k}.${r.slot}">↻ Autres exercices</button></div>${exoHTML(r.exo)}</div>`:''}
+       ${r.exo?`<div class="exwrap"><div class="exh"><b>Exercices proposés pour l’autonomie</b><button data-reroll="${d.k}.${r.ovk}">↻ Autres exercices</button></div>${exoHTML(r.exo)}</div>`:''}
        <details><summary>Modifier</summary><div class="fields">
-         ${r.tr?`<label class="f">Tranche de nombres<select data-ov="${d.k}.common.tr"><option value="">Tranche de la semaine</option>${TRANCHES.map(t=>`<option ${ov.tr===t?'selected':''}>${t}</option>`).join('')}</select></label>`:''}
-         <label class="f">Activité<select data-ov="${d.k}.${r.slot}.act"><option value="">Automatique</option>${opts.map(a=>`<option value="${a.id}" ${ov.act===a.id?'selected':''}>${esc(a.n)}</option>`).join('')}</select></label>
-         <label class="f">Objectif<input data-ov="${d.k}.${r.slot}.obj" value="${esc(ov.obj)}" placeholder="${esc(r.autoObj)}"></label>
-         <label class="f full">Observation<input data-ov="${d.k}.${r.slot}.obs" value="${esc(ov.obs)}" placeholder="facultatif"></label>
+         ${r.tr?`<label class="f">Tranche de nombres<select data-ov="${d.k}.${r.ovk}.tr"><option value="">Tranche de la semaine</option>${TRANCHES.map(t=>`<option ${ov.tr===t?'selected':''}>${t}</option>`).join('')}</select></label>`:''}
+         <label class="f">Activité<select data-ov="${d.k}.${r.ovk}.act"><option value="">Automatique</option>${opts.map(a=>`<option value="${a.id}" ${ov.act===a.id?'selected':''}>${esc(a.n)}</option>`).join('')}</select></label>
+         <label class="f">Objectif<input data-ov="${d.k}.${r.ovk}.obj" value="${esc(ov.obj)}" placeholder="${esc(r.autoObj)}"></label>
+         <label class="f full">Observation<input data-ov="${d.k}.${r.ovk}.obs" value="${esc(ov.obs)}" placeholder="facultatif"></label>
        </div></details></div></div>`;
-   }).join('')}</div>`).join('');
+   }).join('')}</div>`).join('')).join('');
 }
 
 /* =====================================================================
@@ -1178,7 +1200,52 @@ function renderDays(){
 const B='border:1px solid #000;padding:5px 6px;vertical-align:top;font-size:11pt;';
 const BH=B+'background:#e6e6e6;font-weight:bold;text-align:center;';
 function planHTML(dk){return finalizeDoc(planCore(dk))}
-function planCore(dk){
+function planCore(dk){return isHom()?planCoreHom(dk):planCoreHet(dk)}
+function planAnnexes(dk,CS,brk){
+  let h='',na=1;
+  const exRows=[];CS.forEach(C=>C.days.forEach(({d,rows})=>rows.forEach(r=>{if(r.exo)exRows.push({d,r})})));
+  if(exRows.length){
+    h+=`<p style="font-weight:bold;font-size:12pt;margin:18px 0 6px;page-break-before:always;">ANNEXE ${na++} – EXERCICES POUR LE GROUPE EN AUTONOMIE</p>`;
+    exRows.forEach(({d,r})=>{h+=`<div style="border:1px solid #000;padding:6px 8px;margin-bottom:8px;font-size:10.5pt;page-break-inside:avoid;"><b>${d.n} ${dateOf(d.o)} – ${esc(r.lab)}</b><br><b>Objectif (${r.kind==='veille'?'de la veille':r.kind==='semaine'?'déjà travaillé cette semaine':'déjà maîtrisé'}) :</b> ${esc(r.obj)}${exoHTML(r.exo,true)}</div>`});
+  }
+  const seen=new Set(),list=[];
+  CS.forEach(C=>C.days.forEach(({rows})=>rows.forEach(r=>{const key=r.a?r.a.id+'|'+r.list:'auto|'+r.slot;if(seen.has(key)||!r.res)return;seen.add(key);list.push(r)})));
+  h+=`<p style="font-weight:bold;font-size:12pt;margin:18px 0 6px;${exRows.length?'':'page-break-before:always;'}">ANNEXE ${na} – RÉSUMÉ DES ACTIVITÉS DE LA SEMAINE</p>`;
+  h+=`<table style="border-collapse:collapse;width:100%;"><tr><th style="${BH}width:22%">Activité</th><th style="${BH}">Déroulement (résumé)</th><th style="${BH}width:20%">Matériel</th></tr>`;
+  list.forEach(r=>{const nm=r.a?r.a.n:DISC[dk].auto[r.slot].n+' (autonomie)';
+    h+=`<tr><td style="${B}"><b>${esc(nm)}</b><br><span style="font-size:9.5pt;">${esc(r.lab)}</span></td><td style="${B}">${esc(r.res)}${r.note&&r.mode!=='auto'?`<br><i style="font-size:9.5pt;">${esc(r.note)}</i>`:''}</td><td style="${B}">${esc(r.mat)}</td></tr>`});
+  return h+`</table>`;
+}
+function planCoreHom(dk){
+  const D=DISC[dk],CS=computeAll(dk),ad=activeDays();
+  if(!CS.length)return `<p>${D.name} : aucun niveau coché.</p>`;
+  const SPL={TC:'Travail collectif',TG:'Travail de groupe',TI:'Travail individuel'};
+  let h=`<div style="font-family:Arial,Helvetica,sans-serif;color:#000;">`;
+  CS.forEach((C,ci)=>{const g=C.focus,sg=C.steps[g],eff=groupEff(dk,g);
+    if(ci)h+=`<div style="page-break-before:always;height:4px"></div>`;
+    h+=`<p style="text-align:center;font-weight:bold;font-size:14pt;margin:0 0 4px;">PLAN DE SESSION HEBDOMADAIRE – CLASSE HOMOGÈNE</p>`;
+    h+=`<p style="text-align:center;margin:0 0 10px;font-size:12pt;font-weight:bold;">${D.name.toUpperCase()}</p>`;
+    const idf=[['École',S.ecole],['Classe',S.classe],['Enseignant(e)',S.enseignant]].filter(x=>x[1]).map(x=>`<b>${x[0]} :</b> ${esc(x[1])}`).join(' &nbsp;&nbsp; ');
+    if(idf)h+=`<p style="margin:0 0 4px;font-size:11pt;">${idf}</p>`;
+    h+=`<p style="margin:0 0 3px;font-size:11pt;"><b>Semaine :</b> n° ${esc(S.semaine||'…')} du ${dateOf(ad[0].o)||'…'} au ${dateOf(ad[ad.length-1].o)||'…'}</p>`;
+    h+=`<p style="margin:0 0 3px;font-size:11pt;"><b>Groupe de niveau :</b> ${esc(groupComp(dk,g))} <span style="font-size:10pt;">(${esc(GNUM(g))}${eff?` – ${eff} apprenant${eff>1?'s':''}`:''})</span></p>`;
+    h+=`<p style="margin:0 0 3px;font-size:11pt;"><b>Objectif mensuel :</b> ${esc(sg.step.mois)}</p>`;
+    h+=`<p style="margin:0 0 10px;font-size:11pt;"><b>Objectif de la semaine :</b> ${esc(sg.step.sem)}</p>`;
+    h+=`<table style="border-collapse:collapse;width:100%;"><tr>${['Date','Objectifs','Activités','Stratégie pédagogique','Matériel','Durée','Commentaires / observations'].map(t=>`<th style="${BH}">${t}</th>`).join('')}</tr>`;
+    C.days.forEach(({d,rows})=>rows.forEach((r,i)=>{
+      h+=`<tr>${i===0?`<td style="${B}font-weight:bold;" rowspan="${rows.length}">${d.n}<br>${dateOf(d.o)}</td>`:''}
+        <td style="${B}">${esc(r.obj)}</td>
+        <td style="${B}"><b>${esc(r.actLabel)}</b>${r.note?`<br><i style="font-size:9.5pt;">${esc(r.note)}</i>`:''}</td>
+        <td style="${B}">${String(r.sp||'').split(/\s+/).filter(Boolean).map(x=>SPL[x]||x).join('<br>')}</td>
+        <td style="${B}">${esc(r.mat)}</td>
+        <td style="${B}text-align:center;white-space:nowrap;">${r.dur}</td>
+        <td style="${B}">${esc(r.obs||'')}</td></tr>`}));
+    h+=`</table>`;
+  });
+  h+=planAnnexes(dk,CS)+`</div>`;
+  return h;
+}
+function planCoreHet(dk){
   const D=DISC[dk],C=compute(dk),ad=activeDays();
   if(!C.classL)return `<p>${D.name} : aucun niveau coché.</p>`;
   let h=`<div style="font-family:Arial,Helvetica,sans-serif;color:#000;">`;
@@ -1231,10 +1298,10 @@ function planCore(dk){
    GÉNÉRATION (bouton poussoir)
    ===================================================================== */
 let GEN={math:null,lect:null};   // empreinte de l'état au moment de la génération
-function sig(dk){return JSON.stringify([S.ecole,S.classe,S.enseignant,S.semaine,S.lundi,S.mer,S[dk]])}
+function sig(dk){return JSON.stringify([S.ecole,S.classe,S.enseignant,S.typeClasse,S.semaine,S.lundi,S.mer,S[dk]])}
 function generate(){
   const dk=cur();
-  if(!listOf(dk,'g1')&&!listOf(dk,'g2')){toast('Cochez d’abord les niveaux');return}
+  if(!presentGroups(dk).length){toast('Cochez d’abord les niveaux');return}
   GEN[dk]=sig(dk);
   if(S.lundi){S.sessLog[S.lundi]=S.sessLog[S.lundi]||{};S.sessLog[S.lundi][dk]=activeDays().length;persist()}
   renderPlan();
@@ -1277,7 +1344,7 @@ document.addEventListener('input',e=>{
   if(el.dataset.eff){S[dk].levels[el.dataset.eff].eff=el.value;persist();renderPlan();return}
   if(el.dataset.pf&&el.type==='text'){PF[el.dataset.pf]=el.value;return}
   if(el.dataset.el&&el.tagName==='INPUT'&&el.type==='text'){const [i,f]=el.dataset.el.split('.');S.eleves[+i][f]=el.value;persist();return}
-  if(el.dataset.ov&&el.tagName==='INPUT'){const [d,k,f]=el.dataset.ov.split('.');S[dk].days[d].ov[k][f]=el.value;persist();renderPlan();return}
+  if(el.dataset.ov&&el.tagName==='INPUT'){const [d,k,f]=el.dataset.ov.split('.');(S[dk].days[d].ov[k]=S[dk].days[d].ov[k]||blankOv())[f]=el.value;persist();renderPlan();return}
 });
 document.addEventListener('change',e=>{
   const el=e.target,dk=cur();
@@ -1298,9 +1365,11 @@ document.addEventListener('change',e=>{
   if(el.id==='drenaSel'){if(el.value==='*'){S.drenaFree=true;S.drena=''}else{S.drenaFree=false;S.drena=el.value}S.iepp='';S.ieppFree=false;renderAll();return}
   if(el.id==='ieppSel'){if(el.value==='*'){S.ieppFree=true;S.iepp=''}else{S.ieppFree=false;S.iepp=el.value}renderAll();return}
   if(el.id==='importFile'){importClasses(el.files[0]);el.value='';return}
-  if(el.dataset.k){S[el.dataset.k]=el.value;if(el.dataset.k==='mer'){applyAlternation('math');applyAlternation('lect')}renderAll();return}
-  if(el.dataset.lv){const b1=listOf(dk,'g1'),b2=listOf(dk,'g2');S[dk].levels[el.dataset.lv].on=el.checked;if(listOf(dk,'g1')!==b1)S[dk].step.g1=0;if(listOf(dk,'g2')!==b2)S[dk].step.g2=0;renderAll();return}
-  if(el.dataset.ov){const [d,k,f]=el.dataset.ov.split('.');S[dk].days[d].ov[k][f]=el.value;renderAll();return}
+  if(el.dataset.k){S[el.dataset.k]=el.value;if(el.dataset.k==='mer'){applyAlternation('math');applyAlternation('lect')}
+    if(el.dataset.k==='typeClasse'){['math','lect'].forEach(d=>{S[d].step={g1:0,g2:0,g3:0};S[d].vary={g1:0,g2:0,g3:0}});GEN={math:null,lect:null};toast(isHom()?'Classe homogène : 3 groupes de niveau, un plan de session par groupe':'Classe hétérogène : 2 groupes de niveau, avec alternance')}
+    renderAll();return}
+  if(el.dataset.lv){const b=GRS().map(g=>listOf(dk,g));S[dk].levels[el.dataset.lv].on=el.checked;GRS().forEach((g,i)=>{if(listOf(dk,g)!==b[i])S[dk].step[g]=0});renderAll();return}
+  if(el.dataset.ov){const [d,k,f]=el.dataset.ov.split('.');(S[dk].days[d].ov[k]=S[dk].days[d].ov[k]||blankOv())[f]=el.value;renderAll();return}
   if(el.dataset.month){const g=el.dataset.month,arr=stepsOf(dk,g);const k=arr.findIndex(x=>x.m===+el.value);S[dk].step[g]=Math.max(0,k);renderAll();return}
   if(el.id==='trSel'){S[dk].tranche=el.value;renderAll();return}
   if(el.id==='firstSel'){S[dk].first=el.value;applyAlternation(dk);renderAll();return}
@@ -1337,7 +1406,7 @@ document.addEventListener('click',e=>{
   if(b.id==='btnDocCopy'){copyHTML(docHTML(DOCGEN));return}
   if(b.id==='btnDocDl'){saveDoc(DOCGEN+'-semaine-'+weekNo(),[docHTML(DOCGEN)]);return}
   if(b.id==='btnDocAll'){saveDoc('documents-remediation-semaine-'+weekNo(),DOCS.map(d=>docHTML(d.id)));return}
-  if(b.dataset.reroll){const [d,k]=b.dataset.reroll.split('.');const o=S[dk].days[d].ov[k];o.seed=(o.seed||0)+1;renderAll();return}
+  if(b.dataset.reroll){const [d,k]=b.dataset.reroll.split('.');const o=S[dk].days[d].ov[k]=S[dk].days[d].ov[k]||blankOv();o.seed=(o.seed||0)+1;renderAll();return}
   if(b.dataset.step){const [g,k]=b.dataset.step.split('.');S[dk].step[g]=parseInt(k);renderAll();return}
   if(b.dataset.mode){const p=b.dataset.mode.split('.');const d=p[0],g=p[1],aut=p[2]==='aut';
     if(isW1D1(d)&&((g==='g1'&&aut)||(g==='g2'&&!aut))){toast('Semaine 1, jour 1 : le Groupe 1 est obligatoirement avec l’enseignant');return}
@@ -1359,7 +1428,7 @@ function nextWeek(){
   S.semaine=String(weekNo()+1);
   if(S.lundi){const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+7);S.lundi=d.toISOString().slice(0,10)}
   ['math','lect'].forEach(dk=>{
-    ['g1','g2'].forEach(g=>{const n=stepsOf(dk,g).length;if(n){if(stepIdx(dk,g)>=n-1)ENDMSG.push(DISC[dk].name+' – '+(g==='g1'?'Groupe 1':'Groupe 2'));S[dk].step[g]=Math.min(stepIdx(dk,g)+1,n-1)}});
+    GRS().forEach(g=>{const n=stepsOf(dk,g).length;if(n){if(stepIdx(dk,g)>=n-1)ENDMSG.push(DISC[dk].name+' – '+GNUM(g));S[dk].step[g]=Math.min(stepIdx(dk,g)+1,n-1)}});
     DAYS.forEach(d=>S[dk].days[d.k].ov={common:blankOv(),g1:blankOv(),g2:blankOv()});
     S[dk].vary={g1:0,g2:0};
     applyAlternation(dk);
@@ -1369,7 +1438,7 @@ function nextWeek(){
 function repeatWeek(){
   S.semaine=String(weekNo()+1);
   if(S.lundi){const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+7);S.lundi=d.toISOString().slice(0,10)}
-  ['math','lect'].forEach(dk=>{S[dk].vary=S[dk].vary||{g1:0,g2:0};['g1','g2'].forEach(g=>S[dk].vary[g]=(S[dk].vary[g]||0)+1);
+  ['math','lect'].forEach(dk=>{S[dk].vary=S[dk].vary||{g1:0,g2:0,g3:0};GRS().forEach(g=>S[dk].vary[g]=(S[dk].vary[g]||0)+1);
     DAYS.forEach(d=>S[dk].days[d.k].ov={common:blankOv(),g1:blankOv(),g2:blankOv()});applyAlternation(dk)});
   renderAll();toast(`Semaine ${S.semaine} : même objectif, avec d’autres activités`);
 }
@@ -1421,6 +1490,9 @@ if(!Array.isArray(S.eleves))S.eleves=[];
 S.annee=SCHOOL_YEAR();
 upObj(S,['enseignant','directeur','ecole','secteur','drena','iepp']);S.eleves.forEach(e=>{if(typeof e.nom==='string')e.nom=UP(e.nom)});
 if(!S.aser)S.aser='Début d’année';
+if(S.typeClasse!=='hom')S.typeClasse='het';
+['math','lect'].forEach(dk=>{const st=S[dk];if(!st)return;st.step=st.step||{};['g1','g2','g3'].forEach(g=>{if(st.step[g]==null)st.step[g]=0});st.vary=st.vary||{};
+  Object.values(st.days||{}).forEach(d=>{d.ov=d.ov||{};['common','g1','g2','g3','cg1','cg2','cg3'].forEach(k=>{if(!d.ov[k])d.ov[k]=blankOv()})})});
 ['secteur','codeEcole','sexeEns','forme','effClasse','taux','sigles'].forEach(k=>{if(S[k]===undefined)S[k]=''});
 if(!S.tests||typeof S.tests!=='object')S.tests={};TKEYS.forEach(k=>{if(!S.tests[k])S.tests[k]={date:''}});
 if(!S.sessLog||typeof S.sessLog!=='object')S.sessLog={};
@@ -1480,9 +1552,9 @@ function histHTML(){
 function syncLevels(){
   if(!S.eleves.length)return;
   ['math','lect'].forEach(dk=>{
-    const st=S[dk];const b1=listOf(dk,'g1'),b2=listOf(dk,'g2');
+    const st=S[dk];const b=GRS().map(g=>listOf(dk,g));
     DISC[dk].LV.forEach(x=>{const n=S.eleves.filter(e=>curLevel(e,dk)===x.k).length;st.levels[x.k].on=n>0;st.levels[x.k].eff=n?String(n):''});
-    if(listOf(dk,'g1')!==b1)st.step.g1=0;if(listOf(dk,'g2')!==b2)st.step.g2=0;
+    GRS().forEach((g,i)=>{if(listOf(dk,g)!==b[i])st.step[g]=0});
   });
 }
 function newEleve(nom){const t={};TKEYS.forEach(k=>t[k]={l:'',m:'',ol:'',om:'',v:''});return {id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),nom:nom||'',sexe:'',arr:'',t,lect:'',math:''}}
@@ -1585,7 +1657,7 @@ function docASER(){
   return `<div style="font-family:Arial,Helvetica,sans-serif;color:#000;">${h}</div>`;
 }
 function smallGroups(dk,g){
-  const lv=DISC[dk].LV.filter(x=>x.g===g).map(x=>x.k);
+  const lv=DISC[dk].LV.filter(x=>gOf(dk,x)===g).map(x=>x.k);
   const list=S.eleves.filter(e=>lv.includes(curLevel(e,dk))).sort((a,b)=>lv.indexOf(curLevel(b,dk))-lv.indexOf(curLevel(a,dk)));
   if(!list.length)return {list,groups:[]};
   const max=dk==='math'?6:8;const k=Math.max(1,Math.ceil(list.length/max));
@@ -1600,9 +1672,9 @@ function docGroupes(){
   ['lect','math'].forEach(dk=>{
     const D=DISC[dk],N=LVN(dk);
     h+=`<p style="font-weight:bold;font-size:12pt;margin:14px 0 4px;">${D.name.toUpperCase()}</p>`;
-    ['g1','g2'].forEach(g=>{
+    GRS().forEach(g=>{
       const {list,groups}=smallGroups(dk,g);
-      h+=`<p style="margin:8px 0 4px;"><b>${esc(D.G[g])}</b> – ${list.length} apprenant${list.length>1?'s':''}</p>`;
+      h+=`<p style="margin:8px 0 4px;"><b>${esc(GNAME(dk,g))}</b> – ${list.length} apprenant${list.length>1?'s':''}</p>`;
       if(!list.length){h+=`<p style="font-size:10pt;">Aucun apprenant.</p>`;return}
       h+=`<table style="border-collapse:collapse;width:100%;font-size:10pt;margin-bottom:6px;"><tr>${groups.map((gr,i)=>`<th style="${BH}">Petit groupe ${i+1}</th>`).join('')}</tr><tr>`;
       groups.forEach(gr=>{h+=`<td style="${B}">${gr.map((e,j)=>`${esc(e.nom||'(sans nom)')} <span style="font-size:9pt;">(${N[curLevel(e,dk)]})</span>${j===0?' – <b>chef</b>':j===1?' – <b>rapporteur</b>':''}`).join('<br>')}</td>`});
@@ -1629,14 +1701,14 @@ function presGrid(){
 const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 function mondaysOfMonth(iso){const d=new Date(iso+'T12:00:00');const y=d.getFullYear(),m=d.getMonth();const out=[];
   const x=new Date(y,m,1,12);while(x.getDay()!==1)x.setDate(x.getDate()+1);while(x.getMonth()===m){out.push(x.toISOString().slice(0,10));x.setDate(x.getDate()+7)}return out}
-function groupMembers(dk,g){const lv=DISC[dk].LV.filter(x=>x.g===g).map(x=>x.k);return S.eleves.filter(e=>lv.includes(curLevel(e,dk)))}
+function groupMembers(dk,g){const lv=DISC[dk].LV.filter(x=>gOf(dk,x)===g).map(x=>x.k);return S.eleves.filter(e=>lv.includes(curLevel(e,dk)))}
 function docPresence(){
   if(!S.eleves.length)return wrapDoc('<p style="text-align:center;font-weight:bold;font-size:13pt;">Liste de présence</p>'+noEleves);
   const lund=S.lundi||new Date().toISOString().slice(0,10);const weeks=mondaysOfMonth(lund);const mo=new Date(lund+'T12:00:00');
   const DK=['lun','mar','mer','jeu','ven'],DL=['L','M','M','J','V'];
   const b='border:1px solid #000;padding:1px 2px;font-size:7.5pt;text-align:center;';const bh=b+'font-weight:bold;background:#f2f2f2;';
   const sheets=[];
-  ['math','lect'].forEach(dk=>['g1','g2'].forEach(g=>{
+  ['math','lect'].forEach(dk=>GRS().forEach(g=>{
     const M=groupMembers(dk,g);if(!M.length)return;
     let h=`<p style="text-align:center;font-weight:bold;font-size:13pt;margin:0 0 4px;">Liste de présence</p>
      <p style="background:#e6e6e6;font-size:8pt;margin:0 0 6px;padding:3px;"><b><u>Instructions</u> :</b> <i>Mettre "A" lorsque l'élève est absent, ne rien écrire dans la case lorsque l'élève est présent et mettre un rond " <b>O</b> " lorsque l'élève passe au niveau supérieur.</i></p>
@@ -1672,8 +1744,8 @@ function docProgression(){
   const b='border:1px solid #000;padding:2px 4px;font-size:8.5pt;text-align:center;height:15px;';const bh=b+'font-weight:normal;';
   const sheets=[];
   ['lect','math'].forEach(dk=>{const N=LVN(dk);
-    ['g1','g2'].forEach(g=>{
-      const lv=DISC[dk].LV.filter(x=>x.g===g).map(x=>x.k);
+    GRS().forEach(g=>{
+      const lv=DISC[dk].LV.filter(x=>gOf(dk,x)===g).map(x=>x.k);
       const rows=[];
       S.eleves.forEach(e=>{const sg=segmentsOf(e,dk);sg.forEach((s,i)=>{if(!lv.includes(s.lvl))return;const nx=sg[i+1];rows.push({nom:e.nom,niv:N[s.lvl]||'',de:s.date?fmtD(s.date):'',na:nx?N[nx.lvl]:'',ds:nx&&nx.date?fmtD(nx.date):''})})});
       if(!rows.length)return;
@@ -1682,7 +1754,7 @@ function docProgression(){
       const head=`<tr><th style="${bh}" rowspan="2">n°</th><th style="${bh}font-weight:bold" rowspan="2">Nom de l'élève dans votre classe</th><th style="${bh}" colspan="2">Niveau initial</th><th style="${bh}" colspan="2">Niveau après progression</th></tr><tr><th style="${bh}">Niveau</th><th style="${bh}">Date d'entrée</th><th style="${bh}">Niveau</th><th style="${bh}">${dk==='math'?'Date de progression':'Date de sortie'}</th></tr>`;
       sheets.push(`<table style="border-collapse:collapse;width:100%;border:1px solid #000;"><tr><td style="border:1px solid #000;text-align:center;font-weight:bold;font-size:13pt;padding:4px">Fiche de Progression - ${dk==='lect'?'LECTURE':'MATHEMATIQUES'}</td></tr>
         <tr><td style="border:1px solid #000;font-size:8.5pt;padding:4px"><b><i>Instructions:</i></b><br><i>Après le test ASER de début, inscrivez sur cette fiche le nom de tous les élèves de votre groupe de niveau. Quand un élève progresse vers un groupe de niveau, indiquez la date à laquelle il intègre ce groupe. Lorsqu'un élève arrive d'un autre groupe de niveau, ajoutez son nom et sa date d'arrivée. Il n'est pas nécessaire d'attendre l'administration des tests ASER pour faire progresser les enfants.</i></td></tr>
-        <tr><td style="border:1px solid #000;font-size:9.5pt;padding:4px"><b>Nom de l'enseignant :</b> ${esc(S.enseignant)} <span style="margin-left:25%"><b>Groupe de niveau :</b> ${esc(DISC[dk].G[g].replace(/^Groupe \d : /,''))}</span></td></tr></table>
+        <tr><td style="border:1px solid #000;font-size:9.5pt;padding:4px"><b>Nom de l'enseignant :</b> ${esc(S.enseignant)} <span style="margin-left:25%"><b>Groupe de niveau :</b> ${esc(GNAME(dk,g).replace(/^Groupe \d : /,''))}</span></td></tr></table>
         <table style="width:100%;border-collapse:collapse;margin-top:2px"><tr><td style="vertical-align:top;width:50%;padding:0 2px 0 0"><table style="border-collapse:collapse;width:100%">${head}${half(L,1)}</table></td>
         <td style="vertical-align:top;padding:0 0 0 2px"><table style="border-collapse:collapse;width:100%">${head}${half(R,per+1)}</table></td></tr></table>`);
     });
@@ -1694,8 +1766,9 @@ function docAnalyse(){
   const [a,b]=weekRange();
   let h=docHead('ANALYSE DE LA SESSION HEBDOMADAIRE',weekTxt());
   ['lect','math'].forEach(dk=>{
-    const C=compute(dk),D=DISC[dk],N=LVN(dk);if(!C.classL)return;
-    h+=`<p style="font-weight:bold;font-size:12pt;margin:14px 0 4px;">${D.name.toUpperCase()}</p>`;
+    const CS=computeAll(dk),D=DISC[dk],N=LVN(dk);if(!CS.length||!CS[0].classL)return;
+    const C={days:CS[0].days.map((x,j)=>({d:x.d,rows:CS.flatMap(c=>c.days[j].rows.map(r=>Object.assign({},r,{lab:c.hom&&r.slot==='common'?GNUM(c.focus)+' (reconnaissance)':c.hom?GNUM(c.focus)+' (activité)':r.lab})))}))};
+    h+=`<p style="font-weight:bold;font-size:12pt;margin:14px 0 4px;">${D.name.toUpperCase()}${isHom()?' – classe homogène':''}</p>`;
     h+=`<p style="margin:6px 0 4px;"><b>1. Quelles sont les activités du plan qui ont été réellement menées ?</b></p>
      <table style="border-collapse:collapse;width:100%;font-size:10pt;"><tr><th style="${BH}">Jour</th><th style="${BH}">Groupe</th><th style="${BH}">Activité prévue</th><th style="${BH}">Menée (oui / non)</th></tr>`;
     C.days.forEach(({d,rows})=>rows.forEach((r,i)=>{h+=`<tr>${i===0?`<td style="${B}font-weight:bold;" rowspan="${rows.length}">${d.n}</td>`:''}<td style="${B}">${esc(r.lab)}</td><td style="${B}">${esc(r.actLabel)}</td><td style="${B}"></td></tr>`}));
