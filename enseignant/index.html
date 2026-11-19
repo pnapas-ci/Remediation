@@ -46,6 +46,10 @@ input:focus,select:focus{outline:2px solid var(--acc);outline-offset:0;border-co
 @media(max-width:820px){.hom3{grid-template-columns:1fr!important}}
 .homh{margin:14px 0 6px;font-size:15px;padding:6px 10px;border-radius:6px;background:#eef3f0}.homh.g3{background:#fdf3e7}
 .slot.g3{background:#fdf3e7}
+body:not(.homMode) .homonly{display:none}
+body.homMode #classeW{display:none}
+.orig{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.impbox{margin:10px 0;padding:10px 12px;border:1px dashed #9fb5aa;border-radius:8px;background:#f6faf8}
 .grp h3{margin:0 0 8px;font-size:15px}
 .lvl{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px dashed rgba(0,0,0,.1)}
 .lvl:first-of-type{border-top:none}
@@ -214,7 +218,9 @@ body.locked #btnGen,body.locked #btnDocGen{background:#9aa39e;border-color:#9aa3
     <label class="f">Code de l’école<input data-k="codeEcole"></label>
     <label class="f">Directeur (DEP)<input data-k="directeur"></label>
     <label class="f">Type de classe<select data-k="typeClasse"><option value="het">Classe hétérogène (2 groupes de niveau)</option><option value="hom">Classe homogène (3 groupes de niveau)</option></select></label>
-    <label class="f">Classe<select data-k="classe"><option value="">— Choisir —</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option></select></label>
+    <label class="f homonly">Discipline du groupe de niveau<select data-k="homDisc"><option value="math">Mathématiques</option><option value="lect">Lecture</option></select></label>
+    <label class="f homonly">Groupe de niveau tenu par l’enseignant(e)<select data-k="homGrp" id="homGrpSel"></select></label>
+    <label class="f" id="classeW">Classe<select data-k="classe"><option value="">— Choisir —</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option></select></label>
     <label class="f">Année scolaire<input data-k="annee" readonly></label>
     <label class="f">Enseignant(e) / facilitateur<input data-k="enseignant"></label>
     <label class="f">Sigles de l’auteur (impression)<input data-k="sigles" placeholder="automatique : initiales"></label>
@@ -413,12 +419,12 @@ function printWrap(body,portrait,title){const wm=!isActivated();const sig=author
 
 function LIC_YEAR_HOOK(y){if(S&&S.annee!==y){S.annee=y;persist()}}
 /* Verrouillage de la classe : une application = une classe */
-const IDK=['drena','iepp','secteur','ecole','classe','enseignant'];
+const IDK=['drena','iepp','secteur','ecole','classe','enseignant','typeClasse','homDisc','homGrp'];const RAWK=['typeClasse','homDisc','homGrp'];
 const idLocked=()=>!!(LIC.cls&&LIC.cls.ecole);
 const normId=v=>UP(String(v||'').trim()).replace(/\s+/g,' ');
 function sameClass(C){return normId(C.ecole)===normId(LIC.cls.ecole)&&normId(C.classe)===normId(LIC.cls.classe)&&normId(C.enseignant)===normId(LIC.cls.enseignant)}
-function lockClass(){if(idLocked())return;LIC.cls={};IDK.forEach(k=>LIC.cls[k]=normId(S[k]));LIC.cls.at=Date.now();saveLic()}
-function applyIdLock(){if(!idLocked())return;IDK.forEach(k=>{if(LIC.cls[k]!=null&&LIC.cls[k]!=='')S[k]=LIC.cls[k]});
+function lockClass(){if(idLocked())return;LIC.cls={};IDK.forEach(k=>LIC.cls[k]=RAWK.includes(k)?(S[k]||''):normId(S[k]));LIC.cls.at=Date.now();saveLic()}
+function applyIdLock(){if(!idLocked())return;if(LIC.cls.typeClasse==null){LIC.cls.typeClasse='het';saveLic()}IDK.forEach(k=>{if(LIC.cls[k]!=null&&LIC.cls[k]!=='')S[k]=LIC.cls[k]});
   IDK.forEach(k=>document.querySelectorAll('[data-k="'+k+'"]').forEach(el=>{if(el.tagName==='SELECT')el.disabled=true;else el.readOnly=true;el.title='Verrouillé : cette application est réservée à cette classe'}));
   ['drenaSel','ieppSel'].forEach(i=>{const e=document.getElementById(i);if(e){e.disabled=true;e.title='Verrouillé : cette application est réservée à cette classe'}})}
 
@@ -987,10 +993,16 @@ const cur=()=>S.tab;
 const isHom=()=>S&&S.typeClasse==='hom';
 const HOM_G={L1:'g1',L2:'g2',L3:'g3',DL:'g1',MP:'g2',HC:'g3'};
 const gOf=(dk,x)=>isHom()?HOM_G[x.l]:x.g;
-const GRS=()=>isHom()?['g1','g2','g3']:['g1','g2'];
+const GRS=()=>isHom()?[S.homGrp||'g1']:['g1','g2'];
+const DKS=()=>isHom()?[S.homDisc||'math']:['math','lect'];
+function homLabel(){const dk=S.homDisc||'math',g=S.homGrp||'g1';return UP('Groupe de niveau '+GNAME(dk,g).replace(/^Groupe \d : /,'')+' ('+(dk==='math'?'Mathématiques':'Lecture')+')')}
 const GNUM=g=>'Groupe '+g.slice(1);
 function GNAME(dk,g){const D=DISC[dk];if(!isHom())return D.G[g];const l=Object.keys(HOM_G).find(k=>HOM_G[k]===g&&D.LN[k]);return GNUM(g)+' : '+D.LN[l]}
-const presentGroups=dk=>GRS().filter(g=>listOf(dk,g));
+const presentGroups=dk=>(isHom()&&dk!==(S.homDisc||'math'))?[]:GRS().filter(g=>listOf(dk,g));
+function homSync(){const h=isHom();document.body.classList.toggle('homMode',h);
+  const sel=document.getElementById('homGrpSel');if(sel){const dk=S.homDisc||'math';sel.innerHTML=['g1','g2','g3'].map(g=>`<option value="${g}">${esc(GNAME(dk,g)+'')}</option>`).join('')}
+  if(h){S.tab=S.homDisc||'math';if(!idLocked())S.classe=homLabel()}else if(/^GROUPE DE NIVEAU/.test(S.classe||'')&&!idLocked())S.classe='';
+  document.querySelectorAll('#tabs button').forEach(b=>{b.style.display=h&&b.dataset.tab!==S.tab?'none':''})}
 function computeAll(dk){return isHom()?presentGroups(dk).map(g=>compute(dk,g)):[compute(dk)]}
 function listOf(dk,g){const D=DISC[dk],st=S[dk];const f=D.LV.find(x=>gOf(dk,x)===g&&st.levels[x.k].on);return f?f.l:null}
 function lowestName(dk,g){const D=DISC[dk],st=S[dk];const f=D.LV.find(x=>(!g||gOf(dk,x)===g)&&st.levels[x.k].on);return f?f.n:''}
@@ -1326,6 +1338,7 @@ function renderPlan(){
    RENDU GLOBAL
    ===================================================================== */
 function renderAll(){
+  homSync();
   enforceW1('math');enforceW1('lect');if(idLocked())IDK.forEach(k=>{if(LIC.cls[k])S[k]=LIC.cls[k]});renderTrial();renderIdent();renderClasses();
   S.effClasse=String(effTestes());document.querySelectorAll('[data-k]').forEach(el=>{el.value=S[el.dataset.k]??''});
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===cur()));
@@ -1365,7 +1378,9 @@ document.addEventListener('change',e=>{
   if(el.id==='drenaSel'){if(el.value==='*'){S.drenaFree=true;S.drena=''}else{S.drenaFree=false;S.drena=el.value}S.iepp='';S.ieppFree=false;renderAll();return}
   if(el.id==='ieppSel'){if(el.value==='*'){S.ieppFree=true;S.iepp=''}else{S.ieppFree=false;S.iepp=el.value}renderAll();return}
   if(el.id==='importFile'){importClasses(el.files[0]);el.value='';return}
+  if(el.id==='aserImport'){aserImport(el.files);setTimeout(()=>{el.value=''},500);return}
   if(el.dataset.k){S[el.dataset.k]=el.value;if(el.dataset.k==='mer'){applyAlternation('math');applyAlternation('lect')}
+    if(el.dataset.k==='homDisc'||el.dataset.k==='homGrp'){S.eleves=S.eleves.filter(e=>!e.orig);GEN={math:null,lect:null};toast('Groupe de niveau : '+homLabel()+'. Importez les résultats ASER des classes.')}
     if(el.dataset.k==='typeClasse'){['math','lect'].forEach(d=>{S[d].step={g1:0,g2:0,g3:0};S[d].vary={g1:0,g2:0,g3:0}});GEN={math:null,lect:null};toast(isHom()?'Classe homogène : 3 groupes de niveau, un plan de session par groupe':'Classe hétérogène : 2 groupes de niveau, avec alternance')}
     renderAll();return}
   if(el.dataset.lv){const b=GRS().map(g=>listOf(dk,g));S[dk].levels[el.dataset.lv].on=el.checked;GRS().forEach((g,i)=>{if(listOf(dk,g)!==b[i])S[dk].step[g]=0});renderAll();return}
@@ -1398,6 +1413,7 @@ document.addEventListener('click',e=>{
     toast(PF.test==='Réussi'?'Progression enregistrée : '+(e.nom||'')+' passe au niveau '+LVN(PF.dk)[PF.to]:'Test non réussi enregistré');PF=null;renderAll();return}
   if(b.dataset.delprog){S.progs=S.progs.filter(p=>p.id!==b.dataset.delprog);renderAll();return}
   if(b.id==='btnAllPres'){delete S.abs[S.lundi];persist();renderDocs();toast('Tous les apprenants sont marqués présents');return}
+  if(b.id==='btnAserExport'){aserExport();return}
   if(b.id==='btnAddEl'){S.eleves.push(newEleve(''));renderAll();const ins=document.querySelectorAll('[data-el$=".nom"]');if(ins.length)ins[ins.length-1].focus();return}
   if(b.dataset.del!==undefined){const e=S.eleves[+b.dataset.del];S.eleves.splice(+b.dataset.del,1);if(e)S.progs=S.progs.filter(p=>p.eid!==e.id);renderAll();return}
   if(b.id==='btnPaste'){const n=pasteEleves(document.getElementById('pasteNames').value);renderAll();toast(n+' apprenant(s) ajouté(s)');return}
@@ -1421,7 +1437,7 @@ document.addEventListener('click',e=>{
     b.dataset.arm='1';b.textContent='Cliquer encore pour confirmer';setTimeout(()=>{b.textContent='Tout effacer';delete b.dataset.arm},3000);return}
   if(b.id==='btnCopy'){copyPlan();return}
   if(b.id==='btnDl'){downloadPlan([dk]);return}
-  if(b.id==='btnDlBoth'){downloadPlan(['math','lect']);return}
+  if(b.id==='btnDlBoth'){downloadPlan(DKS());return}
 });
 function nextWeek(){
   const ENDMSG=[];
@@ -1429,8 +1445,8 @@ function nextWeek(){
   if(S.lundi){const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+7);S.lundi=d.toISOString().slice(0,10)}
   ['math','lect'].forEach(dk=>{
     GRS().forEach(g=>{const n=stepsOf(dk,g).length;if(n){if(stepIdx(dk,g)>=n-1)ENDMSG.push(DISC[dk].name+' – '+GNUM(g));S[dk].step[g]=Math.min(stepIdx(dk,g)+1,n-1)}});
-    DAYS.forEach(d=>S[dk].days[d.k].ov={common:blankOv(),g1:blankOv(),g2:blankOv()});
-    S[dk].vary={g1:0,g2:0};
+    DAYS.forEach(d=>S[dk].days[d.k].ov={common:blankOv(),g1:blankOv(),g2:blankOv(),g3:blankOv(),cg1:blankOv(),cg2:blankOv(),cg3:blankOv()});
+    S[dk].vary={g1:0,g2:0,g3:0};
     applyAlternation(dk);
   });
   renderAll();toast(ENDMSG.length?`Programmation terminée pour : ${ENDMSG.join(', ')}. Faites passer le test ASER : les apprenants qui réussissent passent au niveau supérieur (ex. 2 chiffres → Soustraction).`:`Semaine ${S.semaine} : chaque groupe passe à l’objectif suivant`);
@@ -1491,6 +1507,7 @@ S.annee=SCHOOL_YEAR();
 upObj(S,['enseignant','directeur','ecole','secteur','drena','iepp']);S.eleves.forEach(e=>{if(typeof e.nom==='string')e.nom=UP(e.nom)});
 if(!S.aser)S.aser='Début d’année';
 if(S.typeClasse!=='hom')S.typeClasse='het';
+if(S.homDisc!=='lect')S.homDisc='math';if(!['g1','g2','g3'].includes(S.homGrp))S.homGrp='g1';
 ['math','lect'].forEach(dk=>{const st=S[dk];if(!st)return;st.step=st.step||{};['g1','g2','g3'].forEach(g=>{if(st.step[g]==null)st.step[g]=0});st.vary=st.vary||{};
   Object.values(st.days||{}).forEach(d=>{d.ov=d.ov||{};['common','g1','g2','g3','cg1','cg2','cg3'].forEach(k=>{if(!d.ov[k])d.ov[k]=blankOv()})})});
 ['secteur','codeEcole','sexeEns','forme','effClasse','taux','sigles'].forEach(k=>{if(S[k]===undefined)S[k]=''});
@@ -1567,7 +1584,7 @@ function renderEleves(){{const ef=document.querySelector('[data-k="effClasse"]')
   document.getElementById('tDate').value=(S.tests[tk]||{}).date||'';
   const rows=S.eleves.map((e,i)=>`<tr>
     <td class="num">${i+1}</td>
-    <td><input data-el="${i}.nom" value="${esc(e.nom)}" placeholder="Nom et prénoms"></td>
+    <td><input data-el="${i}.nom" value="${esc(e.nom)}" placeholder="Nom et prénoms">${e.orig?`<small class="orig">Classe d’origine : ${esc(e.orig)}${isHom()&&!GRS().includes(gOf(S.homDisc,DISC[S.homDisc].LV.find(x=>x.k===curLevel(e,S.homDisc))||{l:''}))&&curLevel(e,S.homDisc)?' – <b>a progressé : passe à un autre groupe de niveau</b>':''}</small>`:''}</td>
     <td><select data-el="${i}.sexe"><option value="">—</option><option ${e.sexe==='G'?'selected':''}>G</option><option ${e.sexe==='F'?'selected':''}>F</option></select></td>
     <td class="c"><input type="checkbox" data-el="${i}.arr" ${e.arr==='1'?'checked':''} title="Arrivé(e) après le test de début"></td>
     <td><select data-et="${i}.l">${opt('lect',e.t[tk].l)}</select></td>
@@ -1584,6 +1601,10 @@ function renderEleves(){{const ef=document.querySelector('[data-k="effClasse"]')
     <tbody>${rows||'<tr><td colspan="12" class="emptyrow">Aucun apprenant. Collez une liste de noms ci-dessous ou ajoutez-les un par un.</td></tr>'}</tbody></table></div>
     <div class="elfoot"><span><b>${cnt}</b> apprenant${cnt>1?'s':''} (${g} G, ${f} F)</span>
       <button id="btnAddEl">+ Ajouter un apprenant</button></div>
+    ${isHom()?`<div class="impbox"><b>📥 Apprenants du groupe de niveau ${esc(homLabel().replace(/^GROUPE DE NIVEAU /,''))}</b><br><small>Importez les fichiers « résultats ASER » envoyés par les enseignants des classes (CE1, CE2, CM1, CM2). Seuls les apprenants dont le niveau en ${S.homDisc==='lect'?'lecture':'mathématiques'} correspond à votre groupe de niveau sont ajoutés automatiquement à votre liste.</small><br>
+      <label class="filebtn primary" style="margin-top:6px">Importer les résultats ASER des classes<input type="file" id="aserImport" accept=".json,application/json" multiple hidden></label></div>`
+     :`<div class="impbox"><b>📤 Résultats ASER pour les groupes de niveau homogènes</b><br><small>Si les apprenants de votre classe sont répartis en groupes de niveau homogènes, envoyez ce fichier aux enseignants qui tiennent ces groupes : leurs listes se rempliront automatiquement.</small><br>
+      <button id="btnAserExport" style="margin-top:6px">Exporter les résultats ASER de ma classe</button></div>`}
     <details class="paste"><summary>Coller une liste de noms</summary>
       <textarea id="pasteNames" rows="5" placeholder="Un nom par ligne. Option : nom ; sexe ; niveau lecture ; niveau maths&#10;ex. KOUASSI Aya ; F ; Mot ; 2 chiffres"></textarea>
       <button id="btnPaste">Ajouter ces apprenants</button></details>${pfHTML()}${histHTML()}`;
@@ -1669,7 +1690,7 @@ function docGroupes(){
   if(!S.eleves.length)return wrapDoc(docHead('COMPOSITION DES GROUPES DE TRAVAIL')+noEleves);
   const fin=S.lundi?fmtD(addD(S.lundi,11)):'…';
   let h=docHead('COMPOSITION DES GROUPES DE NIVEAU ET DES PETITS GROUPES DE TRAVAIL',`Valable deux semaines : du ${S.lundi?fmtD(S.lundi):'…'} au ${fin}`);
-  ['lect','math'].forEach(dk=>{
+  DKS().forEach(dk=>{
     const D=DISC[dk],N=LVN(dk);
     h+=`<p style="font-weight:bold;font-size:12pt;margin:14px 0 4px;">${D.name.toUpperCase()}</p>`;
     GRS().forEach(g=>{
@@ -1708,7 +1729,7 @@ function docPresence(){
   const DK=['lun','mar','mer','jeu','ven'],DL=['L','M','M','J','V'];
   const b='border:1px solid #000;padding:1px 2px;font-size:7.5pt;text-align:center;';const bh=b+'font-weight:bold;background:#f2f2f2;';
   const sheets=[];
-  ['math','lect'].forEach(dk=>GRS().forEach(g=>{
+  DKS().forEach(dk=>GRS().forEach(g=>{
     const M=groupMembers(dk,g);if(!M.length)return;
     let h=`<p style="text-align:center;font-weight:bold;font-size:13pt;margin:0 0 4px;">Liste de présence</p>
      <p style="background:#e6e6e6;font-size:8pt;margin:0 0 6px;padding:3px;"><b><u>Instructions</u> :</b> <i>Mettre "A" lorsque l'élève est absent, ne rien écrire dans la case lorsque l'élève est présent et mettre un rond " <b>O</b> " lorsque l'élève passe au niveau supérieur.</i></p>
@@ -1743,7 +1764,7 @@ function docProgression(){
   if(!S.eleves.length)return wrapDoc('<p style="text-align:center;font-weight:bold;font-size:13pt;">Fiche de Progression</p>'+noEleves);
   const b='border:1px solid #000;padding:2px 4px;font-size:8.5pt;text-align:center;height:15px;';const bh=b+'font-weight:normal;';
   const sheets=[];
-  ['lect','math'].forEach(dk=>{const N=LVN(dk);
+  DKS().forEach(dk=>{const N=LVN(dk);
     GRS().forEach(g=>{
       const lv=DISC[dk].LV.filter(x=>gOf(dk,x)===g).map(x=>x.k);
       const rows=[];
@@ -1765,7 +1786,7 @@ function weekRange(){const a=S.lundi,b=S.lundi?addD(S.lundi,6):'';return [a,b]}
 function docAnalyse(){
   const [a,b]=weekRange();
   let h=docHead('ANALYSE DE LA SESSION HEBDOMADAIRE',weekTxt());
-  ['lect','math'].forEach(dk=>{
+  DKS().forEach(dk=>{
     const CS=computeAll(dk),D=DISC[dk],N=LVN(dk);if(!CS.length||!CS[0].classL)return;
     const C={days:CS[0].days.map((x,j)=>({d:x.d,rows:CS.flatMap(c=>c.days[j].rows.map(r=>Object.assign({},r,{lab:c.hom&&r.slot==='common'?GNUM(c.focus)+' (reconnaissance)':c.hom?GNUM(c.focus)+' (activité)':r.lab})))}))};
     h+=`<p style="font-weight:bold;font-size:12pt;margin:14px 0 4px;">${D.name.toUpperCase()}${isHom()?' – classe homogène':''}</p>`;
@@ -1786,7 +1807,7 @@ function docAnalyse(){
   return wrapDoc(h);
 }
 function docHTML(id){
-  if(id==='plans')return finalizeDoc(planCore('lect')+'<div style="page-break-before:always"></div>'+planCore('math'));
+  if(id==='plans')return finalizeDoc(DKS().slice().reverse().map(planCore).join('<div style="page-break-before:always"></div>'));
   return finalizeDoc({aser:docASER,groupes:docGroupes,presence:docPresence,progression:docProgression,analyse:docAnalyse}[id]());
 }
 let DOCSEL='aser',DOCGEN=null;
@@ -1872,6 +1893,31 @@ function renderClasses(){
     :'Une seule classe peut être enregistrée dans cette application. Dès que vous cliquez sur « Enregistrer la classe », l’école, la classe et le nom de l’enseignant(e) sont verrouillés définitivement.';
   document.getElementById('btnOffline').hidden=OFFLINE;
   document.getElementById('offlineNote').textContent=OFFLINE?'Version hors ligne : les données restent dans ce navigateur ; pensez à « Sauvegarder toutes les classes » régulièrement.':'';
+}
+function aserExport(){
+  if(!S.eleves.length){toast('Aucun apprenant à exporter');return}
+  const d={app:'pnapas-aser',v:1,date:new Date().toISOString(),drena:S.drena,iepp:S.iepp,secteur:S.secteur,ecole:S.ecole,codeEcole:S.codeEcole,classe:S.classe,enseignant:S.enseignant,annee:S.annee,tests:S.tests,eleves:S.eleves,progs:S.progs};
+  saveFile(('resultats-aser-'+(S.classe||'classe')+'-'+(S.ecole||'ecole')).replace(/[^A-Za-z0-9-]+/g,'-').toLowerCase()+'.json',JSON.stringify(d));
+  toast('Fichier exporté : envoyez-le aux enseignants des groupes de niveau homogènes')}
+function aserImport(files){
+  if(!files||!files.length)return;const dk=S.homDisc||'math',grp=S.homGrp||'g1';let added=0,skip=0,bad=0,done=0;
+  const have=new Set(S.eleves.map(e=>UP(e.nom)+'|'+(e.orig||'')));
+  [...files].forEach(f=>{const r=new FileReader();r.onload=()=>{
+    try{const d=JSON.parse(r.result);let srcs=[];
+      if(d&&d.app==='pnapas-aser')srcs=[d];else{const list=d.list||d;srcs=Object.values(list).filter(c=>c&&Array.isArray(c.eleves))}
+      if(!srcs.length)throw 0;
+      srcs.forEach(src=>{if(src.typeClasse==='hom')return;const orig=[src.classe,src.ecole].filter(Boolean).join(' – ');
+        const save=S;S=Object.assign({},save,{tests:src.tests||{},progs:src.progs||[]});
+        const pick=(src.eleves||[]).map(e=>({e,lv:curLevel(e,dk)}));S=save;
+        pick.forEach(({e,lv})=>{const x=DISC[dk].LV.find(y=>y.k===lv);if(!x||HOM_G[x.l]!==grp){skip++;return}
+          const key=UP(e.nom)+'|'+orig;if(have.has(key))return;have.add(key);
+          const n=JSON.parse(JSON.stringify(e));const oid=n.id;n.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);n.orig=orig;n.nom=UP(n.nom||'');
+          (src.progs||[]).filter(p=>p.eid===oid).forEach(p=>S.progs.push(Object.assign({},p,{eid:n.id})));
+          S.eleves.push(n);added++})})}
+    catch(e){bad++}
+    if(++done===files.length){deriveAll();syncLevels();GEN={math:null,lect:null};persist();renderAll();
+      toast(`${added} apprenant${added>1?'s':''} du groupe ajouté${added>1?'s':''}`+(skip?` (${skip} d’un autre niveau ignoré${skip>1?'s':''})`:'')+(bad?` – ${bad} fichier(s) non reconnu(s)`:''))}};
+   r.readAsText(f)});
 }
 function importClasses(file){
   if(!file)return;const r=new FileReader();
