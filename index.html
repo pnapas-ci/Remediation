@@ -1,7 +1,131 @@
-<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Remédiation PNAPAS – Applications</title>
-<style>body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#f6f7f4;color:#1d2a24}main{max-width:720px;margin:0 auto;padding:28px 16px}h1{font-size:22px}a.app{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid #d9e0dc;border-radius:12px;padding:14px;margin:12px 0;text-decoration:none;color:inherit}a.app img{width:64px;height:64px}a.app b{font-size:17px}a.app span{display:block;color:#5d6b64;font-size:14px}</style></head>
-<body><main><h1>Remédiation PNAPAS – CE1 à CM2</h1><p>Choisissez votre espace. Une fois ouvert, installez-le sur l’écran d’accueil (bouton « 📲 Installer l’application »).</p>
-<a class="app" href="enseignant/"><img src="enseignant/icon-192.png" alt=""><div><b>Espace enseignant</b><span>Plan de session hebdomadaire, tests ASER, documents d’accompagnement</span></div></a>
-<a class="app" href="directeur/"><img src="directeur/icon-192.png" alt=""><div><b>Espace directeur</b><span>Fiche de suivi de l’école</span></div></a>
-<a class="app" href="cppp/"><img src="cppp/icon-192.png" alt=""><div><b>Espace conseiller pédagogique (CPPP)</b><span>Fiche de suivi du secteur pédagogique</span></div></a>
-</main></body></html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14553a">
+<title>Remédiation PNAPAS – Année scolaire 2026-2027</title>
+<link rel="icon" href="enseignant/icon-192.png">
+<style>
+:root{--ink:#14231c;--muted:#5b6a62;--paper:#f7f5ef;--line:#e2ddd0;--ens:#1f8a5b;--dir:#2b5d9b;--cp:#b5651d;--deep:#14553a}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+.hero{position:relative;overflow:hidden;background:var(--deep);color:#fff;padding:34px 20px 74px}
+.hero::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(circle at 88% 18%,rgba(255,255,255,.10) 0 90px,transparent 91px),
+  radial-gradient(circle at 96% 70%,rgba(255,255,255,.06) 0 140px,transparent 141px);pointer-events:none}
+.stripe{position:absolute;left:0;right:0;top:0;height:5px;display:flex}
+.stripe i{flex:1}.stripe i:nth-child(1){background:#f08a24}.stripe i:nth-child(2){background:#fff}.stripe i:nth-child(3){background:#1f9a5d}
+.wrap{max-width:980px;margin:0 auto;position:relative}
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:6px 12px;border-radius:999px}
+h1{font-size:clamp(28px,5.2vw,44px);line-height:1.08;margin:16px 0 10px;letter-spacing:-.01em}
+h1 span{color:#ffd29a}
+.lead{font-size:clamp(15px,2.2vw,18px);line-height:1.5;max-width:640px;margin:0;color:rgba(255,255,255,.88)}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.meta b{font-size:13px;font-weight:600;background:#fff;color:var(--deep);padding:6px 12px;border-radius:8px}
+.apps{max-width:980px;margin:-48px auto 0;padding:0 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;position:relative}
+.app{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;text-decoration:none;color:inherit;box-shadow:0 10px 28px rgba(20,35,28,.08);border-top:6px solid var(--c);transition:transform .15s ease,box-shadow .15s ease}
+.app:hover,.app:focus-visible{transform:translateY(-3px);box-shadow:0 16px 34px rgba(20,35,28,.14);outline:none}
+.app img{width:58px;height:58px;border-radius:14px}
+.role{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--c);margin:14px 0 2px}
+.app h2{font-size:20px;margin:0 0 8px}
+.app ul{margin:0 0 16px;padding:0;list-style:none;color:var(--muted);font-size:14.5px;line-height:1.45;flex:1}
+.app li{padding-left:18px;position:relative;margin:4px 0}
+.app li::before{content:"";position:absolute;left:2px;top:.6em;width:7px;height:7px;border-radius:2px;background:var(--c);opacity:.75}
+.go{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:15px;background:var(--c);color:#fff;border-radius:10px;padding:11px 14px}
+.go::after{content:"→";font-size:18px}
+.ens{--c:var(--ens)}.dir{--c:var(--dir)}.cp{--c:var(--cp)}
+section{max-width:980px;margin:34px auto 0;padding:0 16px}
+h3{font-size:19px;margin:0 0 14px}
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.step{padding:16px 18px;border-right:1px solid var(--line);position:relative}
+.step:last-child{border-right:0}
+.step small{display:block;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--c)}
+.step b{display:block;font-size:16px;margin:4px 0}
+.step p{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
+.install{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.card b{display:flex;align-items:center;gap:8px;font-size:15.5px;margin-bottom:6px}
+.card p{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
+.num{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--deep);color:#fff;font-size:13px;font-weight:700;flex:none}
+.note{margin-top:12px;font-size:13.5px;color:var(--muted);background:#fff7ea;border:1px solid #f1dcb6;border-radius:10px;padding:10px 14px}
+footer{max-width:980px;margin:34px auto 0;padding:18px 16px 30px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+@media (max-width:820px){
+  .apps,.install{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr}.step{border-right:0;border-bottom:1px solid var(--line)}.step:last-child{border-bottom:0}
+  .hero{padding-bottom:64px}
+}
+@media (prefers-reduced-motion:reduce){.app{transition:none}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <span class="tag">Programme de remédiation PNAPAS</span>
+    <h1>La remédiation<br><span>en lecture et en mathématiques</span></h1>
+    <p class="lead">Préparer les plans de session, suivre les résultats ASER et la progression des apprenants, de la classe jusqu’au secteur pédagogique.</p>
+    <div class="meta"><b>Année scolaire 2026-2027</b><b>CE1 · CE2 · CM1 · CM2</b><b>Fonctionne sans Internet</b></div>
+  </div>
+  <div class="stripe"><i></i><i></i><i></i></div>
+</header>
+
+<main>
+<div class="apps">
+  <a class="app ens" href="enseignant/">
+    <img src="enseignant/icon-192.png" alt="">
+    <div class="role">Enseignant(e)</div>
+    <h2>Espace enseignant</h2>
+    <ul>
+      <li>Plan de session hebdomadaire, classe hétérogène ou homogène</li>
+      <li>Fiches de résultats ASER, de progression et de présence</li>
+      <li>Exercices d’autonomie et résumés des activités</li>
+    </ul>
+    <span class="go">Ouvrir mon espace</span>
+  </a>
+  <a class="app dir" href="directeur/">
+    <img src="directeur/icon-192.png" alt="">
+    <div class="role">Directeur d’école</div>
+    <h2>Espace directeur</h2>
+    <ul>
+      <li>Réunir les fiches des classes de l’école</li>
+      <li>Fiche de suivi de l’école remplie automatiquement</li>
+      <li>Alerte sur les classes qui ne progressent pas</li>
+    </ul>
+    <span class="go">Ouvrir mon espace</span>
+  </a>
+  <a class="app cp" href="cppp/">
+    <img src="cppp/icon-192.png" alt="">
+    <div class="role">Conseiller pédagogique</div>
+    <h2>Espace CPPP</h2>
+    <ul>
+      <li>Réunir les fiches des écoles du secteur</li>
+      <li>Fiche de suivi du secteur pédagogique</li>
+      <li>Enregistrer, partager et exporter pour la hiérarchie</li>
+    </ul>
+    <span class="go">Ouvrir mon espace</span>
+  </a>
+</div>
+
+<section>
+  <h3>Le circuit des données</h3>
+  <div class="flow">
+    <div class="step ens"><small>1 · Enseignant</small><b>Teste et planifie</b><p>Saisit les résultats ASER, génère ses plans de session et envoie sa fiche au directeur.</p></div>
+    <div class="step dir"><small>2 · Directeur</small><b>Consolide l’école</b><p>Importe les fiches des classes et transmet la fiche de suivi de l’école au CPPP.</p></div>
+    <div class="step cp"><small>3 · CPPP</small><b>Suit le secteur</b><p>Importe les fiches des écoles et rend compte à sa hiérarchie.</p></div>
+  </div>
+</section>
+
+<section>
+  <h3>Installer l’application en 3 étapes</h3>
+  <div class="install">
+    <div class="card"><b><span class="num">1</span>Ouvrir son espace</b><p>Touchez votre espace ci-dessus (enseignant, directeur ou CPPP).</p></div>
+    <div class="card"><b><span class="num">2</span>Installer</b><p>Touchez « 📲 Installer l’application ». Sur iPhone : bouton Partager puis « Sur l’écran d’accueil ».</p></div>
+    <div class="card"><b><span class="num">3</span>Activer</b><p>Communiquez l’identifiant affiché pour recevoir votre code d’activation. Essai gratuit de 3 jours.</p></div>
+  </div>
+  <p class="note">Chaque utilisateur installe son propre espace, sur son propre appareil, avec son propre code d’activation. Une application enseignant correspond à une seule classe ou à un seul groupe de niveau.</p>
+</section>
+</main>
+
+<footer><span>Remédiation PNAPAS – Lecture et mathématiques</span><span>Année scolaire 2026-2027</span></footer>
+</body>
+</html>
