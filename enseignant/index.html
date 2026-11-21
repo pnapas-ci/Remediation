@@ -42,6 +42,13 @@ input:focus,select:focus{outline:2px solid var(--acc);outline-offset:0;border-co
 .grp.g1{background:var(--g1s);border-color:#f3cfb3}
 .grp.g2{background:var(--g2s);border-color:#b9dfcb}
 .grp.g3{background:#fdf3e7;border-color:#efcf9f}
+details.diag{background:#fff;border:1px solid #cfe0d6;border-radius:8px;padding:8px 10px;margin:6px 0 10px}
+details.diag summary{cursor:pointer;font-weight:700;font-size:14px}
+.dq{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;padding:7px 0;border-bottom:1px dashed #dfe7e2;font-size:14px}
+.dyn{display:flex;gap:6px}.dyn button{min-width:58px;padding:5px 10px}
+.dyn button.on.yes{background:#1f8a5b;border-color:#1f8a5b;color:#fff}.dyn button.on.no{background:#b3261e;border-color:#b3261e;color:#fff}
+.dres{margin-top:8px;font-size:14px;background:#eef6f1;border-radius:6px;padding:7px 9px}.dres.ok{background:#e3f6ec}
+.dreset{margin-top:8px;font-size:12.5px;padding:4px 10px}
 .hom3{grid-template-columns:repeat(3,minmax(0,1fr))!important}
 @media(max-width:820px){.hom3{grid-template-columns:1fr!important}}
 .homh{margin:14px 0 6px;font-size:15px;padding:6px 10px;border-radius:6px;background:#eef3f0}.homh.g3{background:#fdf3e7}
@@ -659,12 +666,22 @@ MATH_ACTS.forEach(a=>{a.c=a.t==='R';a.g=a.t==='O'});
    la troisième (semaine de 5 jours) le consolide.
    rc = activités communes de reconnaissance des nombres de la semaine.
    ===================================================================== */
+const M_PRE='Disposer correctement les nombres en colonnes (unités sous les unités, dizaines sous les dizaines) pour effectuer une opération';
 const M_ADD='Effectuer correctement des opérations d’addition avec retenue';
 const M_SUB='Effectuer correctement des opérations de soustraction avec retenue';
 const M_MUL='Effectuer correctement des opérations de multiplication';
 const M_DIV='Effectuer correctement des opérations de division';
 const MATH_PLAN={
  L1:[
+  {mois:M_PRE,op:'Prérequis',weeks:[
+   {sem:'Dénombrer une collection d’objets jusqu’à 20',ex:'denombr',rc:['tab2','sauter','decomp','bingo','compar'],
+    s:[['pb1','Compter une quantité de bâtonnets de 1 à 10','','denombr'],['pb1','Dénombrer une collection de 10 à 20 objets','','denombr'],['pb1','Associer une quantité dénombrée à son écriture chiffrée','','denombr']]},
+   {sem:'Grouper par paquets de 10 pour dénombrer une quantité jusqu’à 99',ex:'pbCount',rc:['tab2','decomp','sauter','bingo','compar'],
+    s:[['pb1','Former des paquets de 10 bâtonnets (10 bâtonnets = 1 paquet)','','pbCount'],['pb1','Écrire le nombre formé de paquets et de bâtonnets','','pbCount'],['pb1','Représenter un nombre donné avec des paquets et des bâtonnets','','pbCount']]},
+   {sem:'Écrire les nombres dans le tableau de numération (dizaines, unités)',ex:'tabNum',rc:['tab2','decomp','gestes','bingo','compar'],
+    s:[['pb2','Placer paquets et bâtonnets dans la maison des paquets et des bâtonnets','','tabNum'],['pb2','Passer des paquets et bâtonnets aux dizaines et unités','','tabNum'],['pb2','Écrire un nombre dans le tableau de numération','','tabNum']]},
+   {sem:M_PRE,ex:'colonnes',rc:['tab2','decomp','bingo','gestes','compar'],
+    s:[['pb2','Placer deux nombres l’un sous l’autre dans le tableau de numération','','colonnes'],['pb2','Disposer les chiffres des nombres en colonnes (unités sous les unités)','','colonnes'],['pb2','Poser une opération en colonnes avant de la calculer','','colonnes']]}]},
   {mois:M_ADD,op:'Addition',weeks:[
    {sem:'Additionner des nombres à un chiffre',ex:'add11',rc:['tab2','decomp','sauter','decomp','bingo'],
     s:[['addBat','Additionner deux nombres à un chiffre avec les bâtonnets (ex. 7 + 2)','sans','add11'],['tabAdd','Trouver la somme de deux nombres à un chiffre dans la table d’addition','','add11'],['balle','Calculer mentalement des sommes de nombres à un chiffre','','add11']]},
@@ -995,6 +1012,19 @@ function genExo(type,seed,depth){depth=depth||0;
       if(i%2===0)items.push({q:`Écris le nombre formé par ${d} paquet${d>1?'s':''} et ${u} bâtonnet${u>1?'s':''} : …`,r:String(n)});
       else items.push({q:`Dans le nombre ${n}, combien y a-t-il de dizaines ? Combien d’unités ?`,r:`${d} dizaine${d>1?'s':''} et ${u} unité${u>1?'s':''}`})}
     pnum=[ri(2,8),ri(1,9)]}
+  else if(type==='denombr'){fam='num';
+    for(let i=0;i<4;i++){const n=i<2?ri(3,10):ri(11,20);const st=Array.from({length:Math.floor(n/5)},()=>'IIIII').concat(n%5?['I'.repeat(n%5)]:[]).join(' ');
+      if(i%2===0)items.push({q:`Compte les bâtonnets et écris le nombre : ${st} → …`,r:String(n)});else{const m=ri(6,20),k=Math.floor(m/5);items.push({q:`Dessine ${m} bâtonnets puis entoure-les par groupes de 5.`,r:`${m} bâtonnets : ${k} groupe${k>1?'s':''} de 5${m%5?` et ${m%5} bâtonnet${m%5>1?'s':''}`:''}`})}}
+    pnum=[1,ri(2,9)]}
+  else if(type==='tabNum'){fam='num';
+    for(let i=0;i<4;i++){const d=ri(1,9),u=ri(0,9),n=d*10+u;
+      if(i%2===0)items.push({q:`Écris ${n} dans le tableau de numération : dizaines … | unités …`,r:`dizaines ${d} | unités ${u}`});
+      else items.push({q:`Quel nombre s’écrit : dizaines ${d} | unités ${u} ? …`,r:String(n)})}
+    pnum=[ri(2,8),ri(1,9)]}
+  else if(type==='colonnes'){fam='num';
+    for(let i=0;i<4;i++){const a=ri(11,89),b=i<2?ri(2,9):ri(11,89);
+      items.push({q:`Pose en colonnes (unités sous les unités, dizaines sous les dizaines) : ${a} et ${b}`,r:`${a} au-dessus ; ${b} en dessous, ${b<10?`le ${b} sous le ${a%10} (colonne des unités)`:`le ${Math.floor(b/10)} sous le ${Math.floor(a/10)} et le ${b%10} sous le ${a%10}`}`})}
+    pnum=[ri(2,8),ri(1,9)]}
   else if(type==='read20'||type==='read99'){fam='num';const M=type==='read20'?19:98;
     for(let i=0;i<3;i++){const n=ri(1,M);if(i===0)items.push({q:`Écris le nombre qui vient juste après ${n} : …`,r:String(n+1)});
       else if(i===1)items.push({q:`Écris le nombre qui vient juste avant ${n} : …`,r:String(n-1)});
@@ -1239,6 +1269,48 @@ function renderLevels(){
 /* =====================================================================
    RENDU : PROGRESSION
    ===================================================================== */
+/* ---- Diagnostic du niveau le plus bas : définit automatiquement le point de départ ---- */
+const DIAG={math:{
+ L1:[{k:'den',q:'sait-il déjà dénombrer (compter) une quantité d’objets ?',s:0},
+     {k:'grp',q:'sait-il grouper par paquets de 10 et écrire le nombre obtenu ?',s:1},
+     {k:'tab',q:'sait-il écrire un nombre dans le tableau de numération (dizaines, unités) ?',s:2},
+     {k:'col',q:'sait-il disposer les chiffres des nombres les uns sous les autres (unités sous les unités) ?',s:3},
+     {k:'a1',q:'sait-il additionner deux nombres à un chiffre ?',s:4},
+     {k:'aS',q:'sait-il effectuer une addition SANS retenue ?',s:5},
+     {k:'aA',q:'sait-il effectuer une addition AVEC retenue ?',s:6},
+     {k:'s1',q:'sait-il soustraire deux nombres à un chiffre ?',s:8},
+     {k:'sS',q:'sait-il effectuer une soustraction SANS retenue ?',s:9},
+     {k:'sA',q:'sait-il effectuer une soustraction AVEC retenue ?',s:10}],
+ L2:[{k:'aS',q:'sait-il effectuer une addition SANS retenue (nombres à 2 chiffres) ?',s:0},
+     {k:'aA',q:'sait-il effectuer une addition AVEC retenue (nombres à 2 chiffres) ?',s:1},
+     {k:'a3',q:'sait-il additionner des nombres à 3 chiffres avec retenue ?',s:3},
+     {k:'sS',q:'sait-il effectuer une soustraction SANS retenue ?',s:4},
+     {k:'sA',q:'sait-il effectuer une soustraction AVEC retenue (nombres à 2 chiffres) ?',s:5},
+     {k:'s3',q:'sait-il soustraire des nombres à 3 chiffres avec retenue ?',s:7}],
+ L3:[{k:'mC',q:'sait-il que la multiplication est une addition répétée ?',s:0},
+     {k:'mT',q:'connaît-il les tables de multiplication de 2 à 10 ?',s:1},
+     {k:'mM',q:'sait-il calculer mentalement des produits ?',s:2},
+     {k:'mP',q:'sait-il poser et effectuer une multiplication, sans et avec retenue ?',s:3},
+     {k:'dP',q:'sait-il partager une quantité en parts égales ?',s:4},
+     {k:'d2',q:'sait-il diviser un nombre à 2 chiffres par un nombre à 1 chiffre ?',s:5},
+     {k:'d3',q:'sait-il diviser un nombre à 3 chiffres par un nombre à 1 chiffre ?',s:6}]}};
+const DIAGOPEN={};
+document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.dopen)DIAGOPEN[d.dataset.dopen]=d.open},true);
+function diagOf(dk,l){const st=S[dk];st.diag=st.diag||{};return st.diag[l]=st.diag[l]||{}}
+function diagStart(dk,l){const Q=(DIAG[dk]||{})[l];if(!Q)return null;const A=diagOf(dk,l);
+  for(const q of Q){if(A[q.k]!=='oui')return A[q.k]==='non'?{s:q.s,q}:null}
+  return {s:D_LAST(dk,l),all:true}}
+const D_LAST=(dk,l)=>DISC[dk].steps[l].length-1;
+function diagHTML(dk,g,l){const Q=(DIAG[dk]||{})[l];if(!Q)return '';const A=diagOf(dk,l);const low=lowestName(dk,isHom()?g:g);
+  let rows='',stop=false;
+  for(const q of Q){if(stop)break;const v=A[q.k]||'';
+    rows+=`<div class="dq"><span>Le niveau le plus bas (<b>${esc(low)}</b>) ${esc(q.q)}</span><span class="dyn"><button data-diag="${g}.${l}.${q.k}.oui" class="${v==='oui'?'on yes':''}">Oui</button><button data-diag="${g}.${l}.${q.k}.non" class="${v==='non'?'on no':''}">Non</button></span></div>`;
+    if(v!=='oui')stop=true}
+  const r=diagStart(dk,l);const arr=DISC[dk].steps[l];
+  const res=r?(r.all?`<div class="dres ok">✅ Toutes les étapes sont maîtrisées : faites passer le test ASER ; les apprenants qui réussissent passent au groupe de niveau supérieur.</div>`
+    :`<div class="dres">➡ Point de départ fixé automatiquement : <b>${esc(arr[r.s].sem)}</b> (mois : ${esc(arr[r.s].mois)}). Les objectifs hebdomadaires et mensuels suivants en découlent.</div>`):'';
+  return `<details class="diag" data-dopen="${g}" ${DIAGOPEN[g]===false?'':'open'}><summary>🔎 Diagnostic du groupe : répondez pour fixer automatiquement les objectifs</summary>${rows}${res}${Object.keys(A).length?`<button class="dreset" data-diagreset="${g}.${l}">Recommencer le diagnostic</button>`:''}</details>`;
+}
 function renderProgress(){
   const dk=cur(),D=DISC[dk];
   const part=g=>{
@@ -1246,7 +1318,7 @@ function renderProgress(){
     const arr=D.steps[l],i=stepIdx(dk,g),c=arr[i],months=D.plan[l];
     const weeks=arr.map((s,k)=>({s,k})).filter(x=>x.s.m===c.m);
     const nT=activeDays().filter((d,j)=>{const both=!isHom()&&listOf(dk,'g1')&&listOf(dk,'g2');return !both||S[dk].days[d.k].active===g}).length;
-    return `<div class="grp ${g}"><h3>${GNAME(dk,g)}</h3>
+    return `<div class="grp ${g}"><h3>${GNAME(dk,g)}</h3>${diagHTML(dk,g,l)}
       <label class="f lbl1">① Objectif du mois
         <select data-month="${g}">${months.map((M,m)=>`<option value="${m}" ${m===c.m?'selected':''}>${esc(M.mois)}</option>`).join('')}</select></label>
       <div class="lbl1">② Objectifs de la semaine qui mènent à l’objectif du mois <small>(cliquez sur la semaine en cours)</small></div>
@@ -1518,6 +1590,11 @@ document.addEventListener('click',e=>{
   if(b.id==='btnGen'){generate();return}
   if(b.id==='btnNext'){nextWeek();return}
   if(b.id==='btnRepeat'){repeatWeek();return}
+  if(b.dataset.diag){const [g,l,k,v]=b.dataset.diag.split('.');const dk=cur(),A=diagOf(dk,l);A[k]=v;
+    const Q=DIAG[dk][l];const i=Q.findIndex(q=>q.k===k);if(v==='non')Q.slice(i+1).forEach(q=>delete A[q.k]);
+    const r=diagStart(dk,l);if(r&&listOf(dk,g)===l){S[dk].step[g]=r.s;GEN[dk]=null;toast(r.all?'Toutes les étapes sont maîtrisées : faites passer le test ASER':'Objectifs fixés : '+DISC[dk].steps[l][r.s].sem)}
+    renderAll();return}
+  if(b.dataset.diagreset){const [g,l]=b.dataset.diagreset.split('.');S[cur()].diag[l]={};renderAll();return}
   if(b.dataset.vary){const g=b.dataset.vary;S[dk].vary=S[dk].vary||{g1:0,g2:0};S[dk].vary[g]=(S[dk].vary[g]||0)+1;renderAll();toast('Autres activités proposées pour le même objectif');return}
   if(b.id==='btnReset'){
     if(b.dataset.arm){const t=S.tab,cid=S.classId,sv=S.saved;S=defaults();S.tab=t;S.classId=cid;S.saved=sv;normalizeS();applyAlternation('math');applyAlternation('lect');GEN={math:null,lect:null};renderAll();toast('Tout a été effacé');b.textContent='Tout effacer';delete b.dataset.arm;return}
