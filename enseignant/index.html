@@ -49,6 +49,7 @@ details.diag summary{cursor:pointer;font-weight:700;font-size:14px}
 .dyn button.on.yes{background:#1f8a5b;border-color:#1f8a5b;color:#fff}.dyn button.on.no{background:#b3261e;border-color:#b3261e;color:#fff}
 .dres{margin-top:8px;font-size:14px;background:#eef6f1;border-radius:6px;padding:7px 9px}.dres.ok{background:#e3f6ec}
 .dreset{margin-top:8px;font-size:12.5px;padding:4px 10px}
+.autonote{font-size:13px;background:#eef3fb;border:1px solid #c9d8ef;color:#1d3a66;border-radius:6px;padding:6px 9px;margin:4px 0 8px}
 .dreq{display:inline-block;margin-left:6px;font-size:11.5px;font-weight:700;background:#fde3e3;color:#a11;padding:2px 8px;border-radius:999px}.dok{display:inline-block;margin-left:6px;font-size:11.5px;font-weight:700;background:#e3f6ec;color:#0f5a36;padding:2px 8px;border-radius:999px}
 details.diag.flash{animation:dflash 1.6s}@keyframes dflash{0%,60%{box-shadow:0 0 0 4px #f0a52488}100%{box-shadow:none}}
 .hom3{grid-template-columns:repeat(3,minmax(0,1fr))!important}
@@ -1390,6 +1391,7 @@ function renderProgress(){
     const weeks=arr.map((s,k)=>({s,k})).filter(x=>x.s.m===c.m);
     const nT=activeDays().filter((d,j)=>{const both=!isHom()&&listOf(dk,'g1')&&listOf(dk,'g2');return !both||S[dk].days[d.k].active===g}).length;
     return `<div class="grp ${g}"><h3>${GNAME(dk,g)}</h3>${diagHTML(dk,g,l)}
+      ${(()=>{const w=weeks.findIndex(x=>x.k===i)+1;return `<div class="autonote">📅 Semaine ${w} sur ${weeks.length} de cet objectif du mois. Chaque plan hebdomadaire généré fait passer à la semaine suivante${w===weeks.length?' : <b>au prochain plan, l’objectif du mois passera automatiquement à l’objectif suivant</b>':' ; après la 4e semaine, l’objectif du mois change automatiquement'}.</div>`})()}
       <label class="f lbl1">① Objectif du mois
         <select data-month="${g}">${months.map((M,m)=>`<option value="${m}" ${m===c.m?'selected':''}>${esc(M.mois)}</option>`).join('')}</select></label>
       <div class="lbl1">② Objectifs de la semaine qui mènent à l’objectif du mois <small>(cliquez sur la semaine en cours)</small></div>
@@ -1544,11 +1546,19 @@ function generate(){
   const dk=cur();
   if(!presentGroups(dk).length){toast('Cochez d’abord les niveaux');return}
   if(diagBlock(dk))return;
+  /* semaine : date du lundi fixée automatiquement si absente */
+  if(!S.lundi){S.lundi=mondayOf(new Date());if(!S.semaine)S.semaine='1'}
+  let autoMsg='';const log=genLog(dk);
+  if(log[S.lundi]){const lun=new Date(S.lundi+'T12:00:00'),today=new Date();today.setHours(12,0,0,0);
+    if(today-lun>=4*86400000){/* plan de cette semaine déjà généré et on est en fin de semaine : on prépare la semaine suivante */
+      const before={};GRS().forEach(g=>before[g]=stepIdx(dk,g));const END=shiftWeek();const mc=monthChanges(dk,before);
+      autoMsg=`Semaine ${S.semaine} préparée automatiquement : chaque groupe passe à l’objectif suivant`+(mc.length?` ; nouvel objectif du mois pour ${mc.map(GNUM).join(', ')}`:'')+(END.length?`. Programmation terminée pour ${END.join(', ')} : faites passer le test ASER.`:'.')}}
+  log[S.lundi]={sem:S.semaine,steps:Object.assign({},S[dk].step),at:Date.now()};
   GEN[dk]=sig(dk);
   if(S.lundi){S.sessLog[S.lundi]=S.sessLog[S.lundi]||{};S.sessLog[S.lundi][dk]=activeDays().length;persist()}
   renderPlan();
   document.getElementById('planCard').scrollIntoView({behavior:'smooth',block:'start'});
-  toast(`Plan de session de ${DISC[dk].name.toLowerCase()} généré`);
+  renderAll();toast(autoMsg||`Plan de session de ${DISC[dk].name.toLowerCase()} généré (semaine ${S.semaine})`);
 }
 function renderPlan(){
   const dk=cur(),st=document.getElementById('genState'),bar=document.getElementById('exportBar'),pl=document.getElementById('plan');
@@ -1675,6 +1685,23 @@ document.addEventListener('click',e=>{
   if(b.id==='btnDl'){downloadPlan([dk]);return}
   if(b.id==='btnDlBoth'){const m=DKS().find(d=>diagMissing(d).length);if(m){S.tab=m;renderAll();diagBlock(m);return}downloadPlan(DKS());return}
 });
+/* ---- avancement automatique : chaque plan hebdomadaire généré fait passer à la semaine suivante ;
+   après la 4e semaine d’un mois, l’objectif mensuel passe automatiquement au mois suivant ---- */
+const isoD=d=>{const x=new Date(d);x.setHours(12,0,0,0);return x.toISOString().slice(0,10)};
+function mondayOf(d){const x=new Date(d);x.setHours(12,0,0,0);const k=(x.getDay()+6)%7;x.setDate(x.getDate()-k);return isoD(x)}
+function genLog(dk){S.genLog=S.genLog||{};return S.genLog[dk]=S.genLog[dk]||{}}
+function shiftWeek(){const prev=S.lundi;const ENDMSG=[];
+  S.semaine=String(weekNo()+1);
+  if(S.lundi){const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+7);S.lundi=d.toISOString().slice(0,10)}
+  ['math','lect'].forEach(dk=>{if(!prev||!genLog(dk)[prev])return;
+    GRS().forEach(g=>{const n=stepsOf(dk,g).length;if(n){if(stepIdx(dk,g)>=n-1)ENDMSG.push(DISC[dk].name+' – '+GNUM(g));S[dk].step[g]=Math.min(stepIdx(dk,g)+1,n-1)}});
+    DAYS.forEach(d=>S[dk].days[d.k].ov={common:blankOv(),g1:blankOv(),g2:blankOv(),g3:blankOv(),cg1:blankOv(),cg2:blankOv(),cg3:blankOv()});
+    S[dk].vary={g1:0,g2:0,g3:0};GEN[dk]=null;applyAlternation(dk)});
+  return ENDMSG}
+function monthChanges(dk,before){return GRS().filter(g=>{const l=listOf(dk,g);if(!l||before[g]==null)return false;const A=DISC[dk].steps[l];return A[before[g]]&&A[stepIdx(dk,g)]&&A[before[g]].m!==A[stepIdx(dk,g)].m})}
+function autoCatchUp(){if(!S||!S.lundi)return;const today=new Date();today.setHours(12,0,0,0);let n=0;
+  while(n<60){const l=new Date(S.lundi+'T12:00:00');if(today-l<7*86400000)break;shiftWeek();n++}
+  if(n)persist();return n}
 function nextWeek(){
   const ENDMSG=[];
   S.semaine=String(weekNo()+1);
@@ -2224,6 +2251,7 @@ const TUTO_STEPS=[
  {el:'#classCard',title:'Enregistrer et envoyer',text:'Touchez <b>💾 Enregistrer la classe</b> (l’identification est alors verrouillée) et sauvegardez régulièrement votre classe dans un fichier. À l’étape 2, <b>« Envoyer ma fiche ASER au directeur »</b> transmet vos résultats.'},
  {el:null,title:'C’est parti !',text:'Vous pouvez relancer ce tutoriel à tout moment avec le bouton <b>🎓 Tutoriel</b> en haut de l’écran. Le guide d’utilisation donne des exemples pour chaque zone à renseigner.'}];
 if(FRESH){applyAlternation('math');applyAlternation('lect')}
+try{const n=autoCatchUp();if(n)setTimeout(()=>toast(`Nouvelle semaine : semaine ${S.semaine} (du ${fmtD(S.lundi)}). Les objectifs ont avancé pour les plans déjà générés.`),800)}catch(e){}
 renderAll();
 heroInit();
 </script>
