@@ -49,6 +49,10 @@ details.diag summary{cursor:pointer;font-weight:700;font-size:14px}
 .dyn button.on.yes{background:#1f8a5b;border-color:#1f8a5b;color:#fff}.dyn button.on.no{background:#b3261e;border-color:#b3261e;color:#fff}
 .dres{margin-top:8px;font-size:14px;background:#eef6f1;border-radius:6px;padding:7px 9px}.dres.ok{background:#e3f6ec}
 .dreset{margin-top:8px;font-size:12.5px;padding:4px 10px}
+.repb{display:inline-block;font-size:11.5px;font-weight:700;background:#fff3df;color:#8a4b00;padding:1px 8px;border-radius:999px;margin-left:4px}
+details.bilan{background:#fff;border:1px solid #e3d3b4;border-radius:8px;padding:8px 10px;margin:8px 0 4px}details.bilan summary{cursor:pointer;font-weight:700;font-size:14px}
+.evr{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;padding:6px 0;border-bottom:1px dashed #e8dfcf;font-size:13.5px}.evr.evsem{background:#fbf7ef}
+.dres.warn{background:#fff3df}
 .autonote{font-size:13px;background:#eef3fb;border:1px solid #c9d8ef;color:#1d3a66;border-radius:6px;padding:6px 9px;margin:4px 0 8px}
 .dreq{display:inline-block;margin-left:6px;font-size:11.5px;font-weight:700;background:#fde3e3;color:#a11;padding:2px 8px;border-radius:999px}.dok{display:inline-block;margin-left:6px;font-size:11.5px;font-weight:700;background:#e3f6ec;color:#0f5a36;padding:2px 8px;border-radius:999px}
 details.diag.flash{animation:dflash 1.6s}@keyframes dflash{0%,60%{box-shadow:0 0 0 4px #f0a52488}100%{box-shadow:none}}
@@ -1258,7 +1262,7 @@ function compute(dk,focus){
       const sg=steps[g];if(!sg)return;
       const ov=day.ov[g]||(day.ov[g]=blankOv());const l=sg.list;
       if(active===g){
-        const si=Math.min(teach[g],sg.step.s.length-1);const ses=sg.step.s[si];teach[g]++;
+        const ORD=sesOrder(dk,g,sg.step.s.length);const si=ORD[Math.min(teach[g],ORD.length-1)];const ses=sg.step.s[si];teach[g]++;const rep=repOf(dk,g);
         const isLast=teach[g]===nTeach[g];
         const xt=dk==='math'?(isLast&&sg.step.ex?sg.step.ex:ses[3]):null;
         const vk=(st.vary&&st.vary[g])||0;const vid=variantOf(dk,sg.step.op,ses[0],l,vk);
@@ -1268,7 +1272,7 @@ function compute(dk,focus){
         const autoObj=obj;obj=ov.obj||obj;
         last[g]={obj,j,x:xt};
         rows.push({slot:g,ovk:g,lab:hom?GNUM(g):groupComp(dk,g),a,actLabel:a.n+(a.v&&v?` (${v} retenue)`:''),obj,autoObj,mat:pick(a.m,l),
-          sp:a.sp.join(' '),dur:'30 min',note:a.nt&&a.nt[l]?`Niveau ${lowestName(dk,g)} : ${a.nt[l]}`:'',
+          sp:a.sp.join(' '),dur:'30 min',note:(rep&&(isLast?rep.sem:rep.idx.includes(si))?(isLast?'Reprise de l’objectif de la semaine (non atteint la semaine précédente). ':'Reprise : objectif du jour non atteint la semaine précédente. '):'')+(a.nt&&a.nt[l]?`Niveau ${lowestName(dk,g)} : ${a.nt[l]}`:''),
           mode:both?'teach':null,ovAct:manual,ovObj:!!ov.obj,list:l,obs:ov.obs,res:RESUME[a.id]||''});
       }else{
         let kind,src;
@@ -1391,13 +1395,14 @@ function renderProgress(){
     const weeks=arr.map((s,k)=>({s,k})).filter(x=>x.s.m===c.m);
     const nT=activeDays().filter((d,j)=>{const both=!isHom()&&listOf(dk,'g1')&&listOf(dk,'g2');return !both||S[dk].days[d.k].active===g}).length;
     return `<div class="grp ${g}"><h3>${GNAME(dk,g)}</h3>${diagHTML(dk,g,l)}
-      ${(()=>{const w=weeks.findIndex(x=>x.k===i)+1;return `<div class="autonote">📅 Semaine ${w} sur ${weeks.length} de cet objectif du mois. Chaque plan hebdomadaire généré fait passer à la semaine suivante${w===weeks.length?' : <b>au prochain plan, l’objectif du mois passera automatiquement à l’objectif suivant</b>':' ; après la 4e semaine, l’objectif du mois change automatiquement'}.</div>`})()}
+      ${(()=>{const w=weeks.findIndex(x=>x.k===i)+1;return `<div class="autonote">📅 Semaine ${w} sur ${weeks.length} de cet objectif du mois${repOf(dk,g)?' – <b>semaine de reprise</b> (objectifs non atteints la semaine précédente)':''}. Chaque plan hebdomadaire généré fait passer à la semaine suivante${w===weeks.length?' : <b>au prochain plan, l’objectif du mois passera automatiquement à l’objectif suivant</b>':' ; après la 4e semaine, l’objectif du mois change automatiquement'}.</div>`})()}
       <label class="f lbl1">① Objectif du mois
         <select data-month="${g}">${months.map((M,m)=>`<option value="${m}" ${m===c.m?'selected':''}>${esc(M.mois)}</option>`).join('')}</select></label>
       <div class="lbl1">② Objectifs de la semaine qui mènent à l’objectif du mois <small>(cliquez sur la semaine en cours)</small></div>
       <ol class="prog">${weeks.map(({s,k},n)=>`<li><button data-step="${g}.${k}" class="${k<i?'done':''} ${k===i?'cur':''}"><span class="n">Semaine ${n+1}/${weeks.length}<br>${k<i?'✓ atteint':k===i?'▶ en cours':'à venir'}</span><span>${esc(s.sem)}${s.w===s.nw-1?' <small style="color:var(--g2);font-weight:700">(= objectif du mois)</small>':''}</span></button></li>`).join('')}</ol>
-      <div class="lbl1">③ Objectifs du jour qui mènent à l’objectif de la semaine</div>
-      <ol class="daily">${c.s.map((x,n)=>{const vid=variantOf(dk,c.op,x[0],l,(S[dk].vary&&S[dk].vary[g])||0);const last=n===nT-1;return `<li class="${n<nT?'':'muted'} ${last?'lastses':''}"><b>Séance ${n+1}${last?' (dernière de la semaine)':''}</b> · ${esc(last?c.sem:(vid===x[0]?x[1]:stripMat(x[1])))} <small>(${esc(D.A[vid].n)})</small>${last?' <small>= objectif de la semaine</small>':''}${n>=nT?' <small>– séance de consolidation si le groupe a une 3<sup>e</sup> séance</small>':''}</li>`}).join('')}</ol>
+      <div class="lbl1">③ Objectifs du jour qui mènent à l’objectif de la semaine${repOf(dk,g)?' <span class="repb">↻ reprise ciblée</span>':''}</div>
+      <ol class="daily">${sesOrder(dk,g,c.s.length).map(si=>c.s[si]).map((x,n)=>{const vid=variantOf(dk,c.op,x[0],l,(S[dk].vary&&S[dk].vary[g])||0);const last=n===nT-1;return `<li class="${n<nT?'':'muted'} ${last?'lastses':''}"><b>Séance ${n+1}${last?' (dernière de la semaine)':''}</b> · ${esc(last?c.sem:(vid===x[0]?x[1]:stripMat(x[1])))} <small>(${esc(D.A[vid].n)})</small>${last?' <small>= objectif de la semaine</small>':''}${n>=nT?' <small>– séance de consolidation si le groupe a une 3<sup>e</sup> séance</small>':''}</li>`}).join('')}</ol>
+      ${bilanHTML(dk,g)}
       <div class="toolbar" style="margin:8px 0 0"><button data-vary="${g}">🔀 Varier les activités (même objectif)</button>${(S[dk].vary&&S[dk].vary[g])?`<small style="color:var(--muted)">Variante n° ${S[dk].vary[g]+1}</small>`:''}</div>
     </div>`;
   };
@@ -1552,7 +1557,7 @@ function generate(){
   if(log[S.lundi]){const lun=new Date(S.lundi+'T12:00:00'),today=new Date();today.setHours(12,0,0,0);
     if(today-lun>=4*86400000){/* plan de cette semaine déjà généré et on est en fin de semaine : on prépare la semaine suivante */
       const before={};GRS().forEach(g=>before[g]=stepIdx(dk,g));const END=shiftWeek();const mc=monthChanges(dk,before);
-      autoMsg=`Semaine ${S.semaine} préparée automatiquement : chaque groupe passe à l’objectif suivant`+(mc.length?` ; nouvel objectif du mois pour ${mc.map(GNUM).join(', ')}`:'')+(END.length?`. Programmation terminée pour ${END.join(', ')} : faites passer le test ASER.`:'.')}}
+      autoMsg=`Semaine ${S.semaine} préparée automatiquement`+(shiftWeek.REP.length?` : reprise des objectifs non atteints pour ${shiftWeek.REP.join(', ')} ; les autres groupes passent à l’objectif suivant`:' : chaque groupe passe à l’objectif suivant')+(mc.length?` ; nouvel objectif du mois pour ${mc.map(GNUM).join(', ')}`:'')+(END.length?`. Programmation terminée pour ${END.join(', ')} : faites passer le test ASER.`:'.')}}
   log[S.lundi]={sem:S.semaine,steps:Object.assign({},S[dk].step),at:Date.now()};
   GEN[dk]=sig(dk);
   if(S.lundi){S.sessLog[S.lundi]=S.sessLog[S.lundi]||{};S.sessLog[S.lundi][dk]=activeDays().length;persist()}
@@ -1676,6 +1681,7 @@ document.addEventListener('click',e=>{
     const Q=DIAG[dk][l];const i=Q.findIndex(q=>q.k===k);if(v==='non')Q.slice(i+1).forEach(q=>delete A[q.k]);
     const r=diagStart(dk,l);if(r&&listOf(dk,g)===l){S[dk].step[g]=r.s;GEN[dk]=null;toast(r.all?'Toutes les étapes sont maîtrisées : faites passer le test ASER':'Objectifs fixés : '+DISC[dk].steps[l][r.s].sem)}
     renderAll();return}
+  if(b.dataset.ev){const [g,k,v]=b.dataset.ev.split('.');const e=evalOf(cur(),g);if(e.r[k]===v)delete e.r[k];else e.r[k]=v;persist();renderAll();return}
   if(b.dataset.diagreset){const [g,l]=b.dataset.diagreset.split('.');S[cur()].diag[l]={};renderAll();return}
   if(b.dataset.vary){const g=b.dataset.vary;S[dk].vary=S[dk].vary||{g1:0,g2:0};S[dk].vary[g]=(S[dk].vary[g]||0)+1;renderAll();toast('Autres activités proposées pour le même objectif');return}
   if(b.id==='btnReset'){
@@ -1690,29 +1696,43 @@ document.addEventListener('click',e=>{
 const isoD=d=>{const x=new Date(d);x.setHours(12,0,0,0);return x.toISOString().slice(0,10)};
 function mondayOf(d){const x=new Date(d);x.setHours(12,0,0,0);const k=(x.getDay()+6)%7;x.setDate(x.getDate()-k);return isoD(x)}
 function genLog(dk){S.genLog=S.genLog||{};return S.genLog[dk]=S.genLog[dk]||{}}
-function shiftWeek(){const prev=S.lundi;const ENDMSG=[];
+/* ---- bilan de la semaine : objectifs du jour atteints / non atteints, reprise ciblée ---- */
+function repOf(dk,g){const r=S[dk].reprise&&S[dk].reprise[g];return r&&r.step===stepIdx(dk,g)?r:null}
+function sesOrder(dk,g,n){const base=[...Array(n).keys()];const r=repOf(dk,g);if(!r||!r.idx.length)return base;return r.idx.filter(i=>i<n).concat(base.filter(i=>!r.idx.includes(i)))}
+function evalOf(dk,g){S[dk].eval=S[dk].eval||{};const e=S[dk].eval[g];if(e&&e.lundi===S.lundi&&e.step===stepIdx(dk,g))return e;return S[dk].eval[g]={lundi:S.lundi,step:stepIdx(dk,g),r:{}}}
+function evalItems(dk,g){const l=listOf(dk,g);if(!l)return [];const c=DISC[dk].steps[l][stepIdx(dk,g)];
+  const both=!isHom()&&listOf(dk,'g1')&&listOf(dk,'g2');const nT=activeDays().filter(d=>!both||S[dk].days[d.k].active===g).length;if(!nT)return [];
+  const ORD=sesOrder(dk,g,c.s.length);const it=[];for(let k=0;k<nT;k++){const last=k===nT-1;const si=ORD[Math.min(k,ORD.length-1)];it.push({key:last?'sem':String(si),obj:last?c.sem:c.s[si][1],last})}return it}
+function weekVerdict(dk,g,e){const r=e.r||{};const vals=Object.values(r);if(!vals.includes('non'))return {adv:true};if(r.sem==='oui')return {adv:true};
+  return {adv:false,idx:Object.keys(r).filter(k=>k!=='sem'&&r[k]==='non').map(Number),sem:r.sem!=='oui'}}
+function bilanHTML(dk,g){const it=evalItems(dk,g);if(!it.length)return '';const e=evalOf(dk,g);const r=e.r;
+  const rows=it.map(x=>{const v=r[x.key]||'';return `<div class="evr ${x.last?'evsem':''}"><span>${x.last?'<b>Objectif de la semaine :</b> ':''}${esc(x.obj)}</span><span class="dyn"><button data-ev="${g}.${x.key}.oui" class="${v==='oui'?'on yes':''}">✓ Atteint</button><button data-ev="${g}.${x.key}.non" class="${v==='non'?'on no':''}">✗ Non atteint</button></span></div>`}).join('');
+  const done=it.filter(x=>r[x.key]).length;const v=weekVerdict(dk,g,e);const arr=DISC[dk].steps[listOf(dk,g)];const i=stepIdx(dk,g);
+  let res;if(!done)res='Renseignez le bilan en fin de semaine. Sans bilan, le groupe passe à l’objectif suivant au prochain plan.';
+  else if(v.adv)res=`➡ Semaine suivante : <b>${esc((arr[i+1]||arr[i]).sem)}</b>${arr[i+1]&&arr[i+1].m!==arr[i].m?' (nouvel objectif du mois)':''}.`;
+  else res=`↻ Semaine suivante : <b>reprise ciblée</b> de ${v.idx.length?v.idx.length+' objectif'+(v.idx.length>1?'s':'')+' du jour non atteint'+(v.idx.length>1?'s':''):'l’objectif de la semaine'}, avec d’autres activités, puis de l’objectif de la semaine. Les objectifs suivants et l’objectif du mois sont décalés d’une semaine.`;
+  return `<details class="bilan" ${done?'open':''}><summary>📝 Bilan de la semaine : objectifs atteints ? <small>(${done}/${it.length} renseigné${done>1?'s':''})</small></summary>${rows}<div class="dres ${v.adv?'':'warn'}">${res}</div></details>`}
+function shiftWeek(all){const prev=S.lundi;const ENDMSG=[],REP=[];
   S.semaine=String(weekNo()+1);
   if(S.lundi){const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+7);S.lundi=d.toISOString().slice(0,10)}
-  ['math','lect'].forEach(dk=>{if(!prev||!genLog(dk)[prev])return;
-    GRS().forEach(g=>{const n=stepsOf(dk,g).length;if(n){if(stepIdx(dk,g)>=n-1)ENDMSG.push(DISC[dk].name+' – '+GNUM(g));S[dk].step[g]=Math.min(stepIdx(dk,g)+1,n-1)}});
+  ['math','lect'].forEach(dk=>{if(!all&&(!prev||!genLog(dk)[prev]))return;
+    S[dk].reprise=S[dk].reprise||{};const oldVary=Object.assign({},S[dk].vary||{});const keepVary={};
+    GRS().forEach(g=>{const n=stepsOf(dk,g).length;if(!n)return;const e=S[dk].eval&&S[dk].eval[g];
+      const v=(e&&e.lundi===prev&&e.step===stepIdx(dk,g))?weekVerdict(dk,g,e):{adv:true};
+      if(!v.adv){S[dk].reprise[g]={step:stepIdx(dk,g),idx:v.idx,sem:v.sem};keepVary[g]=(oldVary[g]||0)+1;REP.push(DISC[dk].name+' – '+GNUM(g));return}
+      delete S[dk].reprise[g];
+      if(stepIdx(dk,g)>=n-1)ENDMSG.push(DISC[dk].name+' – '+GNUM(g));S[dk].step[g]=Math.min(stepIdx(dk,g)+1,n-1)});
+    if(S[dk].eval)S[dk].eval={};
     DAYS.forEach(d=>S[dk].days[d.k].ov={common:blankOv(),g1:blankOv(),g2:blankOv(),g3:blankOv(),cg1:blankOv(),cg2:blankOv(),cg3:blankOv()});
-    S[dk].vary={g1:0,g2:0,g3:0};GEN[dk]=null;applyAlternation(dk)});
-  return ENDMSG}
+    S[dk].vary=Object.assign({g1:0,g2:0,g3:0},keepVary);GEN[dk]=null;applyAlternation(dk)});
+  shiftWeek.REP=REP;return ENDMSG}
 function monthChanges(dk,before){return GRS().filter(g=>{const l=listOf(dk,g);if(!l||before[g]==null)return false;const A=DISC[dk].steps[l];return A[before[g]]&&A[stepIdx(dk,g)]&&A[before[g]].m!==A[stepIdx(dk,g)].m})}
 function autoCatchUp(){if(!S||!S.lundi)return;const today=new Date();today.setHours(12,0,0,0);let n=0;
   while(n<60){const l=new Date(S.lundi+'T12:00:00');if(today-l<7*86400000)break;shiftWeek();n++}
   if(n)persist();return n}
 function nextWeek(){
-  const ENDMSG=[];
-  S.semaine=String(weekNo()+1);
-  if(S.lundi){const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+7);S.lundi=d.toISOString().slice(0,10)}
-  ['math','lect'].forEach(dk=>{
-    GRS().forEach(g=>{const n=stepsOf(dk,g).length;if(n){if(stepIdx(dk,g)>=n-1)ENDMSG.push(DISC[dk].name+' – '+GNUM(g));S[dk].step[g]=Math.min(stepIdx(dk,g)+1,n-1)}});
-    DAYS.forEach(d=>S[dk].days[d.k].ov={common:blankOv(),g1:blankOv(),g2:blankOv(),g3:blankOv(),cg1:blankOv(),cg2:blankOv(),cg3:blankOv()});
-    S[dk].vary={g1:0,g2:0,g3:0};
-    applyAlternation(dk);
-  });
-  renderAll();toast(ENDMSG.length?`Programmation terminée pour : ${ENDMSG.join(', ')}. Faites passer le test ASER : les apprenants qui réussissent passent au niveau supérieur (ex. 2 chiffres → Soustraction).`:`Semaine ${S.semaine} : chaque groupe passe à l’objectif suivant`);
+  const END=shiftWeek(true);const REPm=shiftWeek.REP;
+  renderAll();toast((REPm.length?`Semaine ${S.semaine} : reprise des objectifs non atteints pour ${REPm.join(', ')}. `:`Semaine ${S.semaine} : chaque groupe passe à l’objectif suivant. `)+(END.length?`Programmation terminée pour : ${END.join(', ')}. Faites passer le test ASER.`:''));
 }
 function repeatWeek(){
   S.semaine=String(weekNo()+1);
