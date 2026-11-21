@@ -72,6 +72,20 @@ nav.hnav a.on{background:var(--hc,#14553a);border-color:var(--hc,#14553a);color:
 section.card{scroll-margin-top:60px}
 @media(max-width:640px){header.hero{padding:18px 14px 16px}.hsub{font-size:14px}}
 @media print{header.hero,nav.hnav{display:none!important}}
+section.card.acc{padding:0;overflow:hidden}
+section.card.acc>h2.ctoggle{margin:0;padding:16px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none;background:#fff;transition:background .15s}
+section.card.acc>h2.ctoggle:hover{background:#f3f7f5}
+section.card.acc>h2.ctoggle:focus-visible{outline:3px solid var(--hc,#14553a);outline-offset:-3px}
+section.card.acc>h2 .chev{margin-left:auto;flex:none;width:30px;height:30px;border-radius:50%;background:#eef2ef;display:grid;place-items:center}
+section.card.acc>h2 .chev::before{content:"";width:9px;height:9px;border-right:2.5px solid var(--hc,#14553a);border-bottom:2.5px solid var(--hc,#14553a);transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+section.card.acc:not(.closed)>h2 .chev::before{transform:translateY(2px) rotate(-135deg)}
+section.card.acc:not(.closed)>h2.ctoggle{border-bottom:1px solid #e6ebe8;background:#f7faf8}
+section.card.acc>.cbody{padding:14px 18px 18px}
+section.card.acc.closed>.cbody{display:none}
+.accbar{display:flex;justify-content:flex-end;gap:8px;margin:0 0 10px}
+.accbar button{font-size:13px;padding:6px 12px}
+@media(max-width:640px){section.card.acc>h2.ctoggle{padding:14px 12px;font-size:17px}section.card.acc>.cbody{padding:12px}}
+@media print{section.card.acc.closed>.cbody{display:block}}
 </style>
 </head>
 <body>
@@ -90,7 +104,7 @@ section.card{scroll-margin-top:60px}
 <div id="alarm"></div>
 
 <section class="card">
-  <h2><span class="step">1</span> Informations du secteur</h2>
+  <h2><span class="step">1</span> Identification du conseiller pédagogique et du secteur</h2>
   <div class="grid g4">
     <label class="f">DRENA<select id="drenaSel"></select><input id="drenaTxt" data-k="drena" placeholder="Saisir la DRENA" hidden></label>
     <label class="f">IEPP<select id="ieppSel"></select><input id="ieppTxt" data-k="iepp" placeholder="Saisir l’IEPP" hidden></label>
@@ -192,11 +206,12 @@ async function shareFile(name,data,mime){
 /* ---- écran d'accueil : bandeau et navigation ---- */
 function heroInit(){
   const home=document.getElementById('hHome');
+  accInit();
   if(home&&/^https?:/.test(location.protocol)&&/\/(enseignant|directeur|cppp)\/?(index\.html)?$/.test(location.pathname))home.hidden=false;
   const nav=document.getElementById('hNav');if(!nav)return;
   const secs=[...document.querySelectorAll('main section.card')].filter(s=>s.querySelector('h2'));
   nav.innerHTML='<div class="hn">'+secs.map((s,i)=>{if(!s.id)s.id='sec-'+(i+1);const h=s.querySelector('h2');const st=h.querySelector('.step');
-    let t=h.textContent.replace(st?st.textContent:'','').split(':')[0].trim();if(t.length>34)t=t.slice(0,32)+'…';
+    let t=h.textContent.replace(st?st.textContent:'','').split(':')[0].trim();if(t.length>46)t=t.slice(0,44)+'…';
     return `<a href="#${s.id}" data-sec="${s.id}"><i>${st?st.textContent.trim():'•'}</i>${t}</a>`}).join('')+'</div>';
   nav.addEventListener('click',e=>{const a=e.target.closest('a[data-sec]');if(!a)return;e.preventDefault();const s=document.getElementById(a.dataset.sec);if(s)s.scrollIntoView({behavior:'smooth',block:'start'})});
   if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting){nav.querySelectorAll('a').forEach(a=>a.classList.toggle('on',a.dataset.sec===en.target.id));
@@ -207,6 +222,28 @@ function heroChips(extra){
   let lic='';try{if(st==='actif')lic='<b class="ok">✅ Licence activée</b>';else if(st==='essai'){const left=Math.max(0,Math.ceil((TRIAL_DAYS*DAYMS-elapsed())/DAYMS));lic=`<b class="warn">⏳ Essai : ${left} jour${left>1?'s':''} restant${left>1?'s':''}</b>`}else lic='<b class="bad">🔒 Activation requise</b>'}catch(e){}
   let y='';try{y=SCHOOL_YEAR()}catch(e){y='2026-2027'}
   el.innerHTML=`<b>Année scolaire ${y}</b>`+(extra||[]).filter(Boolean).map(x=>`<b>${esc(x)}</b>`).join('')+lic;
+}
+/* ---- rubriques repliables : chaque partie s'ouvre par un bouton ---- */
+const ACC_KEY='pnapas-rubriques-'+(document.title||'').slice(0,24);
+let ACC={};try{ACC=JSON.parse(localStorage.getItem(ACC_KEY))||{}}catch(e){ACC={}}
+function accSave(){try{localStorage.setItem(ACC_KEY,JSON.stringify(ACC))}catch(e){}}
+function accSet(sec,open){sec.classList.toggle('closed',!open);const h=sec.querySelector(':scope > h2');if(h)h.setAttribute('aria-expanded',open?'true':'false');ACC[sec.id]=open;accSave()}
+function accOpenFor(el){const sec=el&&el.closest&&el.closest('section.card.acc');if(sec&&sec.classList.contains('closed'))accSet(sec,true)}
+function accInit(){
+  document.querySelectorAll('main section.card').forEach((sec,i)=>{const h=sec.querySelector(':scope > h2');if(!h||sec.classList.contains('acc'))return;
+    if(!sec.id)sec.id='sec-'+(i+1);sec.classList.add('acc');
+    const body=document.createElement('div');body.className='cbody';while(h.nextSibling)body.appendChild(h.nextSibling);sec.appendChild(body);
+    h.classList.add('ctoggle');h.setAttribute('role','button');h.tabIndex=0;h.insertAdjacentHTML('beforeend','<span class="chev" aria-hidden="true"></span>');
+    const toggle=()=>accSet(sec,sec.classList.contains('closed'));
+    h.addEventListener('click',e=>{if(e.target.closest('a,button,select,input'))return;toggle()});
+    h.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}});
+    accSet(sec,!!ACC[sec.id]);
+  });
+  const siv=Element.prototype.scrollIntoView;Element.prototype.scrollIntoView=function(){try{accOpenFor(this)}catch(e){}return siv.apply(this,arguments)};
+  const fo=HTMLElement.prototype.focus;HTMLElement.prototype.focus=function(){try{accOpenFor(this)}catch(e){}return fo.apply(this,arguments)};
+  const bar=document.createElement('div');bar.className='accbar';bar.innerHTML='<button type="button" data-acc="open">Tout ouvrir</button><button type="button" data-acc="close">Tout fermer</button>';
+  const first=document.querySelector('main section.card.acc');if(first)first.parentNode.insertBefore(bar,first);
+  bar.addEventListener('click',e=>{const b=e.target.closest('[data-acc]');if(!b)return;document.querySelectorAll('main section.card.acc').forEach(s=>accSet(s,b.dataset.acc==='open'))});
 }
 
 const LICKEY='pnapas-cppp-licence-v1';
