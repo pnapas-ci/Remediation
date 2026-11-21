@@ -86,6 +86,21 @@ section.card.acc.closed>.cbody{display:none}
 .accbar button{font-size:13px;padding:6px 12px}
 @media(max-width:640px){section.card.acc>h2.ctoggle{padding:14px 12px;font-size:17px}section.card.acc>.cbody{padding:12px}}
 @media print{section.card.acc.closed>.cbody{display:block}}
+.htuto{margin-left:auto;font-size:13px;font-weight:700;background:#fff;color:var(--hc,#14553a);border:0;border-radius:999px;padding:6px 13px;cursor:pointer}
+#tuto{display:none;position:fixed;inset:0;z-index:1000;pointer-events:none}
+#tuto .tshade{position:fixed;inset:0;pointer-events:auto}
+#tuto .tring{position:fixed;border-radius:10px;box-shadow:0 0 0 3px #f0a524,0 0 0 9999px rgba(10,25,18,.55);transition:all .25s ease;pointer-events:none}
+#tuto .tcard{position:fixed;background:#fff;color:#14231c;border-radius:12px;padding:14px 16px;box-shadow:0 14px 40px rgba(0,0,0,.3);pointer-events:auto;max-width:calc(100vw - 24px)}
+#tuto .tprog{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8a4b00}
+#tuto h4{margin:4px 0 6px;font-size:17px}
+#tuto .ttext{font-size:14.5px;line-height:1.5}
+#tuto .ttext ul{margin:6px 0 0 18px;padding:0}#tuto .ttext li{margin:2px 0}
+#tuto .tbtns{display:flex;gap:6px;align-items:center;margin-top:12px;flex-wrap:wrap}#tuto .tbtns span{flex:1}
+#tuto .tbtns button{font-size:13.5px;padding:7px 11px}
+.tbubble{position:fixed;right:16px;bottom:16px;z-index:900;max-width:340px;background:#fff;border:2px solid #f0a524;border-radius:12px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.2);font-size:14px;line-height:1.45}
+.tbubble div{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+@media(max-width:640px){.tbubble{left:12px;right:12px;bottom:12px;max-width:none}}
+@media print{#tuto,.tbubble,.htuto{display:none!important}}
 </style>
 </head>
 <body>
@@ -206,7 +221,7 @@ async function shareFile(name,data,mime){
 /* ---- écran d'accueil : bandeau et navigation ---- */
 function heroInit(){
   const home=document.getElementById('hHome');
-  accInit();
+  accInit();tutoInit();
   if(home&&/^https?:/.test(location.protocol)&&/\/(enseignant|directeur|cppp)\/?(index\.html)?$/.test(location.pathname))home.hidden=false;
   const nav=document.getElementById('hNav');if(!nav)return;
   const secs=[...document.querySelectorAll('main section.card')].filter(s=>s.querySelector('h2'));
@@ -245,6 +260,36 @@ function accInit(){
   const first=document.querySelector('main section.card.acc');if(first)first.parentNode.insertBefore(bar,first);
   bar.addEventListener('click',e=>{const b=e.target.closest('[data-acc]');if(!b)return;document.querySelectorAll('main section.card.acc').forEach(s=>accSet(s,b.dataset.acc==='open'))});
 }
+/* ---- tutoriel pas à pas ---- */
+const TUTO_KEY='pnapas-tuto-vu-'+(document.title||'').slice(0,24);
+function secByStep(n){return [...document.querySelectorAll('main section.card')].find(s=>{const st=s.querySelector('h2 .step');return st&&st.textContent.trim()===String(n)})}
+let TUTO=null;
+function tutoStart(){const steps=(typeof TUTO_STEPS!=='undefined'?TUTO_STEPS:[]).filter(t=>!t.when||t.when());if(!steps.length)return;TUTO={i:0,steps};
+  let ov=document.getElementById('tuto');if(!ov){ov=document.createElement('div');ov.id='tuto';ov.innerHTML='<div class="tshade"></div><div class="tring"></div><div class="tcard" role="dialog" aria-live="polite"><div class="tprog"></div><h4></h4><div class="ttext"></div><div class="tbtns"><button type="button" data-t="quit">Quitter</button><span></span><button type="button" data-t="prev">◀ Précédent</button><button type="button" class="primary" data-t="next">Suivant ▶</button></div></div>';document.body.appendChild(ov);
+    ov.addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;const a=b.dataset.t;if(a==='quit')tutoEnd();else if(a==='prev')tutoGo(TUTO.i-1);else tutoGo(TUTO.i+1)});
+    addEventListener('resize',()=>TUTO&&tutoPlace());addEventListener('scroll',()=>TUTO&&tutoPlace(),{passive:true});
+    document.addEventListener('keydown',e=>{if(!TUTO)return;if(e.key==='Escape')tutoEnd();if(e.key==='ArrowRight')tutoGo(TUTO.i+1);if(e.key==='ArrowLeft')tutoGo(TUTO.i-1)})}
+  ov.style.display='block';tutoGo(0)}
+function tutoTarget(){const t=TUTO.steps[TUTO.i];let el=null;try{el=typeof t.el==='function'?t.el():t.el?document.querySelector(t.el):null}catch(e){}return el}
+function tutoGo(i){if(!TUTO)return;if(i>=TUTO.steps.length){tutoEnd(true);return}if(i<0)i=0;TUTO.i=i;const t=TUTO.steps[i];
+  if(t.before)try{t.before()}catch(e){}
+  const ov=document.getElementById('tuto');ov.querySelector('.tprog').textContent=`Étape ${i+1} / ${TUTO.steps.length}`;ov.querySelector('h4').textContent=t.title;ov.querySelector('.ttext').innerHTML=t.text;
+  ov.querySelector('[data-t=prev]').disabled=i===0;ov.querySelector('[data-t=next]').textContent=i===TUTO.steps.length-1?'Terminer ✓':'Suivant ▶';
+  const el=tutoTarget();if(el){if(t.open!==false){const sec=el.closest&&el.closest('section.card.acc');if(sec&&sec.classList.contains('closed'))accSet(sec,true);if(el.matches&&el.matches('section.card.acc.closed'))accSet(el,true)}
+    const r=el.getBoundingClientRect();const want=Math.min(r.height,innerHeight*.45);window.scrollTo({top:scrollY+r.top-(innerWidth<640?64:Math.max(70,(innerHeight-want)/2-120)),behavior:'smooth'})}
+  setTimeout(tutoPlace,350);tutoPlace()}
+function tutoPlace(){if(!TUTO)return;const ov=document.getElementById('tuto');const ring=ov.querySelector('.tring'),card=ov.querySelector('.tcard');const el=tutoTarget();
+  if(!el){ring.style.display='none';card.style.top='50%';card.style.left='50%';card.style.transform='translate(-50%,-50%)';return}
+  const r=el.getBoundingClientRect();const pad=6;const h=Math.min(r.height+pad*2,innerHeight*.6);
+  ring.style.display='block';Object.assign(ring.style,{top:(r.top-pad)+'px',left:Math.max(4,r.left-pad)+'px',width:Math.min(innerWidth-8,r.width+pad*2)+'px',height:h+'px'});
+  card.style.transform='none';const cw=Math.min(380,innerWidth-24);card.style.width=cw+'px';const ch=card.offsetHeight;
+  let top=r.top-pad+h+12;if(innerWidth<640)top=innerHeight-ch-10;else{if(top+ch>innerHeight-8)top=Math.max(8,r.top-pad-ch-12);if(top<8||top+ch>innerHeight-8)top=Math.max(8,innerHeight-ch-12)}
+  let left=Math.min(Math.max(12,r.left),innerWidth-cw-12);card.style.top=top+'px';card.style.left=left+'px'}
+function tutoEnd(done){TUTO=null;const ov=document.getElementById('tuto');if(ov)ov.style.display='none';try{localStorage.setItem(TUTO_KEY,'1')}catch(e){}if(done&&typeof toast==='function')toast('Tutoriel terminé. Vous pouvez le relancer à tout moment avec « 🎓 Tutoriel ».')}
+function tutoInit(){const row=document.querySelector('header.hero .hrow');if(row&&!document.getElementById('btnTuto')){row.insertAdjacentHTML('beforeend','<button type="button" class="htuto" id="btnTuto">🎓 Tutoriel</button>');document.getElementById('btnTuto').addEventListener('click',tutoStart)}
+  let seen=false;try{seen=!!localStorage.getItem(TUTO_KEY)}catch(e){}
+  if(!seen&&typeof TUTO_STEPS!=='undefined'){const bub=document.createElement('div');bub.className='tbubble';bub.innerHTML='<b>Première utilisation ?</b> Suivez le tutoriel pas à pas pour découvrir l’application.<div><button type="button" class="primary" data-b="go">🎓 Commencer le tutoriel</button><button type="button" data-b="no">Plus tard</button></div>';document.body.appendChild(bub);
+    bub.addEventListener('click',e=>{const b=e.target.closest('[data-b]');if(!b)return;bub.remove();if(b.dataset.b==='go')tutoStart();else try{localStorage.setItem(TUTO_KEY,'1')}catch(e){}})}}
 
 const LICKEY='pnapas-cppp-licence-v1';
 function AUTHOR(){return {role:'Le Conseiller Pédagogique',name:P.conseiller,sig:P.sigles,lieu:(P.secteur||P.iepp)}}
@@ -488,6 +533,13 @@ document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)r
   if(b.id==='btnBackup'){saveFile('sauvegarde_cppp_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(P));return}
   if(b.id==='btnReset'){if(b.dataset.arm){P=blank();FILLED=false;render();renderDoc();toast('Données effacées');b.textContent='Tout effacer';delete b.dataset.arm;return}b.dataset.arm='1';b.textContent='Cliquer encore pour confirmer';setTimeout(()=>{b.textContent='Tout effacer';delete b.dataset.arm},3000);return}
 });
+const TUTO_STEPS=[
+ {el:'header.hero',title:'Bienvenue dans votre espace CPPP',text:'Cette application réunit les fiches de suivi des écoles et remplit automatiquement la <b>fiche de suivi du secteur pédagogique</b>.'},
+ {el:'#trial',title:'Version d’essai et activation',text:'Vous disposez de <b>3 jours d’essai</b>. Communiquez l’<b>identifiant de l’appareil</b> pour recevoir votre <b>code d’activation</b>.'},
+ {el:()=>secByStep(1),title:'Étape 1 – Identification du conseiller et du secteur',text:'Renseignez la DRENA, l’IEPP, le secteur et votre nom.<ul><li>Ex. Secteur : <b>JACQUEVILLE 2</b></li><li>Ex. Conseiller : <b>N’GUESSAN KOUAME</b></li></ul>'},
+ {el:()=>secByStep(2),title:'Étape 2 – Importer les fiches des écoles',text:'Chaque directeur vous envoie la fiche de son école (fichier ou code). Importez-la ici ; les écoles en alerte sont signalées en rouge.'},
+ {el:()=>secByStep(3),title:'Étape 3 – Fiche de suivi du secteur',text:'Choisissez l’évaluation (début, mi-parcours, fin). Enregistrez la fiche, partagez-la, imprimez-la ou exportez-la pour Excel et pour votre hiérarchie.'},
+ {el:null,title:'C’est parti !',text:'Relancez ce tutoriel à tout moment avec <b>🎓 Tutoriel</b>.'}];
 render();
 heroInit();
 </script>

@@ -49,6 +49,8 @@ details.diag summary{cursor:pointer;font-weight:700;font-size:14px}
 .dyn button.on.yes{background:#1f8a5b;border-color:#1f8a5b;color:#fff}.dyn button.on.no{background:#b3261e;border-color:#b3261e;color:#fff}
 .dres{margin-top:8px;font-size:14px;background:#eef6f1;border-radius:6px;padding:7px 9px}.dres.ok{background:#e3f6ec}
 .dreset{margin-top:8px;font-size:12.5px;padding:4px 10px}
+.dreq{display:inline-block;margin-left:6px;font-size:11.5px;font-weight:700;background:#fde3e3;color:#a11;padding:2px 8px;border-radius:999px}.dok{display:inline-block;margin-left:6px;font-size:11.5px;font-weight:700;background:#e3f6ec;color:#0f5a36;padding:2px 8px;border-radius:999px}
+details.diag.flash{animation:dflash 1.6s}@keyframes dflash{0%,60%{box-shadow:0 0 0 4px #f0a52488}100%{box-shadow:none}}
 .hom3{grid-template-columns:repeat(3,minmax(0,1fr))!important}
 @media(max-width:820px){.hom3{grid-template-columns:1fr!important}}
 .homh{margin:14px 0 6px;font-size:15px;padding:6px 10px;border-radius:6px;background:#eef3f0}.homh.g3{background:#fdf3e7}
@@ -226,6 +228,21 @@ section.card.acc.closed>.cbody{display:none}
 .accbar button{font-size:13px;padding:6px 12px}
 @media(max-width:640px){section.card.acc>h2.ctoggle{padding:14px 12px;font-size:17px}section.card.acc>.cbody{padding:12px}}
 @media print{section.card.acc.closed>.cbody{display:block}}
+.htuto{margin-left:auto;font-size:13px;font-weight:700;background:#fff;color:var(--hc,#14553a);border:0;border-radius:999px;padding:6px 13px;cursor:pointer}
+#tuto{display:none;position:fixed;inset:0;z-index:1000;pointer-events:none}
+#tuto .tshade{position:fixed;inset:0;pointer-events:auto}
+#tuto .tring{position:fixed;border-radius:10px;box-shadow:0 0 0 3px #f0a524,0 0 0 9999px rgba(10,25,18,.55);transition:all .25s ease;pointer-events:none}
+#tuto .tcard{position:fixed;background:#fff;color:#14231c;border-radius:12px;padding:14px 16px;box-shadow:0 14px 40px rgba(0,0,0,.3);pointer-events:auto;max-width:calc(100vw - 24px)}
+#tuto .tprog{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8a4b00}
+#tuto h4{margin:4px 0 6px;font-size:17px}
+#tuto .ttext{font-size:14.5px;line-height:1.5}
+#tuto .ttext ul{margin:6px 0 0 18px;padding:0}#tuto .ttext li{margin:2px 0}
+#tuto .tbtns{display:flex;gap:6px;align-items:center;margin-top:12px;flex-wrap:wrap}#tuto .tbtns span{flex:1}
+#tuto .tbtns button{font-size:13.5px;padding:7px 11px}
+.tbubble{position:fixed;right:16px;bottom:16px;z-index:900;max-width:340px;background:#fff;border:2px solid #f0a524;border-radius:12px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.2);font-size:14px;line-height:1.45}
+.tbubble div{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+@media(max-width:640px){.tbubble{left:12px;right:12px;bottom:12px;max-width:none}}
+@media print{#tuto,.tbubble,.htuto{display:none!important}}
 
 </style>
 </head>
@@ -470,7 +487,7 @@ function printWrap(body,portrait,title){const wm=!isActivated();const sig=author
 /* ---- écran d'accueil : bandeau et navigation ---- */
 function heroInit(){
   const home=document.getElementById('hHome');
-  accInit();
+  accInit();tutoInit();
   if(home&&/^https?:/.test(location.protocol)&&/\/(enseignant|directeur|cppp)\/?(index\.html)?$/.test(location.pathname))home.hidden=false;
   const nav=document.getElementById('hNav');if(!nav)return;
   const secs=[...document.querySelectorAll('main section.card')].filter(s=>s.querySelector('h2'));
@@ -509,6 +526,36 @@ function accInit(){
   const first=document.querySelector('main section.card.acc');if(first)first.parentNode.insertBefore(bar,first);
   bar.addEventListener('click',e=>{const b=e.target.closest('[data-acc]');if(!b)return;document.querySelectorAll('main section.card.acc').forEach(s=>accSet(s,b.dataset.acc==='open'))});
 }
+/* ---- tutoriel pas à pas ---- */
+const TUTO_KEY='pnapas-tuto-vu-'+(document.title||'').slice(0,24);
+function secByStep(n){return [...document.querySelectorAll('main section.card')].find(s=>{const st=s.querySelector('h2 .step');return st&&st.textContent.trim()===String(n)})}
+let TUTO=null;
+function tutoStart(){const steps=(typeof TUTO_STEPS!=='undefined'?TUTO_STEPS:[]).filter(t=>!t.when||t.when());if(!steps.length)return;TUTO={i:0,steps};
+  let ov=document.getElementById('tuto');if(!ov){ov=document.createElement('div');ov.id='tuto';ov.innerHTML='<div class="tshade"></div><div class="tring"></div><div class="tcard" role="dialog" aria-live="polite"><div class="tprog"></div><h4></h4><div class="ttext"></div><div class="tbtns"><button type="button" data-t="quit">Quitter</button><span></span><button type="button" data-t="prev">◀ Précédent</button><button type="button" class="primary" data-t="next">Suivant ▶</button></div></div>';document.body.appendChild(ov);
+    ov.addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;const a=b.dataset.t;if(a==='quit')tutoEnd();else if(a==='prev')tutoGo(TUTO.i-1);else tutoGo(TUTO.i+1)});
+    addEventListener('resize',()=>TUTO&&tutoPlace());addEventListener('scroll',()=>TUTO&&tutoPlace(),{passive:true});
+    document.addEventListener('keydown',e=>{if(!TUTO)return;if(e.key==='Escape')tutoEnd();if(e.key==='ArrowRight')tutoGo(TUTO.i+1);if(e.key==='ArrowLeft')tutoGo(TUTO.i-1)})}
+  ov.style.display='block';tutoGo(0)}
+function tutoTarget(){const t=TUTO.steps[TUTO.i];let el=null;try{el=typeof t.el==='function'?t.el():t.el?document.querySelector(t.el):null}catch(e){}return el}
+function tutoGo(i){if(!TUTO)return;if(i>=TUTO.steps.length){tutoEnd(true);return}if(i<0)i=0;TUTO.i=i;const t=TUTO.steps[i];
+  if(t.before)try{t.before()}catch(e){}
+  const ov=document.getElementById('tuto');ov.querySelector('.tprog').textContent=`Étape ${i+1} / ${TUTO.steps.length}`;ov.querySelector('h4').textContent=t.title;ov.querySelector('.ttext').innerHTML=t.text;
+  ov.querySelector('[data-t=prev]').disabled=i===0;ov.querySelector('[data-t=next]').textContent=i===TUTO.steps.length-1?'Terminer ✓':'Suivant ▶';
+  const el=tutoTarget();if(el){if(t.open!==false){const sec=el.closest&&el.closest('section.card.acc');if(sec&&sec.classList.contains('closed'))accSet(sec,true);if(el.matches&&el.matches('section.card.acc.closed'))accSet(el,true)}
+    const r=el.getBoundingClientRect();const want=Math.min(r.height,innerHeight*.45);window.scrollTo({top:scrollY+r.top-(innerWidth<640?64:Math.max(70,(innerHeight-want)/2-120)),behavior:'smooth'})}
+  setTimeout(tutoPlace,350);tutoPlace()}
+function tutoPlace(){if(!TUTO)return;const ov=document.getElementById('tuto');const ring=ov.querySelector('.tring'),card=ov.querySelector('.tcard');const el=tutoTarget();
+  if(!el){ring.style.display='none';card.style.top='50%';card.style.left='50%';card.style.transform='translate(-50%,-50%)';return}
+  const r=el.getBoundingClientRect();const pad=6;const h=Math.min(r.height+pad*2,innerHeight*.6);
+  ring.style.display='block';Object.assign(ring.style,{top:(r.top-pad)+'px',left:Math.max(4,r.left-pad)+'px',width:Math.min(innerWidth-8,r.width+pad*2)+'px',height:h+'px'});
+  card.style.transform='none';const cw=Math.min(380,innerWidth-24);card.style.width=cw+'px';const ch=card.offsetHeight;
+  let top=r.top-pad+h+12;if(innerWidth<640)top=innerHeight-ch-10;else{if(top+ch>innerHeight-8)top=Math.max(8,r.top-pad-ch-12);if(top<8||top+ch>innerHeight-8)top=Math.max(8,innerHeight-ch-12)}
+  let left=Math.min(Math.max(12,r.left),innerWidth-cw-12);card.style.top=top+'px';card.style.left=left+'px'}
+function tutoEnd(done){TUTO=null;const ov=document.getElementById('tuto');if(ov)ov.style.display='none';try{localStorage.setItem(TUTO_KEY,'1')}catch(e){}if(done&&typeof toast==='function')toast('Tutoriel terminé. Vous pouvez le relancer à tout moment avec « 🎓 Tutoriel ».')}
+function tutoInit(){const row=document.querySelector('header.hero .hrow');if(row&&!document.getElementById('btnTuto')){row.insertAdjacentHTML('beforeend','<button type="button" class="htuto" id="btnTuto">🎓 Tutoriel</button>');document.getElementById('btnTuto').addEventListener('click',tutoStart)}
+  let seen=false;try{seen=!!localStorage.getItem(TUTO_KEY)}catch(e){}
+  if(!seen&&typeof TUTO_STEPS!=='undefined'){const bub=document.createElement('div');bub.className='tbubble';bub.innerHTML='<b>Première utilisation ?</b> Suivez le tutoriel pas à pas pour découvrir l’application.<div><button type="button" class="primary" data-b="go">🎓 Commencer le tutoriel</button><button type="button" data-b="no">Plus tard</button></div>';document.body.appendChild(bub);
+    bub.addEventListener('click',e=>{const b=e.target.closest('[data-b]');if(!b)return;bub.remove();if(b.dataset.b==='go')tutoStart();else try{localStorage.setItem(TUTO_KEY,'1')}catch(e){}})}}
 
 function LIC_YEAR_HOOK(y){if(S&&S.annee!==y){S.annee=y;persist()}}
 /* Verrouillage de la classe : une application = une classe */
@@ -1293,9 +1340,33 @@ const DIAG={math:{
      {k:'mP',q:'sait-il poser et effectuer une multiplication, sans et avec retenue ?',s:3},
      {k:'dP',q:'sait-il partager une quantité en parts égales ?',s:4},
      {k:'d2',q:'sait-il diviser un nombre à 2 chiffres par un nombre à 1 chiffre ?',s:5},
-     {k:'d3',q:'sait-il diviser un nombre à 3 chiffres par un nombre à 1 chiffre ?',s:6}]}};
+     {k:'d3',q:'sait-il diviser un nombre à 3 chiffres par un nombre à 1 chiffre ?',s:6}]},
+ lect:{
+ DL:[{k:'voy',q:'sait-il identifier et lire les voyelles ?',s:0},
+     {k:'con',q:'sait-il identifier et lire les consonnes étudiées ?',s:1},
+     {k:'syl',q:'sait-il former et lire des syllabes simples ?',s:2},
+     {k:'m2',q:'sait-il lire des mots de deux syllabes ?',s:4},
+     {k:'ecr',q:'sait-il écrire des mots ?',s:6},
+     {k:'mots',q:'sait-il lire couramment des mots ?',s:7}],
+ MP:[{k:'phr',q:'sait-il lire des phrases simples ?',s:0},
+     {k:'cons',q:'sait-il construire des phrases correctes ?',s:1},
+     {k:'par',q:'sait-il lire un paragraphe simple ?',s:2},
+     {k:'hist',q:'sait-il lire les phrases d’une historiette ?',s:4},
+     {k:'comp',q:'sait-il comprendre une historiette lue ?',s:5},
+     {k:'crea',q:'sait-il créer une historiette ?',s:6}],
+ HC:[{k:'cour',q:'sait-il lire un texte de façon courante et expressive ?',s:0},
+     {k:'voc',q:'comprend-il le vocabulaire d’un texte ?',s:1},
+     {k:'rest',q:'sait-il restituer le contenu d’un texte ?',s:2},
+     {k:'qst',q:'répond-il correctement aux questions de compréhension ?',s:3},
+     {k:'rec',q:'sait-il relever les éléments d’un récit ?',s:4},
+     {k:'phr',q:'sait-il écrire des phrases correctes pour raconter ?',s:5},
+     {k:'prod',q:'sait-il produire une histoire ?',s:6}]}};
 const DIAGOPEN={};
 document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.dopen)DIAGOPEN[d.dataset.dopen]=d.open},true);
+function diagMissing(dk){return presentGroups(dk).filter(g=>{const l=listOf(dk,g);return (DIAG[dk]||{})[l]&&!diagStart(dk,l)})}
+function diagBlock(dk){const m=diagMissing(dk);if(!m.length)return false;
+  toast('Répondez d’abord au diagnostic du niveau le plus bas : '+m.map(GNUM).join(', ')+' ('+DISC[dk].name.toLowerCase()+')');
+  const el=document.querySelector('details.diag[data-dopen="'+m[0]+'"]');if(el){el.open=true;el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1600)}return true}
 function diagOf(dk,l){const st=S[dk];st.diag=st.diag||{};return st.diag[l]=st.diag[l]||{}}
 function diagStart(dk,l){const Q=(DIAG[dk]||{})[l];if(!Q)return null;const A=diagOf(dk,l);
   for(const q of Q){if(A[q.k]!=='oui')return A[q.k]==='non'?{s:q.s,q}:null}
@@ -1309,7 +1380,7 @@ function diagHTML(dk,g,l){const Q=(DIAG[dk]||{})[l];if(!Q)return '';const A=diag
   const r=diagStart(dk,l);const arr=DISC[dk].steps[l];
   const res=r?(r.all?`<div class="dres ok">✅ Toutes les étapes sont maîtrisées : faites passer le test ASER ; les apprenants qui réussissent passent au groupe de niveau supérieur.</div>`
     :`<div class="dres">➡ Point de départ fixé automatiquement : <b>${esc(arr[r.s].sem)}</b> (mois : ${esc(arr[r.s].mois)}). Les objectifs hebdomadaires et mensuels suivants en découlent.</div>`):'';
-  return `<details class="diag" data-dopen="${g}" ${DIAGOPEN[g]===false?'':'open'}><summary>🔎 Diagnostic du groupe : répondez pour fixer automatiquement les objectifs</summary>${rows}${res}${Object.keys(A).length?`<button class="dreset" data-diagreset="${g}.${l}">Recommencer le diagnostic</button>`:''}</details>`;
+  return `<details class="diag" data-dopen="${g}" ${DIAGOPEN[g]===false?'':'open'}><summary>🔎 Diagnostic du groupe ${r?'<span class="dok">✓ fait</span>':'<span class="dreq">obligatoire avant de générer le plan</span>'}</summary>${rows}${res}${Object.keys(A).length?`<button class="dreset" data-diagreset="${g}.${l}">Recommencer le diagnostic</button>`:''}</details>`;
 }
 function renderProgress(){
   const dk=cur(),D=DISC[dk];
@@ -1472,6 +1543,7 @@ function sig(dk){return JSON.stringify([S.ecole,S.classe,S.enseignant,S.typeClas
 function generate(){
   const dk=cur();
   if(!presentGroups(dk).length){toast('Cochez d’abord les niveaux');return}
+  if(diagBlock(dk))return;
   GEN[dk]=sig(dk);
   if(S.lundi){S.sessLog[S.lundi]=S.sessLog[S.lundi]||{};S.sessLog[S.lundi][dk]=activeDays().length;persist()}
   renderPlan();
@@ -1601,7 +1673,7 @@ document.addEventListener('click',e=>{
     b.dataset.arm='1';b.textContent='Cliquer encore pour confirmer';setTimeout(()=>{b.textContent='Tout effacer';delete b.dataset.arm},3000);return}
   if(b.id==='btnCopy'){copyPlan();return}
   if(b.id==='btnDl'){downloadPlan([dk]);return}
-  if(b.id==='btnDlBoth'){downloadPlan(DKS());return}
+  if(b.id==='btnDlBoth'){const m=DKS().find(d=>diagMissing(d).length);if(m){S.tab=m;renderAll();diagBlock(m);return}downloadPlan(DKS());return}
 });
 function nextWeek(){
   const ENDMSG=[];
@@ -1971,6 +2043,7 @@ function docAnalyse(){
   return wrapDoc(h);
 }
 function docHTML(id){
+  if(id==='plans'){const m=DKS().find(d=>diagMissing(d).length);if(m)return wrapDoc(docHead('PLANS DE SESSION')+`<p style="color:#a11;font-weight:bold">Répondez d’abord au diagnostic du niveau le plus bas de chaque groupe (étape 4 « Progression et objectifs », ${DISC[m].name.toLowerCase()}).</p>`)}
   if(id==='plans')return finalizeDoc(DKS().slice().reverse().map(planCore).join('<div style="page-break-before:always"></div>'));
   return finalizeDoc({aser:docASER,groupes:docGroupes,presence:docPresence,progression:docProgression,analyse:docAnalyse}[id]());
 }
@@ -2136,6 +2209,20 @@ function renderShare(){
     <p class="hint" style="margin:0">Envoyez le fichier (WhatsApp, courriel, clé USB) ou collez le code dans un message.</p></div>`;
 }
 
+const TUTO_STEPS=[
+ {el:'header.hero',title:'Bienvenue dans votre espace enseignant',text:'Cette application prépare vos <b>plans de session</b> de remédiation (lecture et mathématiques) et remplit automatiquement les <b>documents d’accompagnement</b>. Les pastilles rappellent l’année scolaire, le type de classe et l’état de votre licence.'},
+ {el:'#trial',title:'Version d’essai et activation',text:'Vous disposez de <b>3 jours d’essai</b>. Communiquez l’<b>identifiant de l’appareil</b> affiché ici pour recevoir votre <b>code d’activation</b>, saisissez-le puis appuyez sur <b>Activer</b>.'},
+ {el:'#hNav',title:'Le menu des étapes',text:'Chaque bouton mène directement à une étape. Les étapes s’ouvrent et se ferment en touchant leur titre ; « Tout ouvrir » les ouvre toutes.'},
+ {el:()=>secByStep(1),title:'Étape 1 – Identification du facilitateur / enseignant',text:'Renseignez la DRENA, l’IEPP, le secteur, l’école, votre nom et vos sigles.<ul><li>Ex. École : <b>EPP JACQUEVILLE 1</b></li><li>Ex. Enseignant(e) : <b>KOUASSI AYA</b> (écrit automatiquement en majuscules)</li></ul>Choisissez le <b>type de classe</b> : hétérogène (2 groupes) ou homogène (3 groupes de niveau).'},
+ {el:()=>secByStep(2),title:'Étape 2 – Apprenants et résultats ASER',text:'Saisissez ou collez la liste des apprenants, puis leur niveau au test ASER.<ul><li>Ex. <b>KONAN Marc ; G ; Mot ; 2 chiffres</b></li></ul>Quand un apprenant progresse, touchez <b>↑ Progression</b> : la fiche de progression se remplit seule.'},
+ {el:'#tabs',title:'Mathématiques ou lecture',text:'Ces deux onglets choisissent la discipline des étapes suivantes. Chaque discipline a ses groupes, ses objectifs et son plan.'},
+ {el:()=>secByStep(3),title:'Étape 3 – Groupes de niveau',text:'Les groupes se forment automatiquement à partir des résultats ASER. Les activités sont toujours choisies pour le <b>niveau le plus faible</b> de chaque groupe.'},
+ {el:()=>document.querySelector('details.diag')||secByStep(4),title:'Étape 4 – Diagnostic (obligatoire)',text:'Répondez par <b>Oui</b> ou <b>Non</b> aux questions sur le niveau le plus bas du groupe.<ul><li>Ex. « sait-il dénombrer une quantité ? » → <b>Non</b> : le plan commence par le dénombrement.</li></ul>Le premier « Non » fixe les objectifs de la semaine et du mois. <b>Sans diagnostic, le plan ne peut pas être généré.</b>'},
+ {el:()=>secByStep(5),title:'Étape 5 – Déroulement de la semaine',text:'Indiquez le numéro de la semaine et la date du lundi, puis vérifiez pour chaque jour quel groupe est avec vous et quel groupe est en autonomie.<ul><li>Ex. Semaine <b>3</b>, lundi <b>23/11/2026</b></li></ul>'},
+ {el:'#btnGen',title:'Générer le plan de session',text:'Touchez <b>▶ Générer le plan de session</b> : le plan s’affiche au canevas officiel, avec le résumé des activités et les exercices d’autonomie. Vous pouvez ensuite l’imprimer ou le télécharger.'},
+ {el:()=>secByStep(7),title:'Étape 7 – Documents d’accompagnement',text:'Fiche de résultats ASER, fiches de progression, liste de présence, composition des groupes… Tout est rempli automatiquement et porte votre signature.'},
+ {el:'#classCard',title:'Enregistrer et envoyer',text:'Touchez <b>💾 Enregistrer la classe</b> (l’identification est alors verrouillée) et sauvegardez régulièrement votre classe dans un fichier. À l’étape 2, <b>« Envoyer ma fiche ASER au directeur »</b> transmet vos résultats.'},
+ {el:null,title:'C’est parti !',text:'Vous pouvez relancer ce tutoriel à tout moment avec le bouton <b>🎓 Tutoriel</b> en haut de l’écran. Le guide d’utilisation donne des exemples pour chaque zone à renseigner.'}];
 if(FRESH){applyAlternation('math');applyAlternation('lect')}
 renderAll();
 heroInit();
