@@ -183,13 +183,42 @@ body.locked #btnGen,body.locked #btnDocGen{background:#9aa39e;border-color:#9aa3
 .docbtns button{font-weight:600}.docbtns button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
 .toast.show{opacity:1}
+header.hero{position:relative;overflow:hidden;background:var(--hc,#14553a);color:#fff;padding:22px 20px 20px}
+header.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 92% 0%,rgba(255,255,255,.10) 0 110px,transparent 111px),radial-gradient(circle at 100% 100%,rgba(255,255,255,.06) 0 150px,transparent 151px)}
+.hstripe{position:absolute;left:0;right:0;top:0;height:4px;display:flex}.hstripe i{flex:1}.hstripe i:nth-child(1){background:#f08a24}.hstripe i:nth-child(2){background:#fff}.hstripe i:nth-child(3){background:#1f9a5d}
+.hwrap{max-width:1180px;margin:0 auto;position:relative}
+.hrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.htag{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);padding:5px 11px;border-radius:999px}
+.hhome{font-size:13px;font-weight:600;color:#fff;text-decoration:none;background:rgba(0,0,0,.18);padding:5px 11px;border-radius:999px}
+.hhome:hover{background:rgba(0,0,0,.28)}
+header.hero h1{margin:12px 0 4px;font-size:clamp(22px,3.6vw,30px);line-height:1.15;letter-spacing:-.01em;color:#fff}
+.hsub{margin:0;color:rgba(255,255,255,.88);font-size:15px;line-height:1.45;max-width:760px}
+.hchips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.hchips b{font-size:12.5px;font-weight:600;background:#fff;color:var(--hc,#14553a);padding:5px 10px;border-radius:7px}
+.hchips b.warn{background:#fff3df;color:#8a4b00}.hchips b.bad{background:#fde3e3;color:#a11}.hchips b.ok{background:#e3f6ec;color:#0f5a36}
+nav.hnav{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-bottom:1px solid #e2e6e3;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+nav.hnav .hn{max-width:1180px;margin:0 auto;display:flex;gap:6px;overflow-x:auto;padding:8px 14px;scrollbar-width:none}
+nav.hnav .hn::-webkit-scrollbar{display:none}
+nav.hnav a{flex:none;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#33433b;text-decoration:none;padding:6px 11px;border-radius:999px;border:1px solid #dfe5e1;background:#fff;white-space:nowrap}
+nav.hnav a i{font-style:normal;display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:50%;background:#eef2ef;font-size:11.5px;color:var(--hc,#14553a)}
+nav.hnav a.on{background:var(--hc,#14553a);border-color:var(--hc,#14553a);color:#fff}nav.hnav a.on i{background:rgba(255,255,255,.25);color:#fff}
+section.card{scroll-margin-top:60px}
+@media(max-width:640px){header.hero{padding:18px 14px 16px}.hsub{font-size:14px}}
+@media print{header.hero,nav.hnav{display:none!important}}
+
 </style>
 </head>
 <body>
-<header class="top">
-  <h1>Plan de session hebdomadaire : classe hétérogène</h1>
-  <p>Remédiation PNAPAS (CE–CM) : mathématiques et lecture. Activités, objectifs et canevas tirés des guides de remédiation.</p>
+<header class="hero" style="--hc:#14553a">
+  <div class="hstripe"><i></i><i></i><i></i></div>
+  <div class="hwrap">
+    <div class="hrow"><a class="hhome" id="hHome" href="../" hidden>← Accueil</a><span class="htag">Remédiation PNAPAS · Espace enseignant</span></div>
+    <h1>Plan de session hebdomadaire</h1>
+    <p class="hsub" id="hSub">Lecture et mathématiques – CE1, CE2, CM1, CM2. Les activités, objectifs et canevas sont tirés des guides de remédiation.</p>
+    <div class="hchips" id="hChips"></div>
+  </div>
 </header>
+<nav class="hnav" id="hNav"></nav>
 <main>
 <div id="trial"></div>
 <div id="alarm"></div>
@@ -416,6 +445,26 @@ function printWrap(body,portrait,title){const wm=!isActivated();const sig=author
   body.trialmode .wmable{background-image:url("data:image/svg+xml,${svg}");background-repeat:repeat}
   body.locked .lockable{opacity:.5}`;
   document.head.appendChild(st)})();
+
+/* ---- écran d'accueil : bandeau et navigation ---- */
+function heroInit(){
+  const home=document.getElementById('hHome');
+  if(home&&/^https?:/.test(location.protocol)&&/\/(enseignant|directeur|cppp)\/?(index\.html)?$/.test(location.pathname))home.hidden=false;
+  const nav=document.getElementById('hNav');if(!nav)return;
+  const secs=[...document.querySelectorAll('main section.card')].filter(s=>s.querySelector('h2'));
+  nav.innerHTML='<div class="hn">'+secs.map((s,i)=>{if(!s.id)s.id='sec-'+(i+1);const h=s.querySelector('h2');const st=h.querySelector('.step');
+    let t=h.textContent.replace(st?st.textContent:'','').split(':')[0].trim();if(t.length>34)t=t.slice(0,32)+'…';
+    return `<a href="#${s.id}" data-sec="${s.id}"><i>${st?st.textContent.trim():'•'}</i>${t}</a>`}).join('')+'</div>';
+  nav.addEventListener('click',e=>{const a=e.target.closest('a[data-sec]');if(!a)return;e.preventDefault();const s=document.getElementById(a.dataset.sec);if(s)s.scrollIntoView({behavior:'smooth',block:'start'})});
+  if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting){nav.querySelectorAll('a').forEach(a=>a.classList.toggle('on',a.dataset.sec===en.target.id));
+      const on=nav.querySelector('a.on');if(on)on.scrollIntoView({block:'nearest',inline:'nearest'})}})},{rootMargin:'-70px 0px -65% 0px'});secs.forEach(s=>io.observe(s))}
+}
+function heroChips(extra){
+  const el=document.getElementById('hChips');if(!el)return;let st='essai';try{st=licState()}catch(e){}
+  let lic='';try{if(st==='actif')lic='<b class="ok">✅ Licence activée</b>';else if(st==='essai'){const left=Math.max(0,Math.ceil((TRIAL_DAYS*DAYMS-elapsed())/DAYMS));lic=`<b class="warn">⏳ Essai : ${left} jour${left>1?'s':''} restant${left>1?'s':''}</b>`}else lic='<b class="bad">🔒 Activation requise</b>'}catch(e){}
+  let y='';try{y=SCHOOL_YEAR()}catch(e){y='2026-2027'}
+  el.innerHTML=`<b>Année scolaire ${y}</b>`+(extra||[]).filter(Boolean).map(x=>`<b>${esc(x)}</b>`).join('')+lic;
+}
 
 function LIC_YEAR_HOOK(y){if(S&&S.annee!==y){S.annee=y;persist()}}
 /* Verrouillage de la classe : une application = une classe */
@@ -1346,6 +1395,7 @@ function renderAll(){
   deriveAll();syncLevels();renderEleves();renderShare();
   S.effClasse=String(effTestes());document.querySelectorAll('[data-k]').forEach(el=>{el.value=S[el.dataset.k]??''});
   renderLevels();renderProgress();renderDays();renderPlan();renderDocs();applyIdLock();persist();
+  heroChips([isHom()?'Classe homogène':'Classe hétérogène',isHom()?homLabel().replace(/^GROUPE DE NIVEAU /,'Groupe '):S.classe,S.ecole]);
 }
 
 /* =====================================================================
@@ -1892,7 +1942,7 @@ function renderClasses(){
   document.getElementById('oneClassNote').innerHTML=idLocked()?`🔒 Cette application est réservée à la classe <b>${esc(LIC.cls.classe)}</b> de l’école <b>${esc(LIC.cls.ecole)}</b> (enseignant(e) : <b>${esc(LIC.cls.enseignant)}</b>). Elle ne peut pas enregistrer une autre classe : chaque enseignant(e) doit utiliser sa propre application, sur son propre appareil, avec son propre code d’activation.`
     :'Une seule classe peut être enregistrée dans cette application. Dès que vous cliquez sur « Enregistrer la classe », l’école, la classe et le nom de l’enseignant(e) sont verrouillés définitivement.';
   document.getElementById('btnOffline').hidden=OFFLINE;
-  document.getElementById('offlineNote').textContent=OFFLINE?'Version hors ligne : les données restent dans ce navigateur ; pensez à « Sauvegarder toutes les classes » régulièrement.':'';
+  document.getElementById('offlineNote').textContent=OFFLINE?'Version hors ligne : les données restent dans ce navigateur ; pensez à « Sauvegarder ma classe (fichier) » régulièrement.':'';
 }
 function aserExport(){
   if(!S.eleves.length){toast('Aucun apprenant à exporter');return}
@@ -1974,6 +2024,7 @@ function renderShare(){
 
 if(FRESH){applyAlternation('math');applyAlternation('lect')}
 renderAll();
+heroInit();
 </script>
 <div id="pwaBar" hidden style="position:fixed;right:12px;bottom:14px;z-index:60"><button id="pwaInstall" style="font:inherit;font-weight:700;background:#1f8a5b;color:#fff;border:none;border-radius:24px;padding:11px 18px;box-shadow:0 3px 10px rgba(0,0,0,.25);cursor:pointer">📲 Installer l’application</button></div>
 <div id="pwaHelp" hidden style="position:fixed;left:10px;right:10px;bottom:70px;z-index:61;background:#fff;border:2px solid #1f8a5b;border-radius:12px;padding:14px 16px;box-shadow:0 6px 20px rgba(0,0,0,.25);font-size:15px;line-height:1.45">
