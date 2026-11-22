@@ -444,7 +444,7 @@ function renderTrial(){
   if(act){const end=YEARS[LIC.yi].end,left=Math.ceil((end-nowT())/DAYMS);const last=LIC.yi>=YEARS.length-1;
     box.innerHTML=`<div class="trial ok"><div class="ti">✅</div><div class="tb"><b>Licence activée – année scolaire ${YEARS[LIC.yi].y}</b> (valable jusqu’au ${fmtDay(end)}).
       ${left<=45?(last?` <b>Attention :</b> c’est la dernière année d’utilisation ; l’application s’arrêtera le ${fmtDay(end)}.`:` <b>Pensez au renouvellement</b> pour l’année ${YEARS[LIC.yi+1].y} (dernier renouvellement).`)
-        :(last?' Dernière année d’utilisation (aucun autre renouvellement possible).':` Un seul et dernier renouvellement sera nécessaire pour l’année ${YEARS[1].y}.`)}${contactHTML(left<=45)}</div></div>`;return}
+        :(last?' Dernière année d’utilisation (aucun autre renouvellement possible).':` Un seul et dernier renouvellement sera nécessaire pour l’année ${YEARS[1].y}.`)}${contactHTML(false)}</div></div>`;return}
   const left=Math.max(0,TRIAL_DAYS*DAYMS-elapsed());const d=Math.floor(left/DAYMS),h=Math.floor((left%DAYMS)/3600000);
   const end=trialEnd().toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   const keep=' Vos données sont conservées : vous pouvez toujours les consulter et les sauvegarder.';
