@@ -338,7 +338,28 @@ const CONTACT_TEL='07 57 69 67 96';
 function contactHTML(full){return `<div class="contact">📞 <b>Renseignements${full?' et paiement du code d’activation':''} : <a href="tel:+2250757696796">${CONTACT_TEL}</a></b>${full?' – <b class="price">prix unique : 5 000 FCFA</b> <b class="wave">paiement uniquement par Wave</b>':''}</div>`}
 function actForm(lbl){return `<div class="act">Identifiant de cet appareil : <b class="lid">${LIC.id}</b> – communiquez-le pour obtenir votre ${lbl}.
       <span class="actf"><input id="licInput" placeholder="${lbl[0].toUpperCase()+lbl.slice(1)}" autocomplete="off"><button class="primary" id="btnActivate">Activer</button></span></div>`+contactHTML(true)}
+
+/* ---- verrouillage complet après la période d'essai (ou à la fin de la licence) ---- */
+function lockOverlay(){let ov=document.getElementById('lockOv');const st=licState();
+  if(st==='actif'||st==='essai'){if(ov)ov.remove();document.body.classList.remove('lockall');return}
+  document.body.classList.add('lockall');
+  if(!ov){ov=document.createElement('div');ov.id='lockOv';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');document.body.appendChild(ov);
+    ov.addEventListener('click',e=>{const b=e.target.closest('#lockBtn');if(!b)return;const v=(document.getElementById('lockInput')||{}).value||'';
+      if(tryActivate(v)){ov.remove();document.body.classList.remove('lockall');location.reload()}else{const er=document.getElementById('lockErr');if(er)er.textContent=periodIdx()>=2?lockMsg():'Code incorrect pour cet identifiant et l’année '+YEARS[Math.min(periodIdx(),1)].y+'.'}});
+    ov.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='lockInput'){const b=document.getElementById('lockBtn');if(b)b.click()}})}
+  const term=st==='termine',ren=st==='renouveler';
+  const title=term?'Application arrivée à terme':ren?'Licence expirée':'Période d’essai terminée';
+  const txt=term?`L’application était utilisable pour les années scolaires ${YEARS[0].y} et ${YEARS[1].y} ; aucun renouvellement n’est plus possible.`
+    :ren?`Votre licence ${YEARS[LIC.yi].y} est expirée. Un dernier renouvellement est nécessaire pour l’année scolaire ${YEARS[1].y}.`
+    :`La période d’essai de ${TRIAL_DAYS} jours est terminée.`;
+  const lbl=ren?'code de renouvellement '+YEARS[1].y:'code d’activation '+SCHOOL_YEAR();
+  ov.innerHTML=`<div class="lockcard"><div class="lockic">🔒</div><h2>${title}</h2><p>${txt} <b>L’application est verrouillée : aucune action n’est possible tant qu’elle n’est pas activée.</b> Vos données restent enregistrées sur cet appareil.</p>
+   ${term?'':`<p class="lid2">Identifiant de cet appareil : <b>${LIC.id}</b></p><p>Communiquez cet identifiant pour obtenir votre ${lbl}, puis saisissez-le ci-dessous.</p>
+   <div class="lockf"><input id="lockInput" placeholder="${lbl[0].toUpperCase()+lbl.slice(1)}" autocomplete="off"><button class="primary" id="lockBtn">Activer</button></div><div id="lockErr" class="lockerr"></div>`}
+   <div class="lockct">📞 Renseignements et paiement du code d’activation : <a href="tel:+2250757696796"><b>${CONTACT_TEL}</b></a><br><b class="price">prix unique : 5 000 FCFA</b> <b class="wave">paiement uniquement par Wave</b></div></div>`;
+}
 function renderTrial(){
+  try{lockOverlay()}catch(e){}
   const box=document.getElementById('trial');const st=licState();const act=st==='actif';
   document.body.classList.toggle('trialmode',!act);document.body.classList.toggle('locked',trialExpired());
   if(typeof LIC_YEAR_HOOK==='function')LIC_YEAR_HOOK(SCHOOL_YEAR());
@@ -349,7 +370,7 @@ function renderTrial(){
         :(last?' Dernière année d’utilisation (aucun autre renouvellement possible).':` Un seul et dernier renouvellement sera nécessaire pour l’année ${YEARS[1].y}.`)}${contactHTML(false)}</div></div>`;return}
   const left=Math.max(0,TRIAL_DAYS*DAYMS-elapsed());const d=Math.floor(left/DAYMS),h=Math.floor((left%DAYMS)/3600000);
   const end=trialEnd().toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  const keep=' Vos données sont conservées : vous pouvez toujours les consulter et les sauvegarder.';
+  const keep=' L’application est verrouillée ; vos données restent enregistrées sur cet appareil.';
   let body;
   if(st==='termine')body=`<b>L’application est arrivée à terme.</b> Elle était utilisable pour les années scolaires ${YEARS[0].y} et ${YEARS[1].y} ; aucun renouvellement n’est plus possible. La production des documents est bloquée.${keep}`+contactHTML(false);
   else if(st==='renouveler')body=`<b>Votre licence ${YEARS[LIC.yi].y} est expirée.</b> Pour l’année scolaire ${YEARS[1].y}, un <b>dernier renouvellement</b> est nécessaire. La production des documents est bloquée jusqu’au renouvellement.${keep}`+actForm('code de renouvellement '+YEARS[1].y);
@@ -387,13 +408,25 @@ function printWrap(body,portrait,title){const wm=!isActivated();const sig=author
   .trial .act{margin-top:8px;font-size:13.5px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .trial .lid{font-family:monospace;font-size:15px;letter-spacing:1px;background:#fff;padding:1px 6px;border-radius:4px;border:1px solid #d9e0dc}
   .trial .actf{display:inline-flex;gap:6px}.trial .actf input{width:230px;text-transform:uppercase}
-  .trial .tb{min-width:0}.trial .contact{margin-top:8px;font-size:14px}.trial .contact a{color:inherit}.trial .contact .price{background:#fff3c4;color:#5a3d00;padding:1px 8px;border-radius:999px;white-space:nowrap;margin-right:4px}.trial .contact .wave{background:#1dc8ff;color:#002b3d;padding:1px 8px;border-radius:999px;white-space:nowrap}.trial.ok .contact{margin-top:4px;font-size:13px}
+  .trial .tb{min-width:0}body.trialmode .nodl::before,body.trialmode [data-ard]::before,body.trialmode [data-ars]::before{content:"🔒 "}body.trialmode .nodl,body.trialmode [data-ard],body.trialmode [data-ars]{opacity:.65}
+body.lockall{overflow:hidden}body.lockall>*:not(#lockOv):not(#toast){filter:blur(3px);pointer-events:none;user-select:none}
+#lockOv{position:fixed;inset:0;z-index:3000;background:rgba(12,28,20,.72);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+#lockOv .lockcard{background:#fff;color:#14231c;max-width:520px;width:100%;border-radius:16px;padding:22px 22px 18px;box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center;font-size:15px;line-height:1.5}
+#lockOv .lockic{font-size:42px}#lockOv h2{margin:4px 0 8px;font-size:22px;color:#a11}
+#lockOv .lid2 b{white-space:nowrap;display:inline-block;font-family:monospace;font-size:20px;letter-spacing:2px;background:#f1f4f2;padding:3px 10px;border-radius:6px}
+#lockOv .lockf{display:flex;gap:8px;margin:8px 0 4px}#lockOv .lockf input{flex:1;min-width:0;font-size:16px;padding:9px;text-transform:uppercase;border:1px solid #c5cec9;border-radius:8px}
+#lockOv .lockerr{color:#a11;font-size:13.5px;min-height:18px}
+#lockOv .lockct{margin-top:10px;background:#e9f8ff;border-radius:10px;padding:10px;font-size:14px}#lockOv .lockct a{color:inherit}
+#lockOv .price{display:inline-block;background:#fff3c4;color:#5a3d00;padding:1px 8px;border-radius:999px;margin-top:6px}#lockOv .wave{display:inline-block;background:#1dc8ff;color:#002b3d;padding:1px 8px;border-radius:999px;margin-top:6px}
+.trial .contact{margin-top:8px;font-size:14px}.trial .contact a{color:inherit}.trial .contact .price{background:#fff3c4;color:#5a3d00;padding:1px 8px;border-radius:999px;white-space:nowrap;margin-right:4px}.trial .contact .wave{background:#1dc8ff;color:#002b3d;padding:1px 8px;border-radius:999px;white-space:nowrap}.trial.ok .contact{margin-top:4px;font-size:13px}
 .trial.ok{background:#eaf6ef;border-color:#1f8a5b;color:#0f4d31;padding:8px 14px;font-size:13.5px}.trial.ok .ti{font-size:20px}.trial .actf button{flex:none}
   @media(max-width:640px){.trial{padding:10px 10px}.trial .ti{font-size:22px}.trial .actf{display:flex;width:100%;max-width:100%}.trial .actf input{flex:1;min-width:0;width:auto}}
   body.trialmode .wmable{background-image:url("data:image/svg+xml,${svg}");background-repeat:repeat}
   body.locked .lockable{opacity:.5}`;
   document.head.appendChild(st)})();
 
+const NODL_BTNS=['btnDl','btnDlAll','btnCsv','btnShare'];
+setTimeout(()=>NODL_BTNS.forEach(i=>{const e=document.getElementById(i);if(e)e.classList.add('nodl')}),0);
 const LOCKED_BTNS=['btnFill','btnCopy','btnDl','btnDlAll','btnPrint','btnArchive','btnShare','btnCsv','btnJson'];
 const KEY='pnapas-cppp-v1';
 function blank(){return {drena:'',iepp:'',secteur:'',conseiller:'',nbEcoles:'',annee:'',ecoles:{},archives:[]}}
@@ -516,6 +549,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='licIn
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   if(b.id==='btnActivate'){if(tryActivate(document.getElementById('licInput').value)){render();renderDoc();toast('Application activée. Merci !')}else toast(periodIdx()>=2?lockMsg():'Code incorrect pour cet identifiant et l’année '+YEARS[Math.min(periodIdx(),1)].y);return}
   if(LOCKED_BTNS.includes(b.id)&&trialExpired()){renderTrial();window.scrollTo({top:0,behavior:'smooth'});toast(lockMsg());return}
+  if((NODL_BTNS.includes(b.id)||b.dataset.ard!=null||b.dataset.ars!=null)&&!isActivated()){toast('Téléchargement non disponible pendant la période d’essai : activez l’application (code d’activation au 07 57 69 67 96, prix unique 5 000 FCFA, paiement uniquement par Wave).');return}
   if(b.dataset.ev){EV=b.dataset.ev;render();renderDoc();return}
   if(b.id==='btnCodes'){const parts=document.getElementById('codes').value.split(/\s+/).filter(x=>/^PNAPAS1Z?:/.test(x));if(!parts.length){toast('Aucun code reconnu');return}importTexts(parts).then(()=>{document.getElementById('codes').value=''});return}
   if(b.dataset.del){if(b.dataset.arm){delete P.ecoles[b.dataset.del];render();if(FILLED)renderDoc();toast('École retirée');return}b.dataset.arm='1';b.textContent='Confirmer ?';setTimeout(()=>{if(b.isConnected){b.textContent='Retirer';delete b.dataset.arm}},3000);return}
