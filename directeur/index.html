@@ -344,7 +344,7 @@ function lockMsg(){const s=licState();
 function tryActivate(v){v=(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const p=periodIdx();if(p>=2||!v)return false;
   const c=licCode(LIC.id,p);if(v===c.replace('-','')){LIC.code=c;LIC.yi=p;LIC.moved=false;saveLic();return true}return false}
 const CONTACT_TEL='07 57 69 67 96';
-function contactHTML(full){return `<div class="contact">📞 <b>Renseignements${full?' et paiement du code d’activation':''} : <a href="tel:+2250757696796">${CONTACT_TEL}</a></b>${full?' – <b class="wave">paiement uniquement par Wave</b>':''}</div>`}
+function contactHTML(full){return `<div class="contact">📞 <b>Renseignements${full?' et paiement du code d’activation':''} : <a href="tel:+2250757696796">${CONTACT_TEL}</a></b>${full?' – <b class="price">prix unique : 5 000 FCFA</b> <b class="wave">paiement uniquement par Wave</b>':''}</div>`}
 function actForm(lbl){return `<div class="act">Identifiant de cet appareil : <b class="lid">${LIC.id}</b> – communiquez-le pour obtenir votre ${lbl}.
       <span class="actf"><input id="licInput" placeholder="${lbl[0].toUpperCase()+lbl.slice(1)}" autocomplete="off"><button class="primary" id="btnActivate">Activer</button></span></div>`+contactHTML(true)}
 function renderTrial(){
@@ -396,7 +396,7 @@ function printWrap(body,portrait,title){const wm=!isActivated();const sig=author
   .trial .act{margin-top:8px;font-size:13.5px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .trial .lid{font-family:monospace;font-size:15px;letter-spacing:1px;background:#fff;padding:1px 6px;border-radius:4px;border:1px solid #d9e0dc}
   .trial .actf{display:inline-flex;gap:6px}.trial .actf input{width:230px;text-transform:uppercase}
-  .trial .tb{min-width:0}.trial .contact{margin-top:8px;font-size:14px}.trial .contact a{color:inherit}.trial .contact .wave{background:#1dc8ff;color:#002b3d;padding:1px 8px;border-radius:999px;white-space:nowrap}.trial.ok .contact{margin-top:4px;font-size:13px}
+  .trial .tb{min-width:0}.trial .contact{margin-top:8px;font-size:14px}.trial .contact a{color:inherit}.trial .contact .price{background:#fff3c4;color:#5a3d00;padding:1px 8px;border-radius:999px;white-space:nowrap;margin-right:4px}.trial .contact .wave{background:#1dc8ff;color:#002b3d;padding:1px 8px;border-radius:999px;white-space:nowrap}.trial.ok .contact{margin-top:4px;font-size:13px}
 .trial.ok{background:#eaf6ef;border-color:#1f8a5b;color:#0f4d31;padding:8px 14px;font-size:13.5px}.trial.ok .ti{font-size:20px}.trial .actf button{flex:none}
   @media(max-width:640px){.trial{padding:10px 10px}.trial .ti{font-size:22px}.trial .actf{display:flex;width:100%;max-width:100%}.trial .actf input{flex:1;min-width:0;width:auto}}
   body.trialmode .wmable{background-image:url("data:image/svg+xml,${svg}");background-repeat:repeat}
