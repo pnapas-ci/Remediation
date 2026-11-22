@@ -343,8 +343,10 @@ function lockMsg(){const s=licState();
    :'Période d’essai terminée : saisissez votre code d’activation.'}
 function tryActivate(v){v=(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const p=periodIdx();if(p>=2||!v)return false;
   const c=licCode(LIC.id,p);if(v===c.replace('-','')){LIC.code=c;LIC.yi=p;LIC.moved=false;saveLic();return true}return false}
+const CONTACT_TEL='07 57 69 67 96';
+function contactHTML(full){return `<div class="contact">📞 <b>Renseignements${full?' et paiement du code d’activation':''} : <a href="tel:+2250757696796">${CONTACT_TEL}</a></b>${full?' – <b class="wave">paiement uniquement par Wave</b>':''}</div>`}
 function actForm(lbl){return `<div class="act">Identifiant de cet appareil : <b class="lid">${LIC.id}</b> – communiquez-le pour obtenir votre ${lbl}.
-      <span class="actf"><input id="licInput" placeholder="${lbl[0].toUpperCase()+lbl.slice(1)}" autocomplete="off"><button class="primary" id="btnActivate">Activer</button></span></div>`}
+      <span class="actf"><input id="licInput" placeholder="${lbl[0].toUpperCase()+lbl.slice(1)}" autocomplete="off"><button class="primary" id="btnActivate">Activer</button></span></div>`+contactHTML(true)}
 function renderTrial(){
   const box=document.getElementById('trial');const st=licState();const act=st==='actif';
   document.body.classList.toggle('trialmode',!act);document.body.classList.toggle('locked',trialExpired());
@@ -353,12 +355,12 @@ function renderTrial(){
   if(act){const end=YEARS[LIC.yi].end,left=Math.ceil((end-nowT())/DAYMS);const last=LIC.yi>=YEARS.length-1;
     box.innerHTML=`<div class="trial ok"><div class="ti">✅</div><div class="tb"><b>Licence activée – année scolaire ${YEARS[LIC.yi].y}</b> (valable jusqu’au ${fmtDay(end)}).
       ${left<=45?(last?` <b>Attention :</b> c’est la dernière année d’utilisation ; l’application s’arrêtera le ${fmtDay(end)}.`:` <b>Pensez au renouvellement</b> pour l’année ${YEARS[LIC.yi+1].y} (dernier renouvellement).`)
-        :(last?' Dernière année d’utilisation (aucun autre renouvellement possible).':` Un seul et dernier renouvellement sera nécessaire pour l’année ${YEARS[1].y}.`)}</div></div>`;return}
+        :(last?' Dernière année d’utilisation (aucun autre renouvellement possible).':` Un seul et dernier renouvellement sera nécessaire pour l’année ${YEARS[1].y}.`)}${contactHTML(left<=45)}</div></div>`;return}
   const left=Math.max(0,TRIAL_DAYS*DAYMS-elapsed());const d=Math.floor(left/DAYMS),h=Math.floor((left%DAYMS)/3600000);
   const end=trialEnd().toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   const keep=' Vos données sont conservées : vous pouvez toujours les consulter et les sauvegarder.';
   let body;
-  if(st==='termine')body=`<b>L’application est arrivée à terme.</b> Elle était utilisable pour les années scolaires ${YEARS[0].y} et ${YEARS[1].y} ; aucun renouvellement n’est plus possible. La production des documents est bloquée.${keep}`;
+  if(st==='termine')body=`<b>L’application est arrivée à terme.</b> Elle était utilisable pour les années scolaires ${YEARS[0].y} et ${YEARS[1].y} ; aucun renouvellement n’est plus possible. La production des documents est bloquée.${keep}`+contactHTML(false);
   else if(st==='renouveler')body=`<b>Votre licence ${YEARS[LIC.yi].y} est expirée.</b> Pour l’année scolaire ${YEARS[1].y}, un <b>dernier renouvellement</b> est nécessaire. La production des documents est bloquée jusqu’au renouvellement.${keep}`+actForm('code de renouvellement '+YEARS[1].y);
   else if(st==='essai_fini')body=`<b>La période d’essai de ${TRIAL_DAYS} jours est terminée.</b> La production des documents (remplissage, copie, téléchargement, impression, envoi) est bloquée.${keep}`+actForm('code d’activation '+SCHOOL_YEAR());
   else body=`<b>Version d’essai : il reste ${d} jour${d>1?'s':''} et ${h} heure${h>1?'s':''}</b> (jusqu’au ${end}). Les documents produits portent la mention « VERSION D’ESSAI » tant que l’application n’est pas activée. La licence est valable pour l’année scolaire ${SCHOOL_YEAR()}.`+actForm('code d’activation '+SCHOOL_YEAR());
@@ -394,7 +396,8 @@ function printWrap(body,portrait,title){const wm=!isActivated();const sig=author
   .trial .act{margin-top:8px;font-size:13.5px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .trial .lid{font-family:monospace;font-size:15px;letter-spacing:1px;background:#fff;padding:1px 6px;border-radius:4px;border:1px solid #d9e0dc}
   .trial .actf{display:inline-flex;gap:6px}.trial .actf input{width:230px;text-transform:uppercase}
-  .trial .tb{min-width:0}.trial.ok{background:#eaf6ef;border-color:#1f8a5b;color:#0f4d31;padding:8px 14px;font-size:13.5px}.trial.ok .ti{font-size:20px}.trial .actf button{flex:none}
+  .trial .tb{min-width:0}.trial .contact{margin-top:8px;font-size:14px}.trial .contact a{color:inherit}.trial .contact .wave{background:#1dc8ff;color:#002b3d;padding:1px 8px;border-radius:999px;white-space:nowrap}.trial.ok .contact{margin-top:4px;font-size:13px}
+.trial.ok{background:#eaf6ef;border-color:#1f8a5b;color:#0f4d31;padding:8px 14px;font-size:13.5px}.trial.ok .ti{font-size:20px}.trial .actf button{flex:none}
   @media(max-width:640px){.trial{padding:10px 10px}.trial .ti{font-size:22px}.trial .actf{display:flex;width:100%;max-width:100%}.trial .actf input{flex:1;min-width:0;width:auto}}
   body.trialmode .wmable{background-image:url("data:image/svg+xml,${svg}");background-repeat:repeat}
   body.locked .lockable{opacity:.5}`;
