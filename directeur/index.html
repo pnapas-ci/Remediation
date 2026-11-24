@@ -101,6 +101,24 @@ section.card.acc.closed>.cbody{display:none}
 .tbubble div{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
 @media(max-width:640px){.tbubble{left:12px;right:12px;bottom:12px;max-width:none}}
 @media print{#tuto,.tbubble,.htuto{display:none!important}}
+main input:not([type=checkbox]):not([type=radio]),main select,main textarea{background-color:#fff}
+main input.filled:not([type=checkbox]):not([type=radio]),main select.filled,main textarea.filled,header input.filled{background-color:#e3f5e9!important;border-color:#9fd3b4!important}
+textarea.autogrow{border:1px solid #c5cec9;border-radius:6px;padding:7px 9px;color:inherit;background:#fff}
+textarea.autogrow{resize:none;overflow:hidden;min-height:0;line-height:1.35;white-space:pre-wrap;word-break:break-word;font:inherit;width:100%;box-sizing:border-box}
+.selfull{font-size:13px;line-height:1.35;color:#14553a;background:#f0f8f3;border-radius:6px;padding:4px 8px;margin:4px 0 2px}
+@media(max-width:760px){
+  main input,main select,main textarea{font-size:16px!important;max-width:100%}
+  main label.f{min-width:0}
+  section.card.acc>h2.ctoggle{flex-wrap:wrap}
+  table.mcards,table.mcards tbody,table.mcards tr,table.mcards td{display:block;width:auto!important;min-width:0!important}
+  table.mcards thead{display:none}
+  table.mcards tr{border:1px solid #d5ded9;border-radius:10px;margin:0 0 10px;padding:6px 10px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  table.mcards td{border:0!important;padding:5px 0!important;display:grid;grid-template-columns:38% 62%;gap:8px;align-items:center;text-align:left!important;white-space:normal!important}
+  table.mcards td::before{content:attr(data-label);font-weight:600;color:#5b6a62;font-size:12.5px;line-height:1.25}
+  table.mcards td[data-label=""]{grid-template-columns:1fr}table.mcards td[data-label=""]::before{display:none}
+  table.mcards td>*{max-width:100%}table.mcards td input,table.mcards td select,table.mcards td textarea{width:100%!important}
+  .tblwrap:has(table.mcards){overflow:visible}
+}
 </style>
 </head>
 <body>
@@ -230,7 +248,7 @@ async function shareFile(name,data,mime){
 /* ---- écran d'accueil : bandeau et navigation ---- */
 function heroInit(){
   const home=document.getElementById('hHome');
-  accInit();tutoInit();
+  accInit();tutoInit();mobInit();
   if(home&&/^https?:/.test(location.protocol)&&/\/(enseignant|directeur|cppp)\/?(index\.html)?$/.test(location.pathname))home.hidden=false;
   const nav=document.getElementById('hNav');if(!nav)return;
   const secs=[...document.querySelectorAll('main section.card')].filter(s=>s.querySelector('h2'));
@@ -299,6 +317,36 @@ function tutoInit(){const row=document.querySelector('header.hero .hrow');if(row
   let seen=false;try{seen=!!localStorage.getItem(TUTO_KEY)}catch(e){}
   if(!seen&&typeof TUTO_STEPS!=='undefined'){const bub=document.createElement('div');bub.className='tbubble';bub.innerHTML='<b>Première utilisation ?</b> Suivez le tutoriel pas à pas pour découvrir l’application.<div><button type="button" class="primary" data-b="go">🎓 Commencer le tutoriel</button><button type="button" data-b="no">Plus tard</button></div>';document.body.appendChild(bub);
     bub.addEventListener('click',e=>{const b=e.target.closest('[data-b]');if(!b)return;bub.remove();if(b.dataset.b==='go')tutoStart();else try{localStorage.setItem(TUTO_KEY,'1')}catch(e){}})}}
+/* ---- saisie confortable : cases remplies en vert clair, texte entièrement visible sur smartphone ---- */
+const MOB=()=>window.matchMedia('(max-width: 760px)').matches;
+const SKIPF=el=>!!el.closest('#lockOv,#tuto,.tbubble')||['checkbox','radio','button','submit','file','hidden','range','color'].includes(el.type);
+function isFilled(el){if(el.tagName==='SELECT'){const o=el.options[el.selectedIndex];return !!(o&&o.value!==''&&!/^(—|-|…|\(choisir|choisir)/i.test(o.textContent.trim()))}return String(el.value||'').trim()!==''}
+function markFilled(root){(root||document).querySelectorAll('input,select,textarea').forEach(el=>{if(SKIPF(el))return;el.classList.toggle('filled',isFilled(el))})}
+function autoGrow(t){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px'}
+function upgradeInputs(){if(!MOB())return;
+  document.querySelectorAll('main input[type=text]:not([data-noup]),main input:not([type]):not([data-noup])').forEach(inp=>{if(SKIPF(inp)||inp===document.activeElement||inp.closest('#trial'))return;
+    const t=document.createElement('textarea');for(const a of inp.attributes){if(a.name!=='type'&&a.name!=='value')t.setAttribute(a.name,a.value)}
+    t.value=inp.value;t.rows=1;t.classList.add('autogrow');inp.replaceWith(t);autoGrow(t)});
+  document.querySelectorAll('textarea.autogrow').forEach(autoGrow)}
+const MEASURE=document.createElement('canvas').getContext('2d');
+function selectEcho(){document.querySelectorAll('main select').forEach(sel=>{if(SKIPF(sel))return;const nx=sel.nextElementSibling;const has=nx&&nx.classList&&nx.classList.contains('selfull');
+  if(!MOB()){if(has)nx.remove();return}
+  const o=sel.options[sel.selectedIndex];const txt=o?o.textContent.trim():'';const cs=getComputedStyle(sel);MEASURE.font=`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const over=txt&&MEASURE.measureText(txt).width>sel.clientWidth-46;
+  if(over){if(has){if(nx.textContent!==txt)nx.textContent=txt}else sel.insertAdjacentHTML('afterend',`<div class="selfull">${txt.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</div>`)}else if(has)nx.remove()})}
+function cardTables(){const m=MOB();document.querySelectorAll('main table.eltab,main table.lst').forEach(tb=>{if(tb.classList.contains('vis'))return;tb.classList.toggle('mcards',m);if(!m)return;
+  const th=tb.tHead;if(!th)return;const grid=[];[...th.rows].forEach((r,ri)=>{grid[ri]=grid[ri]||[];let c=0;[...r.cells].forEach(cell=>{while(grid[ri][c]!==undefined)c++;const cs=cell.colSpan||1,rs=cell.rowSpan||1,t=cell.textContent.trim();
+    for(let i=0;i<rs;i++)for(let j=0;j<cs;j++){grid[ri+i]=grid[ri+i]||[];grid[ri+i][c+j]=t}c+=cs})});
+  const ncol=Math.max(0,...grid.map(r=>r.length));const lab=[];for(let c=0;c<ncol;c++){const parts=[];grid.forEach(r=>{const t=r[c];if(t&&!parts.includes(t))parts.push(t)});lab[c]=parts.join(' – ')}
+  [...tb.tBodies].forEach(b=>[...b.rows].forEach(r=>{let c=0;[...r.cells].forEach(cell=>{if(cell.dataset.label!==lab[c])cell.dataset.label=lab[c]||'';c+=cell.colSpan||1})}))})}
+let MF_T=0;function mobFix(){MF_T=0;try{upgradeInputs();cardTables();selectEcho();markFilled()}catch(e){}}
+function mobSchedule(){if(!MF_T)MF_T=requestAnimationFrame(mobFix)}
+function mobInit(){
+  document.addEventListener('input',e=>{const el=e.target;if(!el||!el.matches)return;if(el.matches('input,select,textarea')&&!SKIPF(el))el.classList.toggle('filled',isFilled(el));if(el.classList.contains('autogrow'))autoGrow(el)},true);
+  document.addEventListener('change',e=>{const el=e.target;if(el&&el.matches&&el.matches('input,select,textarea')&&!SKIPF(el))el.classList.toggle('filled',isFilled(el));mobSchedule()},true);
+  document.addEventListener('keydown',e=>{const el=e.target;if(el&&el.classList&&el.classList.contains('autogrow')&&e.key==='Enter'){e.preventDefault();el.blur()}},true);
+  new MutationObserver(mobSchedule).observe(document.body,{childList:true,subtree:true});
+  addEventListener('resize',mobSchedule);setInterval(()=>markFilled(),1500);mobFix()}
 
 const LICKEY='pnapas-directeur-licence-v1';
 function AUTHOR(){return {role:'Le Directeur',name:D.directeur,sig:D.sigles,lieu:D.ecole}}
@@ -391,7 +439,7 @@ function renderTrial(){
 /* ---- noms en MAJUSCULES (personnes, école, secteur) ---- */
 const UPKEYS=new Set(['enseignant','directeur','ecole','secteur','conseiller','drena','iepp']);
 const UP=s=>String(s??'').toLocaleUpperCase('fr-FR');
-function upField(el){return !!el&&el.tagName==='INPUT'&&(!el.type||el.type==='text')&&(UPKEYS.has(el.dataset.k)||/\.nom$/.test(el.dataset.el||'')||el.hasAttribute('data-up'))}
+function upField(el){return !!el&&((el.tagName==='INPUT'&&(!el.type||el.type==='text'))||el.tagName==='TEXTAREA')&&(UPKEYS.has(el.dataset.k)||/\.nom$/.test(el.dataset.el||'')||el.hasAttribute('data-up'))}
 document.addEventListener('input',e=>{const el=e.target;if(!upField(el))return;const u=UP(el.value);
   if(u!==el.value){const a=el.selectionStart,b=el.selectionEnd;el.value=u;try{el.setSelectionRange(a,b)}catch(_){}}},true);
 function upObj(o,keys){if(o)keys.forEach(k=>{if(typeof o[k]==='string')o[k]=UP(o[k])});return o}
@@ -567,7 +615,7 @@ function renderDoc(){document.getElementById('doc').innerHTML=FILLED?ficheHTML()
 
 /* ===================== ÉVÉNEMENTS ===================== */
 document.addEventListener('input',e=>{const el=e.target;
-  if(el.dataset.k&&el.tagName==='INPUT'){D[el.dataset.k]=el.value;persist();if(FILLED)renderDoc();return}
+  if(el.dataset.k&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA')){D[el.dataset.k]=el.value;persist();if(FILLED)renderDoc();return}
   if(el.dataset.vis){const [k,n,f]=el.dataset.vis.split('.');D.visites[k][n][f]=el.value;persist();if(FILLED)renderDoc();return}});
 document.addEventListener('change',e=>{const el=e.target;
   if(el.id==='drenaSel'){if(el.value==='*'){D.drenaFree=true;D.drena=''}else{D.drenaFree=false;D.drena=el.value}D.iepp='';D.ieppFree=false;render();return}
