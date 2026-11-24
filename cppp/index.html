@@ -628,25 +628,46 @@ const TUTO_STEPS=[
 render();
 heroInit();
 </script>
-<div id="pwaBar" hidden style="position:fixed;right:12px;bottom:14px;z-index:60"><button id="pwaInstall" style="font:inherit;font-weight:700;background:#b5651d;color:#fff;border:none;border-radius:24px;padding:11px 18px;box-shadow:0 3px 10px rgba(0,0,0,.25);cursor:pointer">📲 Installer l’application</button></div>
-<div id="pwaHelp" hidden style="position:fixed;left:10px;right:10px;bottom:70px;z-index:61;background:#fff;border:2px solid #b5651d;border-radius:12px;padding:14px 16px;box-shadow:0 6px 20px rgba(0,0,0,.25);font-size:15px;line-height:1.45">
- <b>Installer sur l’écran d’accueil</b><br><span id="pwaHelpTxt"></span><br><button id="pwaHelpClose" style="margin-top:8px;font:inherit;border:1px solid #ccc;background:#fff;border-radius:6px;padding:5px 12px">Fermer</button></div>
+<div id="pwaBar" hidden style="position:fixed;right:12px;bottom:14px;z-index:2147483000"><button id="pwaInstall" style="font:inherit;font-weight:700;background:#b5651d;color:#fff;border:none;border-radius:24px;padding:11px 18px;box-shadow:0 3px 10px rgba(0,0,0,.25);cursor:pointer">📲 Installer l’application</button></div>
+<div id="pwaSheet" hidden style="position:fixed;inset:0;z-index:2147483001;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center">
+ <div style="background:#fff;width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:20px 18px 22px;box-shadow:0 -6px 24px rgba(0,0,0,.3);font-size:15px;line-height:1.45;color:#222">
+  <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><img src="icon-192.png" alt="" style="width:52px;height:52px;border-radius:12px"><div><b style="font-size:17px">Installer l’application sur cet appareil</b><br><span style="color:#555">Suivi secteur – Remédiation PNAPAS</span></div></div>
+  <p id="pwaSheetTxt" style="margin:6px 0 14px">Installez-la une fois : elle s’ouvrira ensuite depuis l’écran d’accueil, comme une vraie application, même sans connexion internet.</p>
+  <button id="pwaGo" style="width:100%;font:inherit;font-size:17px;font-weight:700;background:#b5651d;color:#fff;border:none;border-radius:12px;padding:14px;cursor:pointer">📲 Installer maintenant</button>
+  <button id="pwaLater" style="width:100%;margin-top:8px;font:inherit;background:#fff;color:#444;border:1px solid #ccc;border-radius:12px;padding:11px;cursor:pointer">Plus tard</button>
+ </div></div>
 <script>
 (function(){
   var standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
   if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(function(){})}
-  if(standalone)return;
-  var bar=document.getElementById('pwaBar'),btn=document.getElementById('pwaInstall'),help=document.getElementById('pwaHelp'),txt=document.getElementById('pwaHelpTxt');
-  var ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),deferred=null;
-  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;bar.hidden=false});
-  window.addEventListener('appinstalled',function(){bar.hidden=true;help.hidden=true});
-  if(ios&&/^https?:/.test(location.protocol))bar.hidden=false;
-  btn.addEventListener('click',function(){
-    if(deferred){deferred.prompt();deferred.userChoice.then(function(){deferred=null;bar.hidden=true});return}
-    txt.innerHTML=ios?'Dans Safari, touchez le bouton <b>Partager</b> (carré avec une flèche vers le haut), puis <b>« Sur l’écran d’accueil »</b>, puis <b>Ajouter</b>.'
-      :'Ouvrez le menu du navigateur (⋮ ou ⋯) puis choisissez <b>« Installer l’application »</b> ou <b>« Ajouter à l’écran d’accueil »</b>.';
-    help.hidden=false});
-  document.getElementById('pwaHelpClose').addEventListener('click',function(){help.hidden=true});
+  if(standalone){try{localStorage.setItem('pwaInstalled','1')}catch(e){}return}
+  if(!/^https?:/.test(location.protocol))return;
+  var $=function(i){return document.getElementById(i)};
+  var bar=$('pwaBar'),btn=$('pwaInstall'),sheet=$('pwaSheet'),txt=$('pwaSheetTxt'),go=$('pwaGo');
+  var ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  var inApp=/FBAN|FBAV|Instagram|WhatsApp|Line\/|; wv\)|Snapchat|TikTok/i.test(ua);
+  var iosOther=ios&&/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+  var deferred=null,installed=false;try{installed=localStorage.getItem('pwaInstalled')==='1'}catch(e){}
+  function guide(){
+    if(inApp)return 'Ce lien est ouvert dans une application (WhatsApp, Facebook…) qui ne permet pas l’installation. Touchez le menu <b>⋮</b> ou <b>⋯</b> puis <b>« Ouvrir dans Chrome »</b> (ou dans Safari sur iPhone), puis installez.';
+    if(iosOther)return 'Sur iPhone, l’installation se fait avec <b>Safari</b> : copiez ce lien, ouvrez-le dans Safari, puis touchez <b>Partager</b> → <b>« Sur l’écran d’accueil »</b> → <b>Ajouter</b>.';
+    if(ios)return 'Touchez le bouton <b>Partager</b> (carré avec une flèche vers le haut) en bas de l’écran, puis <b>« Sur l’écran d’accueil »</b>, puis <b>Ajouter</b>.';
+    return 'Ouvrez le menu du navigateur <b>⋮</b> (en haut à droite) puis choisissez <b>« Installer l’application »</b> ou <b>« Ajouter à l’écran d’accueil »</b>, puis confirmez.';
+  }
+  function open(){sheet.hidden=false;sheet.style.display='flex';bar.hidden=true}
+  function close(){sheet.hidden=true;sheet.style.display='none';bar.hidden=false}
+  function install(){
+    if(deferred){deferred.prompt();deferred.userChoice.then(function(r){deferred=null;if(r&&r.outcome==='accepted'){close();bar.hidden=true}});return}
+    open();txt.innerHTML=guide();go.textContent='J’ai compris';go.onclick=close;
+  }
+  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;installed=false;try{localStorage.removeItem('pwaInstalled')}catch(x){}});
+  window.addEventListener('appinstalled',function(){deferred=null;try{localStorage.setItem('pwaInstalled','1')}catch(e){}sheet.hidden=true;sheet.style.display='none';bar.hidden=true});
+  btn.addEventListener('click',function(){open();txt.innerHTML=installed?'Elle semble déjà installée : ouvrez-la depuis l’icône de l’écran d’accueil. Sinon, installez-la maintenant.':'Installez-la une fois : elle s’ouvrira ensuite depuis l’écran d’accueil, même sans connexion internet.';go.textContent='📲 Installer maintenant';go.onclick=install});
+  go.onclick=install;
+  $('pwaLater').addEventListener('click',close);
+  if(installed){txt.innerHTML='Cette application semble déjà installée sur cet appareil : ouvrez-la de préférence depuis l’icône de l’écran d’accueil. Sinon, installez-la maintenant.'}
+  if(inApp||iosOther){txt.innerHTML=guide();go.textContent='J’ai compris';go.onclick=close}
+  open();
 })();
 </script>
 </body>
