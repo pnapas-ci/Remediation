@@ -308,8 +308,8 @@ textarea.autogrow{resize:none;overflow:hidden;min-height:0;line-height:1.35;whit
     <label class="f">Code de l’école<input data-k="codeEcole"></label>
     <label class="f">Directeur (DEP)<input data-k="directeur"></label>
     <label class="f">Type de classe<select data-k="typeClasse"><option value="het">Classe hétérogène (2 groupes de niveau)</option><option value="hom">Classe homogène (3 groupes de niveau)</option></select></label>
-    <label class="f homonly">Discipline du groupe de niveau<select data-k="homDisc"><option value="math">Mathématiques</option><option value="lect">Lecture</option></select></label>
-    <label class="f homonly">Groupe de niveau tenu par l’enseignant(e)<select data-k="homGrp" id="homGrpSel"></select></label>
+    <label class="f homonly">Groupe de niveau tenu en mathématiques<select data-k="homGrpM" id="homGrpMSel"></select></label>
+    <label class="f homonly">Groupe de niveau tenu en lecture<select data-k="homGrpL" id="homGrpLSel"></select></label>
     <label class="f" id="classeW">Classe<select data-k="classe"><option value="">— Choisir —</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option></select></label>
     <label class="f">Année scolaire<input data-k="annee" readonly></label>
     <label class="f">Enseignant(e) / facilitateur<input data-k="enseignant"></label>
@@ -647,12 +647,13 @@ function mobInit(){
 
 function LIC_YEAR_HOOK(y){if(S&&S.annee!==y){S.annee=y;persist()}}
 /* Verrouillage de la classe : une application = une classe */
-const IDK=['drena','iepp','secteur','ecole','classe','enseignant','typeClasse','homDisc','homGrp'];const RAWK=['typeClasse','homDisc','homGrp'];
+const IDK=['drena','iepp','secteur','ecole','classe','enseignant','typeClasse','homGrpM','homGrpL'];const RAWK=['typeClasse','homGrpM','homGrpL'];
 const idLocked=()=>!!(LIC.cls&&LIC.cls.ecole);
 const normId=v=>UP(String(v||'').trim()).replace(/\s+/g,' ');
 function sameClass(C){return normId(C.ecole)===normId(LIC.cls.ecole)&&normId(C.classe)===normId(LIC.cls.classe)&&normId(C.enseignant)===normId(LIC.cls.enseignant)}
 function lockClass(){if(idLocked())return;LIC.cls={};IDK.forEach(k=>LIC.cls[k]=RAWK.includes(k)?(S[k]||''):normId(S[k]));LIC.cls.at=Date.now();saveLic()}
-function applyIdLock(){if(!idLocked())return;if(LIC.cls.typeClasse==null){LIC.cls.typeClasse='het';saveLic()}IDK.forEach(k=>{if(LIC.cls[k]!=null&&LIC.cls[k]!=='')S[k]=LIC.cls[k]});
+function applyIdLock(){if(!idLocked())return;if(LIC.cls.typeClasse==null){LIC.cls.typeClasse='het';saveLic()}
+  if(LIC.cls.homGrpM===undefined&&LIC.cls.homGrpL===undefined){const g=['g1','g2','g3'].includes(LIC.cls.homGrp)?LIC.cls.homGrp:'g1';LIC.cls.homGrpM=g;LIC.cls.homGrpL=g;saveLic()}IDK.forEach(k=>{if(LIC.cls[k]!=null&&LIC.cls[k]!=='')S[k]=LIC.cls[k]});
   IDK.forEach(k=>document.querySelectorAll('[data-k="'+k+'"]').forEach(el=>{if(el.tagName==='SELECT')el.disabled=true;else el.readOnly=true;el.title='Verrouillé : cette application est réservée à cette classe'}));
   ['drenaSel','ieppSel'].forEach(i=>{const e=document.getElementById(i);if(e){e.disabled=true;e.title='Verrouillé : cette application est réservée à cette classe'}})}
 
@@ -1244,16 +1245,18 @@ const cur=()=>S.tab;
 const isHom=()=>S&&S.typeClasse==='hom';
 const HOM_G={L1:'g1',L2:'g2',L3:'g3',DL:'g1',MP:'g2',HC:'g3'};
 const gOf=(dk,x)=>isHom()?HOM_G[x.l]:x.g;
-const GRS=()=>isHom()?[S.homGrp||'g1']:['g1','g2'];
-const DKS=()=>isHom()?[S.homDisc||'math']:['math','lect'];
-function homLabel(){const dk=S.homDisc||'math',g=S.homGrp||'g1';return UP('Groupe de niveau '+GNAME(dk,g).replace(/^Groupe \d : /,'')+' ('+(dk==='math'?'Mathématiques':'Lecture')+')')}
+const HG=dk=>isHom()?((dk==='math'?S.homGrpM:S.homGrpL)||''):'';
+const GRS=dk=>isHom()?(HG(dk)?[HG(dk)]:[]):['g1','g2'];
+const DKS=()=>isHom()?['math','lect'].filter(d=>HG(d)):['math','lect'];
+function homLabel(){return UP('Groupe de niveau '+DKS().map(dk=>GNAME(dk,HG(dk)).replace(/^Groupe \d : /,'')+' ('+(dk==='math'?'Mathématiques':'Lecture')+')').join(' / '))}
 const GNUM=g=>'Groupe '+g.slice(1);
 function GNAME(dk,g){const D=DISC[dk];if(!isHom())return D.G[g];const l=Object.keys(HOM_G).find(k=>HOM_G[k]===g&&D.LN[k]);return GNUM(g)+' : '+D.LN[l]}
-const presentGroups=dk=>(isHom()&&dk!==(S.homDisc||'math'))?[]:GRS().filter(g=>listOf(dk,g));
+const presentGroups=dk=>GRS(dk).filter(g=>listOf(dk,g));
 function homSync(){const h=isHom();document.body.classList.toggle('homMode',h);
-  const sel=document.getElementById('homGrpSel');if(sel){const dk=S.homDisc||'math';sel.innerHTML=['g1','g2','g3'].map(g=>`<option value="${g}">${esc(GNAME(dk,g)+'')}</option>`).join('')}
-  if(h){S.tab=S.homDisc||'math';if(!idLocked())S.classe=homLabel()}else if(/^GROUPE DE NIVEAU/.test(S.classe||'')&&!idLocked())S.classe='';
-  document.querySelectorAll('#tabs button').forEach(b=>{b.style.display=h&&b.dataset.tab!==S.tab?'none':''})}
+  [['math','homGrpMSel'],['lect','homGrpLSel']].forEach(([dk,id])=>{const sel=document.getElementById(id);if(!sel)return;const save=S.typeClasse;S.typeClasse='hom';
+    sel.innerHTML=['g1','g2','g3'].map(g=>`<option value="${g}">${esc(GNAME(dk,g)+'')}</option>`).join('')+`<option value="">Aucun groupe en ${dk==='math'?'mathématiques':'lecture'}</option>`;S.typeClasse=save});
+  if(h){if(!HG(S.tab))S.tab=DKS()[0]||'math';if(!idLocked())S.classe=homLabel()}else if(/^GROUPE DE NIVEAU/.test(S.classe||'')&&!idLocked())S.classe='';
+  document.querySelectorAll('#tabs button').forEach(b=>{b.style.display=h&&!HG(b.dataset.tab)?'none':''})}
 function computeAll(dk){return isHom()?presentGroups(dk).map(g=>compute(dk,g)):[compute(dk)]}
 function listOf(dk,g){const D=DISC[dk],st=S[dk];const f=D.LV.find(x=>gOf(dk,x)===g&&st.levels[x.k].on);return f?f.l:null}
 function lowestName(dk,g){const D=DISC[dk],st=S[dk];const f=D.LV.find(x=>(!g||gOf(dk,x)===g)&&st.levels[x.k].on);return f?f.n:''}
@@ -1393,7 +1396,7 @@ function renderLevels(){
       <input type="number" min="0" placeholder="Effectif" data-eff="${x.k}" value="${esc(st.levels[x.k].eff)}" ${st.levels[x.k].on&&!S.eleves.length?'':'disabled'} aria-label="Effectif ${x.n}"></div>`).join('')}
     <div class="lowest">${l?`Niveau le plus faible : <b>${lowestName(dk,g)}</b>. Activités du niveau <span class="badge">${D.LN[l]}</span>`:'<i>Aucun niveau coché.</i>'}</div></div>`;
   };
-  document.getElementById('levels').innerHTML=GRS().map(part).join('');document.getElementById('levels').classList.toggle('hom3',isHom());
+  document.getElementById('levels').innerHTML=GRS(dk).map(part).join('');document.getElementById('levels').classList.toggle('hom3',isHom());
   const msgs=[];
   if(S.eleves.length)msgs.push('Niveaux et effectifs calculés automatiquement à partir de la liste des apprenants (section 2).');
   if(!presentGroups(dk).length)msgs.push('Cochez au moins un niveau.');
@@ -1490,7 +1493,7 @@ function renderProgress(){
       <div class="toolbar" style="margin:8px 0 0"><button data-vary="${g}">🔀 Varier les activités (même objectif)</button>${(S[dk].vary&&S[dk].vary[g])?`<small style="color:var(--muted)">Variante n° ${S[dk].vary[g]+1}</small>`:''}</div>
     </div>`;
   };
-  document.getElementById('progress').innerHTML=GRS().map(part).join('');document.getElementById('progress').classList.toggle('hom3',isHom());
+  document.getElementById('progress').innerHTML=GRS(dk).map(part).join('');document.getElementById('progress').classList.toggle('hom3',isHom());
 }
 
 /* =====================================================================
@@ -1640,7 +1643,7 @@ function generate(){
   let autoMsg='';const log=genLog(dk);
   if(log[S.lundi]){const lun=new Date(S.lundi+'T12:00:00'),today=new Date();today.setHours(12,0,0,0);
     if(today-lun>=4*86400000){/* plan de cette semaine déjà généré et on est en fin de semaine : on prépare la semaine suivante */
-      const before={};GRS().forEach(g=>before[g]=stepIdx(dk,g));const END=shiftWeek();const mc=monthChanges(dk,before);
+      const before={};GRS(dk).forEach(g=>before[g]=stepIdx(dk,g));const END=shiftWeek();const mc=monthChanges(dk,before);
       autoMsg=`Semaine ${S.semaine} préparée automatiquement`+(shiftWeek.REP.length?` : reprise des objectifs non atteints pour ${shiftWeek.REP.join(', ')} ; les autres groupes passent à l’objectif suivant`:' : chaque groupe passe à l’objectif suivant')+(mc.length?` ; nouvel objectif du mois pour ${mc.map(GNUM).join(', ')}`:'')+(END.length?`. Programmation terminée pour ${END.join(', ')} : faites passer le test ASER.`:'.')}}
   log[S.lundi]={sem:S.semaine,steps:Object.assign({},S[dk].step),at:Date.now()};
   GEN[dk]=sig(dk);
@@ -1710,10 +1713,10 @@ document.addEventListener('change',e=>{
   if(el.id==='importFile'){importClasses(el.files[0]);el.value='';return}
   if(el.id==='aserImport'){aserImport(el.files);setTimeout(()=>{el.value=''},500);return}
   if(el.dataset.k){S[el.dataset.k]=el.value;if(el.dataset.k==='mer'){applyAlternation('math');applyAlternation('lect')}
-    if(el.dataset.k==='homDisc'||el.dataset.k==='homGrp'){S.eleves=S.eleves.filter(e=>!e.orig);GEN={math:null,lect:null};toast('Groupe de niveau : '+homLabel()+'. Importez les résultats ASER des classes.')}
+    if(el.dataset.k==='homGrpM'||el.dataset.k==='homGrpL'){if(!S.homGrpM&&!S.homGrpL){S[el.dataset.k==='homGrpM'?'homGrpL':'homGrpM']='g1'}S.eleves=S.eleves.filter(e=>!e.orig);GEN={math:null,lect:null};toast('Groupe de niveau : '+homLabel()+'. Importez les résultats ASER des classes.')}
     if(el.dataset.k==='typeClasse'){['math','lect'].forEach(d=>{S[d].step={g1:0,g2:0,g3:0};S[d].vary={g1:0,g2:0,g3:0}});GEN={math:null,lect:null};toast(isHom()?'Classe homogène : 3 groupes de niveau, un plan de session par groupe':'Classe hétérogène : 2 groupes de niveau, avec alternance')}
     renderAll();return}
-  if(el.dataset.lv){const b=GRS().map(g=>listOf(dk,g));S[dk].levels[el.dataset.lv].on=el.checked;GRS().forEach((g,i)=>{if(listOf(dk,g)!==b[i])S[dk].step[g]=0});renderAll();return}
+  if(el.dataset.lv){const b=GRS(dk).map(g=>listOf(dk,g));S[dk].levels[el.dataset.lv].on=el.checked;GRS(dk).forEach((g,i)=>{if(listOf(dk,g)!==b[i])S[dk].step[g]=0});renderAll();return}
   if(el.dataset.ov){const [d,k,f]=el.dataset.ov.split('.');(S[dk].days[d].ov[k]=S[dk].days[d].ov[k]||blankOv())[f]=el.value;renderAll();return}
   if(el.dataset.month){const g=el.dataset.month,arr=stepsOf(dk,g);const k=arr.findIndex(x=>x.m===+el.value);S[dk].step[g]=Math.max(0,k);renderAll();return}
   if(el.id==='trSel'){S[dk].tranche=el.value;renderAll();return}
@@ -1802,7 +1805,7 @@ function shiftWeek(all){const prev=S.lundi;const ENDMSG=[],REP=[];
   if(S.lundi){const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+7);S.lundi=d.toISOString().slice(0,10)}
   ['math','lect'].forEach(dk=>{if(!all&&(!prev||!genLog(dk)[prev]))return;
     S[dk].reprise=S[dk].reprise||{};const oldVary=Object.assign({},S[dk].vary||{});const keepVary={};
-    GRS().forEach(g=>{const n=stepsOf(dk,g).length;if(!n)return;const e=S[dk].eval&&S[dk].eval[g];
+    GRS(dk).forEach(g=>{const n=stepsOf(dk,g).length;if(!n)return;const e=S[dk].eval&&S[dk].eval[g];
       const v=(e&&e.lundi===prev&&e.step===stepIdx(dk,g))?weekVerdict(dk,g,e):{adv:true};
       if(!v.adv){S[dk].reprise[g]={step:stepIdx(dk,g),idx:v.idx,sem:v.sem};keepVary[g]=(oldVary[g]||0)+1;REP.push(DISC[dk].name+' – '+GNUM(g));return}
       delete S[dk].reprise[g];
@@ -1811,7 +1814,7 @@ function shiftWeek(all){const prev=S.lundi;const ENDMSG=[],REP=[];
     DAYS.forEach(d=>S[dk].days[d.k].ov={common:blankOv(),g1:blankOv(),g2:blankOv(),g3:blankOv(),cg1:blankOv(),cg2:blankOv(),cg3:blankOv()});
     S[dk].vary=Object.assign({g1:0,g2:0,g3:0},keepVary);GEN[dk]=null;applyAlternation(dk)});
   shiftWeek.REP=REP;return ENDMSG}
-function monthChanges(dk,before){return GRS().filter(g=>{const l=listOf(dk,g);if(!l||before[g]==null)return false;const A=DISC[dk].steps[l];return A[before[g]]&&A[stepIdx(dk,g)]&&A[before[g]].m!==A[stepIdx(dk,g)].m})}
+function monthChanges(dk,before){return GRS(dk).filter(g=>{const l=listOf(dk,g);if(!l||before[g]==null)return false;const A=DISC[dk].steps[l];return A[before[g]]&&A[stepIdx(dk,g)]&&A[before[g]].m!==A[stepIdx(dk,g)].m})}
 function autoCatchUp(){if(!S||!S.lundi)return;const today=new Date();today.setHours(12,0,0,0);let n=0;
   while(n<60){const l=new Date(S.lundi+'T12:00:00');if(today-l<7*86400000)break;shiftWeek();n++}
   if(n)persist();return n}
@@ -1822,7 +1825,7 @@ function nextWeek(){
 function repeatWeek(){
   S.semaine=String(weekNo()+1);
   if(S.lundi){const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+7);S.lundi=d.toISOString().slice(0,10)}
-  ['math','lect'].forEach(dk=>{S[dk].vary=S[dk].vary||{g1:0,g2:0,g3:0};GRS().forEach(g=>S[dk].vary[g]=(S[dk].vary[g]||0)+1);
+  ['math','lect'].forEach(dk=>{S[dk].vary=S[dk].vary||{g1:0,g2:0,g3:0};GRS(dk).forEach(g=>S[dk].vary[g]=(S[dk].vary[g]||0)+1);
     DAYS.forEach(d=>S[dk].days[d.k].ov={common:blankOv(),g1:blankOv(),g2:blankOv()});applyAlternation(dk)});
   renderAll();toast(`Semaine ${S.semaine} : même objectif, avec d’autres activités`);
 }
@@ -1875,7 +1878,7 @@ S.annee=SCHOOL_YEAR();
 upObj(S,['enseignant','directeur','ecole','secteur','drena','iepp']);S.eleves.forEach(e=>{if(typeof e.nom==='string')e.nom=UP(e.nom)});
 if(!S.aser)S.aser='Début d’année';
 if(S.typeClasse!=='hom')S.typeClasse='het';
-if(S.homDisc!=='lect')S.homDisc='math';if(!['g1','g2','g3'].includes(S.homGrp))S.homGrp='g1';
+if(S.homGrpM===undefined&&S.homGrpL===undefined){const g=['g1','g2','g3'].includes(S.homGrp)?S.homGrp:'g1';S.homGrpM=g;S.homGrpL=g}if(!['','g1','g2','g3'].includes(S.homGrpM))S.homGrpM='g1';if(!['','g1','g2','g3'].includes(S.homGrpL))S.homGrpL='g1';if(!S.homGrpM&&!S.homGrpL)S.homGrpM='g1';
 ['math','lect'].forEach(dk=>{const st=S[dk];if(!st)return;st.step=st.step||{};['g1','g2','g3'].forEach(g=>{if(st.step[g]==null)st.step[g]=0});st.vary=st.vary||{};
   Object.values(st.days||{}).forEach(d=>{d.ov=d.ov||{};['common','g1','g2','g3','cg1','cg2','cg3'].forEach(k=>{if(!d.ov[k])d.ov[k]=blankOv()})})});
 ['secteur','codeEcole','sexeEns','forme','effClasse','taux','sigles'].forEach(k=>{if(S[k]===undefined)S[k]=''});
@@ -1937,14 +1940,15 @@ function histHTML(){
 function syncLevels(){
   if(!S.eleves.length)return;
   ['math','lect'].forEach(dk=>{
-    const st=S[dk];const b=GRS().map(g=>listOf(dk,g));
+    const st=S[dk];const b=GRS(dk).map(g=>listOf(dk,g));
     DISC[dk].LV.forEach(x=>{const n=S.eleves.filter(e=>curLevel(e,dk)===x.k).length;st.levels[x.k].on=n>0;st.levels[x.k].eff=n?String(n):''});
-    GRS().forEach((g,i)=>{if(listOf(dk,g)!==b[i])st.step[g]=0});
+    GRS(dk).forEach((g,i)=>{if(listOf(dk,g)!==b[i])st.step[g]=0});
   });
 }
 function newEleve(nom){const t={};TKEYS.forEach(k=>t[k]={l:'',m:'',ol:'',om:'',v:''});return {id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),nom:nom||'',sexe:'',arr:'',t,lect:'',math:''}}
 function nowCell(e,dk){const N=LVN(dk),c=curLevel(e,dk),lp=lastPass(e,dk);
   return `<td class="now"><span class="${lp?'up':''}">${N[c]||'—'}</span>${lp?`<small>depuis le ${fmtD(lp.date)}</small>`:''}<button class="pbtn" data-prog="${e.id}.${dk}" title="Enregistrer une progression">↑ Progression</button></td>`}
+function homNote(e){const out=(e.hd||DKS()).filter(dk=>HG(dk)&&curLevel(e,dk)&&gOf(dk,DISC[dk].LV.find(x=>x.k===curLevel(e,dk))||{l:''})!==HG(dk));return out.length?' – <b>a progressé en '+out.map(d=>d==='math'?'mathématiques':'lecture').join(' et en ')+' : passe à un autre groupe de niveau</b>':''}
 function renderEleves(){{const ef=document.querySelector('[data-k="effClasse"]');S.effClasse=String(effTestes());if(ef)ef.value=S.effClasse}
   const box=document.getElementById('eleves');
   const opt=(dk,v)=>`<option value="">—</option>`+DISC[dk].LV.map(x=>`<option value="${x.k}" ${v===x.k?'selected':''}>${x.n}</option>`).join('');
@@ -1952,7 +1956,7 @@ function renderEleves(){{const ef=document.querySelector('[data-k="effClasse"]')
   document.getElementById('tDate').value=(S.tests[tk]||{}).date||'';
   const rows=S.eleves.map((e,i)=>`<tr>
     <td class="num">${i+1}</td>
-    <td><input data-el="${i}.nom" value="${esc(e.nom)}" placeholder="Nom et prénoms">${e.orig?`<small class="orig">Classe d’origine : ${esc(e.orig)}${isHom()&&!GRS().includes(gOf(S.homDisc,DISC[S.homDisc].LV.find(x=>x.k===curLevel(e,S.homDisc))||{l:''}))&&curLevel(e,S.homDisc)?' – <b>a progressé : passe à un autre groupe de niveau</b>':''}</small>`:''}</td>
+    <td><input data-el="${i}.nom" value="${esc(e.nom)}" placeholder="Nom et prénoms">${e.orig?`<small class="orig">Classe d’origine : ${esc(e.orig)}${isHom()?homNote(e):''}</small>`:''}</td>
     <td><select data-el="${i}.sexe"><option value="">—</option><option ${e.sexe==='G'?'selected':''}>G</option><option ${e.sexe==='F'?'selected':''}>F</option></select></td>
     <td class="c"><input type="checkbox" data-el="${i}.arr" ${e.arr==='1'?'checked':''} title="Arrivé(e) après le test de début"></td>
     <td><select data-et="${i}.l">${opt('lect',e.t[tk].l)}</select></td>
@@ -1969,7 +1973,7 @@ function renderEleves(){{const ef=document.querySelector('[data-k="effClasse"]')
     <tbody>${rows||'<tr><td colspan="12" class="emptyrow">Aucun apprenant. Collez une liste de noms ci-dessous ou ajoutez-les un par un.</td></tr>'}</tbody></table></div>
     <div class="elfoot"><span><b>${cnt}</b> apprenant${cnt>1?'s':''} (${g} G, ${f} F)</span>
       <button id="btnAddEl">+ Ajouter un apprenant</button></div>
-    ${isHom()?`<div class="impbox"><b>📥 Apprenants du groupe de niveau ${esc(homLabel().replace(/^GROUPE DE NIVEAU /,''))}</b><br><small>Importez les fichiers « résultats ASER » envoyés par les enseignants des classes (CE1, CE2, CM1, CM2). Seuls les apprenants dont le niveau en ${S.homDisc==='lect'?'lecture':'mathématiques'} correspond à votre groupe de niveau sont ajoutés automatiquement à votre liste.</small><br>
+    ${isHom()?`<div class="impbox"><b>📥 Apprenants du groupe de niveau ${esc(homLabel().replace(/^GROUPE DE NIVEAU /,''))}</b><br><small>Importez les fichiers « résultats ASER » envoyés par les enseignants des classes (CE1, CE2, CM1, CM2). Sont ajoutés automatiquement les apprenants dont le niveau ${DKS().map(d=>'en '+(d==='math'?'mathématiques':'lecture')).join(' ou ')} correspond à votre groupe de niveau. Chacun suit ensuite le plan de la discipline où il est dans votre groupe.</small><br>
       <label class="filebtn primary" style="margin-top:6px">Importer les résultats ASER des classes<input type="file" id="aserImport" accept=".json,application/json" multiple hidden></label></div>`
      :`<div class="impbox"><b>📤 Résultats ASER pour les groupes de niveau homogènes</b><br><small>Si les apprenants de votre classe sont répartis en groupes de niveau homogènes, envoyez ce fichier aux enseignants qui tiennent ces groupes : leurs listes se rempliront automatiquement.</small><br>
       <button id="btnAserExport" style="margin-top:6px">Exporter les résultats ASER de ma classe</button></div>`}
@@ -2061,7 +2065,7 @@ function docGroupes(){
   DKS().forEach(dk=>{
     const D=DISC[dk],N=LVN(dk);
     h+=`<p style="font-weight:bold;font-size:12pt;margin:14px 0 4px;">${D.name.toUpperCase()}</p>`;
-    GRS().forEach(g=>{
+    GRS(dk).forEach(g=>{
       const {list,groups}=smallGroups(dk,g);
       h+=`<p style="margin:8px 0 4px;"><b>${esc(GNAME(dk,g))}</b> – ${list.length} apprenant${list.length>1?'s':''}</p>`;
       if(!list.length){h+=`<p style="font-size:10pt;">Aucun apprenant.</p>`;return}
@@ -2097,7 +2101,7 @@ function docPresence(){
   const DK=['lun','mar','mer','jeu','ven'],DL=['L','M','M','J','V'];
   const b='border:1px solid #000;padding:1px 2px;font-size:7.5pt;text-align:center;';const bh=b+'font-weight:bold;background:#f2f2f2;';
   const sheets=[];
-  DKS().forEach(dk=>GRS().forEach(g=>{
+  DKS().forEach(dk=>GRS(dk).forEach(g=>{
     const M=groupMembers(dk,g);if(!M.length)return;
     let h=`<p style="text-align:center;font-weight:bold;font-size:13pt;margin:0 0 4px;">Liste de présence</p>
      <p style="background:#e6e6e6;font-size:8pt;margin:0 0 6px;padding:3px;"><b><u>Instructions</u> :</b> <i>Mettre "A" lorsque l'élève est absent, ne rien écrire dans la case lorsque l'élève est présent et mettre un rond " <b>O</b> " lorsque l'élève passe au niveau supérieur.</i></p>
@@ -2133,7 +2137,7 @@ function docProgression(){
   const b='border:1px solid #000;padding:2px 4px;font-size:8.5pt;text-align:center;height:15px;';const bh=b+'font-weight:normal;';
   const sheets=[];
   DKS().forEach(dk=>{const N=LVN(dk);
-    GRS().forEach(g=>{
+    GRS(dk).forEach(g=>{
       const lv=DISC[dk].LV.filter(x=>gOf(dk,x)===g).map(x=>x.k);
       const rows=[];
       S.eleves.forEach(e=>{const sg=segmentsOf(e,dk);sg.forEach((s,i)=>{if(!lv.includes(s.lvl))return;const nx=sg[i+1];rows.push({nom:e.nom,niv:N[s.lvl]||'',de:s.date?fmtD(s.date):'',na:nx?N[nx.lvl]:'',ds:nx&&nx.date?fmtD(nx.date):''})})});
@@ -2269,18 +2273,18 @@ function aserExport(){
   saveFile(('resultats-aser-'+(S.classe||'classe')+'-'+(S.ecole||'ecole')).replace(/[^A-Za-z0-9-]+/g,'-').toLowerCase()+'.json',JSON.stringify(d));
   toast('Fichier exporté : envoyez-le aux enseignants des groupes de niveau homogènes')}
 function aserImport(files){
-  if(!files||!files.length)return;const dk=S.homDisc||'math',grp=S.homGrp||'g1';let added=0,skip=0,bad=0,done=0;
-  const have=new Set(S.eleves.map(e=>UP(e.nom)+'|'+(e.orig||'')));
+  if(!files||!files.length)return;const DD=DKS();let added=0,skip=0,bad=0,done=0;
+  const have=new Map(S.eleves.map(e=>[UP(e.nom)+'|'+(e.orig||''),e]));
   [...files].forEach(f=>{const r=new FileReader();r.onload=()=>{
     try{const d=JSON.parse(r.result);let srcs=[];
       if(d&&d.app==='pnapas-aser')srcs=[d];else{const list=d.list||d;srcs=Object.values(list).filter(c=>c&&Array.isArray(c.eleves))}
       if(!srcs.length)throw 0;
       srcs.forEach(src=>{if(src.typeClasse==='hom')return;const orig=[src.classe,src.ecole].filter(Boolean).join(' – ');
         const save=S;S=Object.assign({},save,{tests:src.tests||{},progs:src.progs||[]});
-        const pick=(src.eleves||[]).map(e=>({e,lv:curLevel(e,dk)}));S=save;
-        pick.forEach(({e,lv})=>{const x=DISC[dk].LV.find(y=>y.k===lv);if(!x||HOM_G[x.l]!==grp){skip++;return}
-          const key=UP(e.nom)+'|'+orig;if(have.has(key))return;have.add(key);
-          const n=JSON.parse(JSON.stringify(e));const oid=n.id;n.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);n.orig=orig;n.nom=UP(n.nom||'');
+        const pick=(src.eleves||[]).map(e=>({e,hd:DD.filter(dk=>{const x=DISC[dk].LV.find(y=>y.k===curLevel(e,dk));return x&&HOM_G[x.l]===HG(dk)})}));S=save;
+        pick.forEach(({e,hd})=>{if(!hd.length){skip++;return}
+          const key=UP(e.nom)+'|'+orig;if(have.has(key)){const o=have.get(key);o.hd=[...new Set([...(o.hd||[]),...hd])];return}
+          const n=JSON.parse(JSON.stringify(e));const oid=n.id;n.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);n.orig=orig;n.hd=hd;n.nom=UP(n.nom||'');have.set(key,n);
           (src.progs||[]).filter(p=>p.eid===oid).forEach(p=>S.progs.push(Object.assign({},p,{eid:n.id})));
           S.eleves.push(n);added++})})}
     catch(e){bad++}
