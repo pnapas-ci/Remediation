@@ -62,7 +62,7 @@ details.diag.flash{animation:dflash 1.6s}@keyframes dflash{0%,60%{box-shadow:0 0
 .slot.g3{background:#fdf3e7}
 body:not(.homMode) .homonly{display:none}
 body.homMode #classeW{display:none}
-.cosel{width:auto;min-width:70px;padding:2px 4px;font-size:12px;display:inline-block} .orig{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.trwrap{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 10px;border:2px solid var(--acc);border-radius:8px;background:var(--accs);margin:4px 0} .trc{padding:5px 12px;border-radius:16px;font-weight:600} .trc.on{background:var(--acc);color:#fff;border-color:var(--acc)} .gm{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;display:flex;align-items:center;justify-content:center;padding:14px} .gm .box{background:#fff;border-radius:12px;max-width:560px;width:100%;padding:18px 20px;box-shadow:0 10px 30px rgba(0,0,0,.3);max-height:92vh;overflow:auto} .gm h3{margin:0 0 10px} .gm label.opt{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line,#ccd);border-radius:8px;margin:6px 0;cursor:pointer} .gm .chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0} .gm .chips label{border:1px solid #bbb;border-radius:16px;padding:5px 12px;cursor:pointer;font-weight:600} .gm input[type=radio]{width:auto;min-width:0;flex:none;margin:3px 6px 0 0;padding:0;box-shadow:none} .gm label.opt span{flex:1} .gm .chips label{display:inline-flex;align-items:center} .cosel{width:auto;min-width:70px;padding:2px 4px;font-size:12px;display:inline-block} .orig{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
 .impbox{margin:10px 0;padding:10px 12px;border:1px dashed #9fb5aa;border-radius:8px;background:#f6faf8}
 .grp h3{margin:0 0 8px;font-size:15px}
 .lvl{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px dashed rgba(0,0,0,.1)}
@@ -363,8 +363,7 @@ textarea.autogrow{resize:none;overflow:hidden;min-height:0;line-height:1.35;whit
     <label class="f" id="firstWrap" style="flex-direction:row;align-items:center;gap:6px">Le lundi, l'enseignant travaille avec
       <select id="firstSel" style="width:auto"><option value="g1">le Groupe 1</option><option value="g2">le Groupe 2</option></select>
     </label>
-    <label class="f" id="trWrap" style="flex-direction:row;align-items:center;gap:6px">Tranche de nombres (reconnaissance)
-      <select id="trSel" style="width:auto"></select></label>
+    <div id="trWrap" class="trwrap"><b>Tranche de nombres de la semaine (reconnaissance des nombres) :</b> <span id="trChips"></span> <small id="trPrev"></small></div>
     <button id="btnAlt">Réappliquer l'alternance</button>
     <span style="flex:1"></span>
     <button id="btnRepeat" title="Objectif de la semaine non atteint : on le reprend avec d’autres activités">↻ Reprendre la semaine (autres activités)</button>
@@ -1505,7 +1504,8 @@ function renderDays(){
   document.getElementById('firstWrap').style.display=hom?'none':'';document.getElementById('btnAlt').style.display=hom?'none':'';
   document.getElementById('firstSel').value=st.first;document.getElementById('firstSel').disabled=weekNo()===1;document.getElementById('firstSel').title=weekNo()===1?'Semaine 1 : le Groupe 1 commence obligatoirement avec l’enseignant':'';
   {const C0s=hom?presentGroups(dk).map(g=>listOf(dk,g)):[listOf(dk,'g1')||listOf(dk,'g2')];const w=document.getElementById('trWrap');w.style.display=(dk==='math'&&C0s.some(C0=>C0==='L1'||C0==='L2'))?'flex':'none';
-   document.getElementById('trSel').innerHTML=TRANCHES.map(t=>`<option ${ (st.tranche||TRANCHES[0])===t?'selected':''}>${t}</option>`).join('')}
+   const curTr=st.tranche||TRANCHES[0];document.getElementById('trChips').innerHTML=TRANCHES.map(t=>`<button class="trc ${curTr===t?'on':''}" data-tr="${t}">${t}</button>`).join('');
+    const pv=prevTr(dk);document.getElementById('trPrev').textContent=pv?'(semaine précédente : '+pv+(pv===curTr&&TRANCHES.indexOf(curTr)<TRANCHES.length-1?' – pensez à passer à la tranche supérieure si elle est maîtrisée':'')+')':''}
   document.getElementById('days').innerHTML=CS.map(C=>(hom?`<h3 class="homh ${C.focus}">${esc(GNAME(dk,C.focus))} – plan de session de la classe homogène</h3>`:'')+C.days.map(({d,rows})=>`<div class="day"><div class="dh">${d.n} <small>${dateOf(d.o)}</small></div>
    ${rows.map(r=>{
      const isC=r.slot==='common';
@@ -1634,23 +1634,48 @@ function planCoreHet(dk){
    ===================================================================== */
 let GEN={math:null,lect:null};   // empreinte de l'état au moment de la génération
 function sig(dk){return JSON.stringify([S.ecole,S.classe,S.enseignant,S.typeClasse,S.semaine,S.lundi,S.mer,S[dk]])}
+function trApplies(dk){if(dk!=='math')return false;const hom=isHom();const C0s=hom?presentGroups(dk).map(g=>listOf(dk,g)):[listOf(dk,'g1')||listOf(dk,'g2')];return C0s.some(C0=>C0==='L1'||C0==='L2')}
+function prevTr(dk){const log=genLog(dk);const k=Object.keys(log).filter(l=>l<S.lundi).sort().pop();return k?(log[k].tr||TRANCHES[0]):''}
+const nextTrOf=t=>TRANCHES[Math.min(TRANCHES.indexOf(t)+1,TRANCHES.length-1)];
+const fmtLun=(l,o)=>{const d=new Date(l+'T12:00:00');d.setDate(d.getDate()+o);return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})};
 function generate(){
   const dk=cur();
   if(!presentGroups(dk).length){toast('Cochez d’abord les niveaux');return}
   if(diagBlock(dk))return;
-  /* semaine : date du lundi fixée automatiquement si absente */
   if(!S.lundi){S.lundi=mondayOf(new Date());if(!S.semaine)S.semaine='1'}
+  const log=genLog(dk),done=!!log[S.lundi],tra=trApplies(dk),curTr=S[dk].tranche||TRANCHES[0],pv=prevTr(dk);
+  const askTr=tra&&(done?TRANCHES.indexOf(curTr)>=0:(pv&&pv===curTr));
+  if(!done&&!askTr){doGenerate(dk,false);return}
+  genModal(dk,{done,tra,curTr});
+}
+function genModal(dk,o){const old=document.getElementById('genModal');if(old)old.remove();
+  const nl=(()=>{const d=new Date(S.lundi+'T12:00:00');d.setDate(d.getDate()+7);return d.toISOString().slice(0,10)})();
+  const sugg=nextTrOf(o.curTr),last=TRANCHES.indexOf(o.curTr)===TRANCHES.length-1;
+  const trBlock=o.tra?`<p style="margin:12px 0 4px"><b>Tranche de nombres pour la reconnaissance des nombres</b> (groupes Débutant / 1 chiffre et 2 chiffres) :</p>
+    <p class="hint" style="margin:0 0 4px">Tranche ${o.done?'de la semaine qui se termine':'de la semaine précédente'} : <b>${o.curTr}</b>. ${last?'C’est la dernière tranche (80 à 99).':'Les apprenants la maîtrisent-ils ? Si oui, passez à la tranche supérieure.'}</p>
+    <div class="chips">${TRANCHES.map(t=>`<label><input type="radio" name="gmTr" value="${t}" ${(last?o.curTr:sugg)===t?'checked':''}>${t}${t===sugg&&!last?' (tranche supérieure)':t===o.curTr?' (même tranche)':''}</label>`).join('')}</div>`:'';
+  const wk=o.done?`<p style="margin:0 0 6px">Le plan de ${DISC[dk].name.toLowerCase()} de la <b>semaine n°${weekNo()}</b> (du ${fmtLun(S.lundi,0)} au ${fmtLun(S.lundi,4)}) a déjà été généré.</p>
+    <label class="opt"><input type="radio" name="gmWk" value="next" checked><span><b>Générer le plan de la semaine suivante : semaine n°${weekNo()+1}</b> (du ${fmtLun(nl,0)} au ${fmtLun(nl,4)}). Les objectifs avancent selon le bilan de la semaine.</span></label>
+    <label class="opt"><input type="radio" name="gmWk" value="same"><span>Mettre à jour le plan de la semaine n°${weekNo()} (corrections), sans changer de semaine.</span></label>`
+    :`<p style="margin:0 0 6px">Nouvelle semaine : <b>semaine n°${weekNo()}</b> (du ${fmtLun(S.lundi,0)} au ${fmtLun(S.lundi,4)}).</p>`;
+  const m=document.createElement('div');m.className='gm';m.id='genModal';
+  m.innerHTML=`<div class="box" role="dialog" aria-modal="true"><h3>▶ Générer le plan de session</h3>${wk}${trBlock}<div class="toolbar" style="margin-top:14px"><button class="primary" id="gmOk">Générer le plan</button><button id="gmCancel">Annuler</button></div></div>`;
+  document.body.appendChild(m);
+  if(o.done&&o.tra)m.querySelectorAll('input[name=gmWk]').forEach(r=>r.addEventListener('change',()=>{const v=m.querySelector('input[name=gmWk]:checked').value;const t=v==='same'?o.curTr:(last?o.curTr:sugg);const x=m.querySelector(`input[name=gmTr][value="${t}"]`);if(x)x.checked=true}));
+  m.querySelector('#gmCancel').onclick=()=>m.remove();
+  m.querySelector('#gmOk').onclick=()=>{const w=m.querySelector('input[name=gmWk]:checked'),t=m.querySelector('input[name=gmTr]:checked');
+    if(t)S[dk].tranche=t.value;m.remove();doGenerate(dk,!!(w&&w.value==='next'))};
+}
+function doGenerate(dk,next){
   let autoMsg='';const log=genLog(dk);
-  if(log[S.lundi]){const lun=new Date(S.lundi+'T12:00:00'),today=new Date();today.setHours(12,0,0,0);
-    if(today-lun>=4*86400000){/* plan de cette semaine déjà généré et on est en fin de semaine : on prépare la semaine suivante */
-      const before={};GRS(dk).forEach(g=>before[g]=stepIdx(dk,g));const END=shiftWeek();const mc=monthChanges(dk,before);
-      autoMsg=`Semaine ${S.semaine} préparée automatiquement`+(shiftWeek.REP.length?` : reprise des objectifs non atteints pour ${shiftWeek.REP.join(', ')} ; les autres groupes passent à l’objectif suivant`:' : chaque groupe passe à l’objectif suivant')+(mc.length?` ; nouvel objectif du mois pour ${mc.map(GNUM).join(', ')}`:'')+(END.length?`. Programmation terminée pour ${END.join(', ')} : faites passer le test ASER.`:'.')}}
-  log[S.lundi]={sem:S.semaine,steps:Object.assign({},S[dk].step),at:Date.now()};
+  if(next){const before={};GRS(dk).forEach(g=>before[g]=stepIdx(dk,g));const END=shiftWeek();const mc=monthChanges(dk,before);
+      autoMsg=`Semaine ${S.semaine} préparée`+(shiftWeek.REP.length?` : reprise des objectifs non atteints pour ${shiftWeek.REP.join(', ')} ; les autres groupes passent à l’objectif suivant`:' : chaque groupe passe à l’objectif suivant')+(mc.length?` ; nouvel objectif du mois pour ${mc.map(GNUM).join(', ')}`:'')+(END.length?`. Programmation terminée pour ${END.join(', ')} : faites passer le test ASER.`:'.')}
+  log[S.lundi]={sem:S.semaine,steps:Object.assign({},S[dk].step),at:Date.now(),tr:S[dk].tranche||TRANCHES[0]};
   GEN[dk]=sig(dk);
   if(S.lundi){S.sessLog[S.lundi]=S.sessLog[S.lundi]||{};S.sessLog[S.lundi][dk]=activeDays().length;persist()}
   renderPlan();
   document.getElementById('planCard').scrollIntoView({behavior:'smooth',block:'start'});
-  renderAll();toast(autoMsg||`Plan de session de ${DISC[dk].name.toLowerCase()} généré (semaine ${S.semaine})`);
+  renderAll();toast((autoMsg?autoMsg+' ':'')+`Plan de session de ${DISC[dk].name.toLowerCase()} généré (semaine ${S.semaine}${trApplies(dk)?', tranche '+(S[dk].tranche||TRANCHES[0]):''})`);
 }
 function renderPlan(){
   const dk=cur(),st=document.getElementById('genState'),bar=document.getElementById('exportBar'),pl=document.getElementById('plan');
@@ -1689,6 +1714,7 @@ document.addEventListener('input',e=>{
   if(el.dataset.k&&isTxt(el)){S[el.dataset.k]=el.value;persist();renderPlan();return}
   if(el.dataset.eff){S[dk].levels[el.dataset.eff].eff=el.value;persist();renderPlan();return}
   if(el.dataset.pf&&isTxt(el)){PF[el.dataset.pf]=el.value;return}
+  if(el.dataset.na&&NA&&isTxt(el)){NA[el.dataset.na]=el.value;return}
   if(el.dataset.el&&isTxt(el)){const [i,f]=el.dataset.el.split('.');S.eleves[+i][f]=el.value;persist();return}
   if(el.dataset.ov&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA')){const [d,k,f]=el.dataset.ov.split('.');(S[dk].days[d].ov[k]=S[dk].days[d].ov[k]||blankOv())[f]=el.value;persist();renderPlan();return}
 });
@@ -1705,6 +1731,7 @@ document.addEventListener('change',e=>{
     if((f==='l'||f==='m')&&el.value&&!S.tests[tk].date)S.tests[tk].date=new Date().toISOString().slice(0,10);
     deriveAll();renderAll();return}
   if(el.id==='tDate'){S.tests[curT()].date=el.value;deriveAll();renderAll();return}
+  if(el.dataset.na&&NA){NA[el.dataset.na]=el.value;if(el.dataset.na==='dk'){NA.from='';NA.to=''}if(!isTxt(el))renderEleves();return}
   if(el.dataset.el){const [i,f]=el.dataset.el.split('.');const e=S.eleves[+i];if(!e)return;
     e[f]=el.type==='checkbox'?(el.checked?'1':''):el.value;
     renderAll();return}
@@ -1742,6 +1769,14 @@ document.addEventListener('click',e=>{
   if(b.id==='btnPrintDoc'){printHTML(wrapPrint(docHTML(DOCGEN)));return}
   if(b.dataset.prog){const [eid,d]=b.dataset.prog.split('.');openPF(eid,d);renderEleves();document.querySelector('.pform').scrollIntoView({behavior:'smooth',block:'center'});return}
   if(b.id==='btnPFcancel'){PF=null;renderEleves();return}
+  if(b.dataset.trf!=null){transferExport(+b.dataset.trf);return}
+  if(b.id==='btnNA'){const dk=cur();NA={nom:'',sexe:'',co:'',dk,from:'',to:'',date:new Date().toISOString().slice(0,10),note:''};renderEleves();return}
+  if(b.id==='btnNAcancel'){NA=null;renderEleves();return}
+  if(b.id==='btnNAsave'){if(!NA||!UP(NA.nom)||!NA.to||!NA.date){toast('Saisissez au moins le nom, le nouveau niveau et la date de progression');return}
+    const L=DISC[NA.dk].LV.map(x=>x.k);if(NA.from&&L.indexOf(NA.from)>=L.indexOf(NA.to)){toast('Le nouveau niveau doit être supérieur au niveau avant la progression');return}
+    const e=newEleve(UP(NA.nom));e.sexe=NA.sexe;e.co=NA.co;e.hd=[NA.dk];e.arr='1';const tk=curT();if(NA.from)e.t[tk][NA.dk==='math'?'m':'l']=NA.from;
+    S.eleves.push(e);S.progs.push({id:'p'+Math.random().toString(36).slice(2,8),eid:e.id,dk:NA.dk,from:NA.from||'',to:NA.to,date:NA.date,obs:addD(NA.date,-14),test:'Réussi',contre:'',note:('Arrivé(e) d’un autre groupe de niveau'+(NA.note?' : '+NA.note:''))});
+    toast(e.nom+' ajouté(e) : niveau '+LVN(NA.dk)[NA.to]+' à partir du '+fmtD(NA.date));NA=null;deriveAll();syncLevels();GEN={math:null,lect:null};persist();renderAll();return}
   if(b.id==='btnPFsave'){if(!PF||!PF.to||!PF.date){toast('Choisissez le nouveau niveau et la date');return}
     const e=S.eleves.find(x=>x.id===PF.eid);S.progs.push(Object.assign({id:'p'+Math.random().toString(36).slice(2,8),from:curLevel(e,PF.dk)},PF));
     toast(PF.test==='Réussi'?'Progression enregistrée : '+(e.nom||'')+' passe au niveau '+LVN(PF.dk)[PF.to]:'Test non réussi enregistré');PF=null;renderAll();return}
@@ -1762,6 +1797,7 @@ document.addEventListener('click',e=>{
     if(isW1D1(d)&&((g==='g1'&&aut)||(g==='g2'&&!aut))){toast('Semaine 1, jour 1 : le Groupe 1 est obligatoirement avec l’enseignant');return}
     S[dk].days[d].active=aut?(g==='g1'?'g2':'g1'):g;renderAll();return}
   if(b.id==='btnAlt'){applyAlternation(dk);renderAll();toast('Alternance réappliquée');return}
+  if(b.dataset.tr){S[dk].tranche=b.dataset.tr;GEN[dk]=null;renderAll();toast('Tranche de nombres de la semaine : '+b.dataset.tr);return}
   if(b.id==='btnGen'){generate();return}
   if(b.id==='btnNext'){nextWeek();return}
   if(b.id==='btnRepeat'){repeatWeek();return}
@@ -1948,7 +1984,31 @@ function syncLevels(){
 function newEleve(nom){const t={};TKEYS.forEach(k=>t[k]={l:'',m:'',ol:'',om:'',v:''});return {id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),nom:nom||'',sexe:'',arr:'',t,lect:'',math:''}}
 function nowCell(e,dk){const N=LVN(dk),c=curLevel(e,dk),lp=lastPass(e,dk);
   return `<td class="now"><span class="${lp?'up':''}">${N[c]||'—'}</span>${lp?`<small>depuis le ${fmtD(lp.date)}</small>`:''}<button class="pbtn" data-prog="${e.id}.${dk}" title="Enregistrer une progression">↑ Progression</button></td>`}
-function homNote(e){const out=(e.hd||[]).filter(dk=>HG(dk)&&curLevel(e,dk)&&gOf(dk,DISC[dk].LV.find(x=>x.k===curLevel(e,dk))||{l:''})!==HG(dk));return out.length?' – <b>a progressé en '+out.map(d=>d==='math'?'mathématiques':'lecture').join(' et en ')+' : passe à un autre groupe de niveau</b>':''}
+function homOut(e){return (e.hd||[]).filter(dk=>HG(dk)&&curLevel(e,dk)&&gOf(dk,DISC[dk].LV.find(x=>x.k===curLevel(e,dk))||{l:''})!==HG(dk))}
+function homNote(e){const out=homOut(e);return out.length?' – <b>a progressé en '+out.map(d=>d==='math'?'mathématiques':'lecture').join(' et en ')+' : passe à un autre groupe de niveau</b>':''}
+/* transfert d’un apprenant qui a progressé vers le groupe de niveau d’un autre enseignant */
+function transferExport(i){const e=S.eleves[i];if(!e)return;const cls=e.orig?String(e.orig).split(' – ')[0]:(e.co||S.classe||'');
+  const d={app:'pnapas-aser',v:1,transfert:1,date:new Date().toISOString(),drena:S.drena,iepp:S.iepp,secteur:S.secteur,ecole:S.ecole,codeEcole:S.codeEcole,classe:cls,enseignant:S.enseignant,annee:S.annee,tests:S.tests,eleves:[e],progs:S.progs.filter(p=>p.eid===e.id)};
+  saveFile(('transfert-'+(e.nom||'apprenant')).replace(/[^A-Za-z0-9-]+/g,'-').toLowerCase()+'.json',JSON.stringify(d));
+  toast('Fichier de transfert créé : envoyez-le à l’enseignant(e) du groupe de niveau supérieur, qui l’importe avec « Importer les résultats ASER des classes ».')}
+/* accueil d’un apprenant venant d’un autre groupe (progression) : saisie manuelle */
+let NA=null;
+function naHTML(){if(!NA)return `<button id="btnNA" style="margin-top:6px">➕ Accueillir un apprenant venant d’un autre groupe (progression)</button>`;
+  const opt=(arr,v)=>'<option value="">—</option>'+arr.map(x=>`<option value="${x.k}" ${v===x.k?'selected':''}>${x.n}</option>`).join('');
+  const L=DISC[NA.dk].LV;
+  return `<div class="pform" style="margin-top:8px"><h4>➕ Accueillir un apprenant venant d’un autre groupe de niveau (progression)</h4>
+   <div class="grid g4">
+    <label class="f">Nom et prénoms<input data-na="nom" data-up value="${esc(NA.nom)}"></label>
+    <label class="f">Sexe<select data-na="sexe"><option value="">—</option><option ${NA.sexe==='G'?'selected':''}>G</option><option ${NA.sexe==='F'?'selected':''}>F</option></select></label>
+    <label class="f">Classe d’origine<select data-na="co"><option value="">—</option>${['CE1','CE2','CM1','CM2'].map(c=>`<option ${NA.co===c?'selected':''}>${c}</option>`).join('')}</select></label>
+    <label class="f">Discipline de la progression<select data-na="dk"><option value="math" ${NA.dk==='math'?'selected':''}>Mathématiques</option><option value="lect" ${NA.dk==='lect'?'selected':''}>Lecture</option></select></label>
+    <label class="f">Niveau avant la progression (test ASER)<select data-na="from">${opt(L,NA.from)}</select></label>
+    <label class="f">Nouveau niveau (après progression)<select data-na="to">${opt(L,NA.to)}</select></label>
+    <label class="f">Date de la progression<input type="date" data-na="date" value="${NA.date}"></label>
+    <label class="f">Groupe / enseignant de provenance<input data-na="note" value="${esc(NA.note)}" placeholder="ex. groupe Débutant / 1 chiffre – M. KONE"></label>
+   </div>
+   <div class="toolbar" style="margin:10px 0 0"><button class="primary" id="btnNAsave">Ajouter à ma liste</button><button id="btnNAcancel">Annuler</button></div>
+   <p class="hint" style="margin:6px 0 0">L’apprenant est inscrit avec son niveau de départ (test ASER) et sa progression : il rejoint votre groupe à partir de la date de progression, et les fiches de progression et de présence en tiennent compte. Si l’enseignant(e) de son ancien groupe vous a envoyé un <b>fichier de transfert</b>, importez-le plutôt avec « Importer les résultats ASER des classes ».</p></div>`}
 function renderEleves(){{const ef=document.querySelector('[data-k="effClasse"]');S.effClasse=String(effTestes());if(ef)ef.value=S.effClasse}
   const box=document.getElementById('eleves');
   const opt=(dk,v)=>`<option value="">—</option>`+DISC[dk].LV.map(x=>`<option value="${x.k}" ${v===x.k?'selected':''}>${x.n}</option>`).join('');
@@ -1956,7 +2016,7 @@ function renderEleves(){{const ef=document.querySelector('[data-k="effClasse"]')
   document.getElementById('tDate').value=(S.tests[tk]||{}).date||'';
   const rows=S.eleves.map((e,i)=>`<tr>
     <td class="num">${i+1}</td>
-    <td><input data-el="${i}.nom" value="${esc(e.nom)}" placeholder="Nom et prénoms">${e.orig?`<small class="orig">Classe d’origine : ${esc(e.orig)}${isHom()?homNote(e):''}</small>`:isHom()?`<small class="orig">Classe d’origine : <select data-el="${i}.co" class="cosel"><option value="">—</option>${['CE1','CE2','CM1','CM2'].map(c=>`<option ${e.co===c?'selected':''}>${c}</option>`).join('')}</select> (saisie manuelle)</small>`:''}</td>
+    <td><input data-el="${i}.nom" value="${esc(e.nom)}" placeholder="Nom et prénoms">${e.orig?`<small class="orig">Classe d’origine : ${esc(e.orig)}${isHom()?homNote(e):''}${isHom()&&homOut(e).length?` <button class="pbtn" style="display:inline-block" data-trf="${i}">📤 Transférer au groupe supérieur</button>`:''}</small>`:isHom()?`<small class="orig">Classe d’origine : <select data-el="${i}.co" class="cosel"><option value="">—</option>${['CE1','CE2','CM1','CM2'].map(c=>`<option ${e.co===c?'selected':''}>${c}</option>`).join('')}</select> (saisie manuelle)${homNote(e)}${homOut(e).length?` <button class="pbtn" style="display:inline-block" data-trf="${i}">📤 Transférer au groupe supérieur</button>`:''}</small>`:''}</td>
     <td><select data-el="${i}.sexe"><option value="">—</option><option ${e.sexe==='G'?'selected':''}>G</option><option ${e.sexe==='F'?'selected':''}>F</option></select></td>
     <td class="c"><input type="checkbox" data-el="${i}.arr" ${e.arr==='1'?'checked':''} title="Arrivé(e) après le test de début"></td>
     <td><select data-et="${i}.l">${opt('lect',e.t[tk].l)}</select></td>
@@ -1973,6 +2033,7 @@ function renderEleves(){{const ef=document.querySelector('[data-k="effClasse"]')
     <tbody>${rows||'<tr><td colspan="12" class="emptyrow">Aucun apprenant. Collez une liste de noms ci-dessous ou ajoutez-les un par un.</td></tr>'}</tbody></table></div>
     <div class="elfoot"><span><b>${cnt}</b> apprenant${cnt>1?'s':''} (${g} G, ${f} F)</span>
       <button id="btnAddEl">+ Ajouter un apprenant</button></div>
+    <div id="naBox">${naHTML()}</div>
     ${isHom()?`<div class="impbox"><b>📥 Apprenants du groupe de niveau ${esc(homLabel().replace(/^GROUPE DE NIVEAU /,''))}</b><br><small>Importez les fichiers « résultats ASER » envoyés par les enseignants des classes (CE1, CE2, CM1, CM2). Sont ajoutés automatiquement les apprenants dont le niveau ${DKS().map(d=>'en '+(d==='math'?'mathématiques':'lecture')).join(' ou ')} correspond à votre groupe de niveau. Chacun suit ensuite le plan de la discipline où il est dans votre groupe.</small><br><small><b>Vous n’avez pas reçu les résultats de toutes les classes (CE1, CE2, CM1) ?</b> Ajoutez vos apprenants vous-même avec <b>+ Ajouter un apprenant</b> : nom, sexe, classe d’origine, puis, comme pour le test ASER, le <b>niveau</b> en mathématiques et/ou en lecture et le <b>numéro de l’outil</b> utilisé. Ils rejoignent aussitôt votre groupe, et les questions du <b>diagnostic du groupe</b> s’affichent pour définir le plan de session.</small><br>
       <label class="filebtn primary" style="margin-top:6px">Importer les résultats ASER des classes<input type="file" id="aserImport" accept=".json,application/json" multiple hidden></label></div>`
      :`<div class="impbox"><b>📤 Résultats ASER pour les groupes de niveau homogènes</b><br><small>Si les apprenants de votre classe sont répartis en groupes de niveau homogènes, envoyez ce fichier aux enseignants qui tiennent ces groupes : leurs listes se rempliront automatiquement.</small><br>
@@ -2279,7 +2340,7 @@ function aserImport(files){
     try{const d=JSON.parse(r.result);let srcs=[];
       if(d&&d.app==='pnapas-aser')srcs=[d];else{const list=d.list||d;srcs=Object.values(list).filter(c=>c&&Array.isArray(c.eleves))}
       if(!srcs.length)throw 0;
-      srcs.forEach(src=>{if(src.typeClasse==='hom')return;const orig=[src.classe,src.ecole].filter(Boolean).join(' – ');
+      srcs.forEach(src=>{if(src.typeClasse==='hom'&&!src.transfert)return;const orig=[src.classe,src.ecole].filter(Boolean).join(' – ');
         const save=S;S=Object.assign({},save,{tests:src.tests||{},progs:src.progs||[]});
         const pick=(src.eleves||[]).map(e=>({e,hd:DD.filter(dk=>{const x=DISC[dk].LV.find(y=>y.k===curLevel(e,dk));return x&&HOM_G[x.l]===HG(dk)})}));S=save;
         pick.forEach(({e,hd})=>{if(!hd.length){skip++;return}
