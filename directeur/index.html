@@ -261,7 +261,7 @@ function heroInit(){
 }
 function heroChips(extra){
   const el=document.getElementById('hChips');if(!el)return;let st='essai';try{st=licState()}catch(e){}
-  let lic='';try{if(st==='actif')lic='<b class="ok">✅ Licence activée</b>';else if(st==='essai'){const left=Math.max(0,Math.ceil((TRIAL_DAYS*DAYMS-elapsed())/DAYMS));lic=`<b class="warn">⏳ Essai : ${left} jour${left>1?'s':''} restant${left>1?'s':''}</b>`}else lic='<b class="bad">🔒 Activation requise</b>'}catch(e){}
+  let lic='';try{if(st==='actif')lic='<b class="ok">✅ Licence activée</b>';else if(st==='essai'){const left=Math.max(0,Math.ceil((TRIAL_DAYS*DAYMS-elapsed())/DAYMS));lic=`<b class="warn">⏳ Essai : ${left} jour${left>1?'s':''} restant${left>1?'s':''}</b>`}else lic=st==='bloque'?'<b class="bad">⛔ Licence suspendue</b>':'<b class="bad">🔒 Activation requise</b>'}catch(e){}
   let y='';try{y=SCHOOL_YEAR()}catch(e){y='2026-2027'}
   el.innerHTML=`<b>Année scolaire ${y}</b>`+(extra||[]).filter(Boolean).map(x=>`<b>${esc(x)}</b>`).join('')+lic;
 }
@@ -379,19 +379,26 @@ function periodIdx(){const t=nowT();return t<=YEARS[0].end?0:t<=YEARS[1].end?1:2
 const codeOk=()=>!!LIC.code&&LIC.yi!=null&&LIC.code===licCode(LIC.id,LIC.yi)&&sameDevice(LIC.fp);
 const isActivated=()=>codeOk()&&nowT()<=YEARS[LIC.yi].end;
 const elapsed=()=>nowT()-LIC.start;
-function licState(){const p=periodIdx();if(isActivated())return 'actif';if(p>=2)return 'termine';
+function licState(){const p=periodIdx();if(LIC.blk)return 'bloque';if(isActivated())return 'actif';if(p>=2)return 'termine';
   if(codeOk()&&LIC.yi<p)return 'renouveler';if(elapsed()<TRIAL_DAYS*DAYMS)return 'essai';return 'essai_fini'}
 const trialExpired=()=>{const s=licState();return s!=='actif'&&s!=='essai'};
 function SCHOOL_YEAR(){return isActivated()?YEARS[LIC.yi].y:YEARS[Math.min(periodIdx(),1)].y}
 function trialEnd(){return new Date(LIC.start+TRIAL_DAYS*DAYMS)}
 const fmtDay=t=>new Date(t).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
 function lockMsg(){const s=licState();
-  return s==='termine'?'L’application est arrivée à terme (fin de l’année scolaire 2027-2028) : aucun renouvellement n’est plus possible.'
+  return s==='bloque'?'Cette licence a été suspendue par le gestionnaire du programme. Renseignements : '+CONTACT_TEL+'.':s==='termine'?'L’application est arrivée à terme (fin de l’année scolaire 2027-2028) : aucun renouvellement n’est plus possible.'
    :s==='renouveler'?'Licence '+YEARS[LIC.yi].y+' expirée : saisissez le code de renouvellement pour '+YEARS[1].y+'.'
    :'Période d’essai terminée : saisissez votre code d’activation.'}
-function tryActivate(v){v=(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const p=periodIdx();if(p>=2||!v)return false;
+function tryActivate(v){v=(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const p=periodIdx();if(p>=2||!v||LIC.blk)return false;
   const c=licCode(LIC.id,p);if(v===c.replace('-','')){LIC.code=c;LIC.yi=p;LIC.moved=false;saveLic();return true}return false}
 const CONTACT_TEL='07 57 69 67 96';
+/* liste de blocage publiée par le gestionnaire (identifiants chiffrés) */
+const BLOCK_URL='https://raw.githubusercontent.com/pnapas-ci/Remediation/main/blocage.json';
+function blkHash(id){id=(id||'').toUpperCase().replace(/[^A-Z0-9]/g,'');return fnv('BLK|'+LIC_SALT+'|'+id,2166136261).toString(36)+fnv(id+'|BLK|'+LIC_SALT,0x9E3779B9).toString(36)}
+function checkBlock(){try{if(navigator.onLine===false||typeof fetch!=='function')return;
+  fetch(BLOCK_URL+'?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!Array.isArray(j.h))return;
+    const b=j.h.includes(blkHash(LIC.id))?1:0;if(b!==(LIC.blk?1:0)){LIC.blk=b;saveLic();location.reload()}}).catch(()=>{})}catch(e){}}
+setTimeout(checkBlock,1500);setInterval(checkBlock,6*3600000);window.addEventListener('online',checkBlock);
 function contactHTML(full){return `<div class="contact">📞 <b>Renseignements${full?' et paiement du code d’activation':''} : <a href="tel:+2250757696796">${CONTACT_TEL}</a></b>${full?' – <b class="price">prix unique : 5 000 FCFA</b> <b class="wave">paiement uniquement par Wave</b>':''}</div>`}
 function actForm(lbl){return `<div class="act">Identifiant de cet appareil : <b class="lid">${LIC.id}</b> – communiquez-le pour obtenir votre ${lbl}.
       <span class="actf"><input id="licInput" placeholder="${lbl[0].toUpperCase()+lbl.slice(1)}" autocomplete="off"><button class="primary" id="btnActivate">Activer</button></span></div>`+contactHTML(true)}
@@ -404,16 +411,16 @@ function lockOverlay(){let ov=document.getElementById('lockOv');const st=licStat
     ov.addEventListener('click',e=>{const b=e.target.closest('#lockBtn');if(!b)return;const v=(document.getElementById('lockInput')||{}).value||'';
       if(tryActivate(v)){ov.remove();document.body.classList.remove('lockall');location.reload()}else{const er=document.getElementById('lockErr');if(er)er.textContent=periodIdx()>=2?lockMsg():'Code incorrect pour cet identifiant et l’année '+YEARS[Math.min(periodIdx(),1)].y+'.'}});
     ov.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='lockInput'){const b=document.getElementById('lockBtn');if(b)b.click()}})}
-  const term=st==='termine',ren=st==='renouveler';
-  const title=term?'Application arrivée à terme':ren?'Licence expirée':'Période d’essai terminée';
-  const txt=term?`L’application était utilisable pour les années scolaires ${YEARS[0].y} et ${YEARS[1].y} ; aucun renouvellement n’est plus possible.`
+  const blk=st==='bloque',term=st==='termine'||blk,ren=st==='renouveler';
+  const title=blk?'Licence suspendue':term?'Application arrivée à terme':ren?'Licence expirée':'Période d’essai terminée';
+  const txt=blk?`Cette licence (identifiant ${LIC.id}) a été suspendue par le gestionnaire du programme. Pour toute réclamation, contactez le ${CONTACT_TEL}.`:term?`L’application était utilisable pour les années scolaires ${YEARS[0].y} et ${YEARS[1].y} ; aucun renouvellement n’est plus possible.`
     :ren?`Votre licence ${YEARS[LIC.yi].y} est expirée. Un dernier renouvellement est nécessaire pour l’année scolaire ${YEARS[1].y}.`
     :`La période d’essai de ${TRIAL_DAYS} jours est terminée.`;
   const lbl=ren?'code de renouvellement '+YEARS[1].y:'code d’activation '+SCHOOL_YEAR();
   ov.innerHTML=`<div class="lockcard"><div class="lockic">🔒</div><h2>${title}</h2><p>${txt} <b>L’application est verrouillée : aucune action n’est possible tant qu’elle n’est pas activée.</b> Vos données restent enregistrées sur cet appareil.</p>
    ${term?'':`<p class="lid2">Identifiant de cet appareil : <b>${LIC.id}</b></p><p>Communiquez cet identifiant pour obtenir votre ${lbl}, puis saisissez-le ci-dessous.</p>
    <div class="lockf"><input id="lockInput" placeholder="${lbl[0].toUpperCase()+lbl.slice(1)}" autocomplete="off"><button class="primary" id="lockBtn">Activer</button></div><div id="lockErr" class="lockerr"></div>`}
-   <div class="lockct">📞 Renseignements et paiement du code d’activation : <a href="tel:+2250757696796"><b>${CONTACT_TEL}</b></a><br><b class="price">prix unique : 5 000 FCFA</b> <b class="wave">paiement uniquement par Wave</b></div></div>`;
+   ${blk?`<div class="lockct">📞 Renseignements : <a href="tel:+2250757696796"><b>${CONTACT_TEL}</b></a></div>`:`<div class="lockct">📞 Renseignements et paiement du code d’activation : <a href="tel:+2250757696796"><b>${CONTACT_TEL}</b></a><br><b class="price">prix unique : 5 000 FCFA</b> <b class="wave">paiement uniquement par Wave</b></div>`}</div>`;
 }
 function renderTrial(){
   try{lockOverlay()}catch(e){}
@@ -429,7 +436,8 @@ function renderTrial(){
   const end=trialEnd().toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   const keep=' L’application est verrouillée ; vos données restent enregistrées sur cet appareil.';
   let body;
-  if(st==='termine')body=`<b>L’application est arrivée à terme.</b> Elle était utilisable pour les années scolaires ${YEARS[0].y} et ${YEARS[1].y} ; aucun renouvellement n’est plus possible. La production des documents est bloquée.${keep}`+contactHTML(false);
+  if(st==='bloque')body=`<b>Licence suspendue.</b> Cette licence (identifiant ${LIC.id}) a été suspendue par le gestionnaire du programme.${keep}`+contactHTML(false);
+  else if(st==='termine')body=`<b>L’application est arrivée à terme.</b> Elle était utilisable pour les années scolaires ${YEARS[0].y} et ${YEARS[1].y} ; aucun renouvellement n’est plus possible. La production des documents est bloquée.${keep}`+contactHTML(false);
   else if(st==='renouveler')body=`<b>Votre licence ${YEARS[LIC.yi].y} est expirée.</b> Pour l’année scolaire ${YEARS[1].y}, un <b>dernier renouvellement</b> est nécessaire. La production des documents est bloquée jusqu’au renouvellement.${keep}`+actForm('code de renouvellement '+YEARS[1].y);
   else if(st==='essai_fini')body=`<b>La période d’essai de ${TRIAL_DAYS} jours est terminée.</b> La production des documents (remplissage, copie, téléchargement, impression, envoi) est bloquée.${keep}`+actForm('code d’activation '+SCHOOL_YEAR());
   else body=`<b>Version d’essai : il reste ${d} jour${d>1?'s':''} et ${h} heure${h>1?'s':''}</b> (jusqu’au ${end}). Les documents produits portent la mention « VERSION D’ESSAI » tant que l’application n’est pas activée. La licence est valable pour l’année scolaire ${SCHOOL_YEAR()}.`+actForm('code d’activation '+SCHOOL_YEAR());
