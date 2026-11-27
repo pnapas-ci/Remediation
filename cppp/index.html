@@ -342,13 +342,13 @@ function mobInit(){
 const LICKEY='pnapas-cppp-licence-v1';
 function AUTHOR(){return {role:'Le Conseiller Pédagogique',name:P.conseiller,sig:P.sigles,lieu:(P.secteur||P.iepp)}}
 /* =====================================================================
-   VERSION D'ESSAI (3 jours), LICENCE À VIE, ACTIVATION, SIGLES ET SIGNATURE DES DOCUMENTS
+   VERSION D'ESSAI (3 jours), LICENCE 2026-2027 PUIS RENOUVELLEMENT À VIE, ACTIVATION, SIGLES ET SIGNATURE DES DOCUMENTS
    (LICKEY et AUTHOR() sont définis par chaque application)
    ===================================================================== */
 const TRIAL_DAYS=3,DAYMS=86400000;
 const LIC_SALT='PNAPAS-b285bdde5780fa4bb98a2664';
 const B32='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-/* YEARS : conservé pour la compatibilité des anciens codes (les deux codes restent acceptés, sans expiration) */
+/* YEARS[0] : licence 2026-2027 (fin 31/08/2027) ; YEARS[1] : code de renouvellement, valable à vie */
 const YEARS=[{y:'2026-2027',end:new Date(2027,7,31,23,59,59).getTime()},{y:'2027-2028',end:new Date(2028,7,31,23,59,59).getTime()}];
 function fnv(str,seed){let h=seed>>>0;for(const c of str){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h>>>0}
 function licCode(id,yi){id=(id||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const salt=LIC_SALT+(yi?'|'+YEARS[yi].y:'');
@@ -368,18 +368,22 @@ const nowT=()=>Math.max(Date.now(),LIC.last||0);
 /* période en cours : 0 = 2026-2027, 1 = 2027-2028, 2 = au-delà (application arrivée à terme) */
 function periodIdx(){const t=nowT();return t<=YEARS[0].end?0:t<=YEARS[1].end?1:2}
 const codeOk=()=>!!LIC.code&&LIC.yi!=null&&LIC.code===licCode(LIC.id,LIC.yi)&&sameDevice(LIC.fp);
-const isActivated=()=>codeOk(); /* licence à vie : aucune date d’expiration */
+/* licence : code 2026-2027 valable jusqu’au 31/08/2027 ; ensuite un seul renouvellement, valable à vie (code de renouvellement) */
+const END0=YEARS[0].end;const isLife=()=>codeOk()&&LIC.yi===1;
+const isActivated=()=>codeOk()&&(LIC.yi===1||nowT()<=END0);
 const elapsed=()=>nowT()-LIC.start;
-function licState(){if(LIC.blk)return 'bloque';if(isActivated())return 'actif';if(elapsed()<TRIAL_DAYS*DAYMS)return 'essai';return 'essai_fini'}
+function licState(){if(LIC.blk)return 'bloque';if(isActivated())return 'actif';if(codeOk()&&LIC.yi===0)return 'renouveler';if(elapsed()<TRIAL_DAYS*DAYMS)return 'essai';return 'essai_fini'}
+const needLife=()=>nowT()>END0; /* après le 31/08/2027 : seul le code de renouvellement (à vie) est accepté */
+const codeLbl=()=>needLife()?'code de renouvellement (licence à vie)':'code d’activation 2026-2027';
 const trialExpired=()=>{const s=licState();return s!=='actif'&&s!=='essai'};
 /* année scolaire en cours : du 1er septembre au 31 août */
 function SCHOOL_YEAR(){const d=new Date(nowT()),y=d.getFullYear(),a=d.getMonth()>=8?y:y-1;return a+'-'+(a+1)}
 function trialEnd(){return new Date(LIC.start+TRIAL_DAYS*DAYMS)}
 const fmtDay=t=>new Date(t).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
 function lockMsg(){const s=licState();
-  return s==='bloque'?'Cette licence a été suspendue par le gestionnaire du programme. Renseignements : '+CONTACT_TEL+'.':'Période d’essai terminée : saisissez votre code d’activation.'}
+  return s==='bloque'?'Cette licence a été suspendue par le gestionnaire du programme. Renseignements : '+CONTACT_TEL+'.':s==='renouveler'?'La licence 2026-2027 a expiré le 31/08/2027 : saisissez votre code de renouvellement (licence à vie).':'Période d’essai terminée : saisissez votre '+codeLbl()+'.'}
 function tryActivate(v){v=(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(!v||LIC.blk)return false;
-  for(const yi of [0,1]){const c=licCode(LIC.id,yi);if(v===c.replace('-','')){LIC.code=c;LIC.yi=yi;LIC.moved=false;saveLic();return true}}return false}
+  for(const yi of (needLife()?[1]:[0,1])){const c=licCode(LIC.id,yi);if(v===c.replace('-','')){LIC.code=c;LIC.yi=yi;LIC.moved=false;saveLic();return true}}return false}
 const CONTACT_TEL='07 57 69 67 96';
 /* liste de blocage publiée par le gestionnaire (identifiants chiffrés) */
 const BLOCK_URL='https://raw.githubusercontent.com/pnapas-ci/Remediation/main/blocage.json';
@@ -398,13 +402,14 @@ function lockOverlay(){let ov=document.getElementById('lockOv');const st=licStat
   document.body.classList.add('lockall');
   if(!ov){ov=document.createElement('div');ov.id='lockOv';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');document.body.appendChild(ov);
     ov.addEventListener('click',e=>{const b=e.target.closest('#lockBtn');if(!b)return;const v=(document.getElementById('lockInput')||{}).value||'';
-      if(tryActivate(v)){ov.remove();document.body.classList.remove('lockall');location.reload()}else{const er=document.getElementById('lockErr');if(er)er.textContent=LIC.blk?lockMsg():'Code incorrect pour cet identifiant.'}});
+      if(tryActivate(v)){ov.remove();document.body.classList.remove('lockall');location.reload()}else{const er=document.getElementById('lockErr');if(er)er.textContent=LIC.blk?lockMsg():(needLife()&&v.toUpperCase().replace(/[^A-Z0-9]/g,'')===licCode(LIC.id,0).replace('-','')?'Ce code 2026-2027 a expiré : saisissez le code de renouvellement (licence à vie).':'Code incorrect pour cet identifiant.')}});
     ov.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='lockInput'){const b=document.getElementById('lockBtn');if(b)b.click()}})}
   const blk=st==='bloque',term=blk;
-  const title=blk?'Licence suspendue':'Période d’essai terminée';
+  const ren=st==='renouveler';const title=blk?'Licence suspendue':ren?'Licence 2026-2027 expirée : renouvellement à vie':'Période d’essai terminée';
   const txt=blk?`Cette licence (identifiant ${LIC.id}) a été suspendue par le gestionnaire du programme. Pour toute réclamation, contactez le ${CONTACT_TEL}.`
-    :`La période d’essai de ${TRIAL_DAYS} jours est terminée. Une fois activée, l’application est utilisable à vie.`;
-  const lbl='code d’activation';
+    :ren?`La licence 2026-2027 a pris fin le 31 août 2027. Un seul renouvellement suffit : le code de renouvellement rend l’application <b>utilisable à vie</b>.`
+    :`La période d’essai de ${TRIAL_DAYS} jours est terminée.`+(needLife()?' Le code de renouvellement rend l’application utilisable à vie.':' La licence 2026-2027 est valable jusqu’au 31 août 2027 ; ensuite, un seul renouvellement, valable à vie.');
+  const lbl=codeLbl();
   ov.innerHTML=`<div class="lockcard"><div class="lockic">🔒</div><h2>${title}</h2><p>${txt} <b>L’application est verrouillée : aucune action n’est possible tant qu’elle n’est pas activée.</b> Vos données restent enregistrées sur cet appareil.</p>
    ${term?'':`<p class="lid2">Identifiant de cet appareil : <b>${LIC.id}</b></p><p>Communiquez cet identifiant pour obtenir votre ${lbl}, puis saisissez-le ci-dessous.</p>
    <div class="lockf"><input id="lockInput" placeholder="${lbl[0].toUpperCase()+lbl.slice(1)}" autocomplete="off"><button class="primary" id="lockBtn">Activer</button></div><div id="lockErr" class="lockerr"></div>`}
@@ -416,14 +421,15 @@ function renderTrial(){
   document.body.classList.toggle('trialmode',!act);document.body.classList.toggle('locked',trialExpired());
   if(typeof LIC_YEAR_HOOK==='function')LIC_YEAR_HOOK(SCHOOL_YEAR());
   document.querySelectorAll('[data-k="annee"]').forEach(el=>{el.value=SCHOOL_YEAR();el.readOnly=true;el.title='Année scolaire en cours (calculée automatiquement)'});
-  if(act){box.innerHTML=`<div class="trial ok"><div class="ti">✅</div><div class="tb"><b>Licence activée – utilisable à vie</b> sur cet appareil (aucun renouvellement à prévoir). Année scolaire en cours : ${SCHOOL_YEAR()}.${contactHTML(false)}</div></div>`;return}
+  if(act){const life=isLife();box.innerHTML=`<div class="trial ok"><div class="ti">✅</div><div class="tb">${life?'<b>Licence activée – utilisable à vie</b> sur cet appareil (renouvellement effectué).':'<b>Licence 2026-2027 activée</b> sur cet appareil, valable jusqu’au 31/08/2027. À partir du 1er septembre 2027 : un seul renouvellement, <b>valable à vie</b>.'} Année scolaire en cours : ${SCHOOL_YEAR()}.${contactHTML(false)}</div></div>`;return}
   const left=Math.max(0,TRIAL_DAYS*DAYMS-elapsed());const d=Math.floor(left/DAYMS),h=Math.floor((left%DAYMS)/3600000);
   const end=trialEnd().toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   const keep=' L’application est verrouillée ; vos données restent enregistrées sur cet appareil.';
   let body;
   if(st==='bloque')body=`<b>Licence suspendue.</b> Cette licence (identifiant ${LIC.id}) a été suspendue par le gestionnaire du programme.${keep}`+contactHTML(false);
-  else if(st==='essai_fini')body=`<b>La période d’essai de ${TRIAL_DAYS} jours est terminée.</b> La production des documents (remplissage, copie, téléchargement, impression, envoi) est bloquée.${keep}`+actForm('code d’activation');
-  else body=`<b>Version d’essai : il reste ${d} jour${d>1?'s':''} et ${h} heure${h>1?'s':''}</b> (jusqu’au ${end}). Les documents produits portent la mention « VERSION D’ESSAI » tant que l’application n’est pas activée. Une fois activée, l’application est <b>utilisable à vie</b>.`+actForm('code d’activation');
+  else if(st==='renouveler')body=`<b>La licence 2026-2027 a expiré le 31/08/2027.</b> Saisissez le code de renouvellement : l’application sera alors <b>utilisable à vie</b>.${keep}`+actForm('code de renouvellement (licence à vie)');
+  else if(st==='essai_fini')body=`<b>La période d’essai de ${TRIAL_DAYS} jours est terminée.</b> La production des documents (remplissage, copie, téléchargement, impression, envoi) est bloquée.${keep}`+actForm(codeLbl());
+  else body=`<b>Version d’essai : il reste ${d} jour${d>1?'s':''} et ${h} heure${h>1?'s':''}</b> (jusqu’au ${end}). Les documents produits portent la mention « VERSION D’ESSAI » tant que l’application n’est pas activée. ${needLife()?'Le code de renouvellement rend l’application <b>utilisable à vie</b>.':'Licence 2026-2027 valable jusqu’au 31/08/2027, puis un seul renouvellement, <b>valable à vie</b>.'}`+actForm(codeLbl());
   box.innerHTML=`<div class="trial ${st==='essai'?'':'exp'}"><div class="ti">${st==='essai'?'⏳':'🔒'}</div><div class="tb">
     ${LIC.moved&&st!=='bloque'?'<div class="moved">Ces données proviennent d’un autre appareil : l’activation n’est valable que sur l’appareil pour lequel le code a été donné. Un nouveau code est nécessaire pour cet appareil.</div>':''}${body}</div></div>`;
 }
