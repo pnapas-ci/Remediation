@@ -652,13 +652,13 @@ function mobInit(){
 
 function LIC_YEAR_HOOK(y){if(S&&S.annee!==y){S.annee=y;persist()}}
 /* Verrouillage de la classe : une application = une classe */
-const IDK=['drena','iepp','secteur','ecole','classe','enseignant','typeClasse','homGrpM','homGrpL'];const RAWK=['typeClasse','homGrpM','homGrpL'];
+const IDK=['drena','iepp','secteur','ecole','classe','enseignant','typeClasse'];const RAWK=['typeClasse']; /* classe homogène : le groupe tenu dans chaque discipline reste modifiable après l’enregistrement */
 const idLocked=()=>!!(LIC.cls&&LIC.cls.ecole);
 const normId=v=>UP(String(v||'').trim()).replace(/\s+/g,' ');
-function sameClass(C){return normId(C.ecole)===normId(LIC.cls.ecole)&&normId(C.classe)===normId(LIC.cls.classe)&&normId(C.enseignant)===normId(LIC.cls.enseignant)}
+function sameClass(C){return normId(C.ecole)===normId(LIC.cls.ecole)&&(LIC.cls.typeClasse==='hom'||normId(C.classe)===normId(LIC.cls.classe))&&normId(C.enseignant)===normId(LIC.cls.enseignant)}
 function lockClass(){if(idLocked())return;LIC.cls={};IDK.forEach(k=>LIC.cls[k]=RAWK.includes(k)?(S[k]||''):normId(S[k]));LIC.cls.at=Date.now();saveLic()}
 function applyIdLock(){if(!idLocked())return;if(LIC.cls.typeClasse==null){LIC.cls.typeClasse='het';saveLic()}
-  if(LIC.cls.homGrpM===undefined&&LIC.cls.homGrpL===undefined){const g=['g1','g2','g3'].includes(LIC.cls.homGrp)?LIC.cls.homGrp:'g1';LIC.cls.homGrpM=g;LIC.cls.homGrpL=g;saveLic()}IDK.forEach(k=>{if(LIC.cls[k]!=null&&LIC.cls[k]!=='')S[k]=LIC.cls[k]});
+  const homL=LIC.cls.typeClasse==='hom';IDK.forEach(k=>{if(homL&&k==='classe')return;if(LIC.cls[k]!=null&&LIC.cls[k]!=='')S[k]=LIC.cls[k]});if(homL)S.classe=homLabel();
   IDK.forEach(k=>document.querySelectorAll('[data-k="'+k+'"]').forEach(el=>{if(el.tagName==='SELECT')el.disabled=true;else el.readOnly=true;el.title='Verrouillé : cette application est réservée à cette classe'}));
   ['drenaSel','ieppSel'].forEach(i=>{const e=document.getElementById(i);if(e){e.disabled=true;e.title='Verrouillé : cette application est réservée à cette classe'}})}
 
@@ -1745,8 +1745,15 @@ document.addEventListener('change',e=>{
   if(el.id==='ieppSel'){if(el.value==='*'){S.ieppFree=true;S.iepp=''}else{S.ieppFree=false;S.iepp=el.value}renderAll();return}
   if(el.id==='importFile'){importClasses(el.files[0]);el.value='';return}
   if(el.id==='aserImport'){aserImport(el.files);setTimeout(()=>{el.value=''},500);return}
-  if(el.dataset.k){S[el.dataset.k]=el.value;if(el.dataset.k==='mer'){applyAlternation('math');applyAlternation('lect')}
-    if(el.dataset.k==='homGrpM'||el.dataset.k==='homGrpL'){if(!S.homGrpM&&!S.homGrpL){S[el.dataset.k==='homGrpM'?'homGrpL':'homGrpM']='g1'}S.eleves=S.eleves.filter(e=>!e.orig);GEN={math:null,lect:null};toast('Groupe de niveau : '+homLabel()+'. Importez les résultats ASER des classes.')}
+  if(el.id==='ficheFile'){ficheImport(el.files[0]);setTimeout(()=>{el.value=''},500);return}
+  if(el.dataset.k){const _old=S[el.dataset.k];S[el.dataset.k]=el.value;if(el.dataset.k==='mer'){applyAlternation('math');applyAlternation('lect')}
+    if(el.dataset.k==='homGrpM'||el.dataset.k==='homGrpL'){if(idLocked()&&!confirm('Changer le groupe de niveau tenu en '+(el.dataset.k==='homGrpM'?'mathématiques':'lecture')+' ?\n\nLes apprenants qui ne font partie d’aucun de vos groupes seront retirés de la liste ; vous ajouterez ensuite ceux du nouveau groupe.')){S[el.dataset.k]=_old;renderAll();return}const dk=el.dataset.k==='homGrpM'?'math':'lect';if(!S.homGrpM&&!S.homGrpL){S[el.dataset.k==='homGrpM'?'homGrpL':'homGrpM']='g1'}
+      /* on retire de la discipline les apprenants qui n’appartiennent plus à aucun des groupes tenus */
+      const inG=(e,d)=>{const x=DISC[d].LV.find(y=>y.k===curLevel(e,d));return !!(x&&HG(d)&&HOM_G[x.l]===HG(d))};let out=0;
+      S.eleves=S.eleves.filter(e=>{if(e.hd)e.hd=e.hd.filter(d=>d!==dk||inG(e,d));if(inG(e,dk)&&(e.hd||null)){if(!e.hd.includes(dk))e.hd.push(dk)}
+        const keep=DKS().some(d=>inG(e,d))||!(e.orig||e.hd);if(!keep)out++;return keep});
+      if(isHom()&&!idLocked())S.classe=homLabel();
+      GEN={math:null,lect:null};toast('Groupe tenu en '+(dk==='math'?'mathématiques':'lecture')+' : '+(HG(dk)?GNAME(dk,HG(dk)).replace(/^Groupe \d : /,''):'aucun')+(out?' – '+out+' apprenant(s) de l’ancien groupe retiré(s)':'')+'. Importez les résultats ASER (ou ajoutez les apprenants) du nouveau groupe.')}
     if(el.dataset.k==='typeClasse'){['math','lect'].forEach(d=>{S[d].step={g1:0,g2:0,g3:0};S[d].vary={g1:0,g2:0,g3:0}});GEN={math:null,lect:null};toast(isHom()?'Classe homogène : 3 groupes de niveau, un plan de session par groupe':'Classe hétérogène : 2 groupes de niveau, avec alternance')}
     renderAll();return}
   if(el.dataset.lv){const b=GRS(dk).map(g=>listOf(dk,g));S[dk].levels[el.dataset.lv].on=el.checked;GRS(dk).forEach((g,i)=>{if(listOf(dk,g)!==b[i])S[dk].step[g]=0});renderAll();return}
@@ -2044,6 +2051,7 @@ function renderEleves(){{const ef=document.querySelector('[data-k="effClasse"]')
       <label class="filebtn primary" style="margin-top:6px">Importer les résultats ASER des classes<input type="file" id="aserImport" accept=".json,application/json" multiple hidden></label></div>`
      :`<div class="impbox"><b>📤 Résultats ASER pour les groupes de niveau homogènes</b><br><small>Si les apprenants de votre classe sont répartis en groupes de niveau homogènes, envoyez ce fichier aux enseignants qui tiennent ces groupes : leurs listes se rempliront automatiquement.</small><br>
       <button id="btnAserExport" style="margin-top:6px">Exporter les résultats ASER de ma classe</button></div>`}
+    <div class="impbox" style="margin-top:8px"><b>📄 Une fiche de résultats ASER déjà saisie hors de l’application ?</b><br><small>Fichier Excel (.xlsx), Word (.docx) ou CSV : l’application reconnaît les noms, le sexe, les niveaux (cases « 1 » / « X » ou niveau écrit) et les numéros d’outil, puis affiche un aperçu avant l’intégration.</small><br><label class="filebtn" style="margin-top:6px">📄 Importer une fiche de résultats (Excel, Word, CSV)<input type="file" id="ficheFile" accept=".xlsx,.xlsm,.docx,.csv,.txt,.html,.htm,.xls,.doc" hidden></label></div>
     <details class="paste"><summary>Coller une liste de noms</summary>
       <textarea id="pasteNames" rows="5" placeholder="Un nom par ligne. Option : nom ; sexe ; niveau lecture ; niveau maths&#10;ex. KOUASSI Aya ; F ; Mot ; 2 chiffres"></textarea>
       <button id="btnPaste">Ajouter ces apprenants</button></details>${pfHTML()}${histHTML()}`;
@@ -2052,6 +2060,145 @@ function fmtD(iso){if(!iso)return '';const d=new Date(iso+'T12:00:00');return d.
 function addD(iso,n){const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
 function findLevel(dk,txt){txt=(txt||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');if(!txt)return '';
   const f=DISC[dk].LV.find(x=>x.n.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')===txt||x.k.toLowerCase()===txt);return f?f.k:''}
+/* ===== Import d’une fiche de résultats ASER saisie hors de l’application (Excel, Word, CSV, HTML) ===== */
+const FI={};
+const nrm=t=>String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim();
+async function unzipFiles(buf,want){const dv=new DataView(buf),u8=new Uint8Array(buf);let e=-1;
+  for(let i=u8.length-22;i>=Math.max(0,u8.length-70000);i--){if(dv.getUint32(i,true)===0x06054b50){e=i;break}}
+  if(e<0)throw new Error('zip');const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const out={};
+  for(let k=0;k<n;k++){const meth=dv.getUint16(p+10,true),csz=dv.getUint32(p+20,true),fl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true);
+    const name=new TextDecoder().decode(u8.subarray(p+46,p+46+fl));p+=46+fl+xl+cl;
+    if(!want(name))continue;const lfl=dv.getUint16(lo+26,true),lxl=dv.getUint16(lo+28,true);const data=u8.subarray(lo+30+lfl+lxl,lo+30+lfl+lxl+csz);
+    if(meth===0)out[name]=new TextDecoder().decode(data);
+    else{const ds=new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));out[name]=await new Response(ds).text()}}
+  return out}
+const xdoc=t=>new DOMParser().parseFromString(t,'application/xml');
+const colIdx=ref=>{const m=/^([A-Z]+)(\d+)$/.exec(ref);let c=0;for(const ch of m[1])c=c*26+ch.charCodeAt(0)-64;return [+m[2]-1,c-1]};
+async function readXlsx(buf){const f=await unzipFiles(buf,n=>/^xl\/(sharedStrings\.xml|workbook\.xml|worksheets\/sheet\d+\.xml|_rels\/workbook\.xml\.rels)$/.test(n));
+  const ss=f['xl/sharedStrings.xml']?[...xdoc(f['xl/sharedStrings.xml']).getElementsByTagName('si')].map(si=>[...si.getElementsByTagName('t')].map(t=>t.textContent).join('')):[];
+  const wb=xdoc(f['xl/workbook.xml']||'<a/>'),rels=xdoc(f['xl/_rels/workbook.xml.rels']||'<a/>');
+  const relT={};[...rels.getElementsByTagName('Relationship')].forEach(r=>relT[r.getAttribute('Id')]=r.getAttribute('Target'));
+  const sheets=[...wb.getElementsByTagName('sheet')].map(sh=>({name:sh.getAttribute('name'),path:'xl/'+String(relT[sh.getAttribute('r:id')]||'').replace(/^\/?xl\//,'')}));
+  const tables=[];
+  for(const sh of (sheets.length?sheets:Object.keys(f).filter(k=>/worksheets/.test(k)).map(p=>({name:p,path:p})))){const x=f[sh.path];if(!x)continue;const d=xdoc(x);const G=[];
+    [...d.getElementsByTagName('c')].forEach(c=>{const r=c.getAttribute('r');if(!r)return;const [ri,ci]=colIdx(r);const t=c.getAttribute('t');let v='';
+      if(t==='inlineStr')v=[...c.getElementsByTagName('t')].map(x=>x.textContent).join('');else{const ve=c.getElementsByTagName('v')[0];v=ve?ve.textContent:'';if(t==='s')v=ss[+v]||''}
+      (G[ri]=G[ri]||[])[ci]=v});
+    [...d.getElementsByTagName('mergeCell')].forEach(m=>{const [a,b]=m.getAttribute('ref').split(':');if(!b)return;const [r1,c1]=colIdx(a),[r2,c2]=colIdx(b);const v=(G[r1]||[])[c1]||'';
+      for(let r=r1;r<=r2;r++)for(let c=c1;c<=c2;c++){if(r===r1&&c===c1)continue;(G[r]=G[r]||[])[c]=v;((G[r].mg=G[r].mg||{})[c]=1)}});
+    tables.push({name:'Feuille « '+sh.name+' »',rows:Array.from(G,r=>r?Array.from(r,x=>x==null?'':String(x)):[])})}
+  return tables}
+async function readDocx(buf){const f=await unzipFiles(buf,n=>n==='word/document.xml');const d=xdoc(f['word/document.xml']);const W='http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  return [...d.getElementsByTagNameNS(W,'tbl')].filter(t=>!t.parentNode||t.parentNode.localName!=='tc').map((tb,ti)=>{const rows=[];
+    [...tb.childNodes].filter(n=>n.localName==='tr').forEach((tr,ri)=>{const row=[];let c=0;
+      [...tr.childNodes].filter(n=>n.localName==='tc').forEach(tc=>{const pr=[...tc.childNodes].find(n=>n.localName==='tcPr');let span=1,vm=null;
+        if(pr){const gs=pr.getElementsByTagNameNS(W,'gridSpan')[0];if(gs)span=+gs.getAttributeNS(W,'val')||+gs.getAttribute('w:val')||1;const v=pr.getElementsByTagNameNS(W,'vMerge')[0];if(v)vm=v.getAttributeNS(W,'val')||v.getAttribute('w:val')||'continue'}
+        const txt=[...tc.getElementsByTagNameNS(W,'p')].map(p=>[...p.getElementsByTagNameNS(W,'t')].map(t=>t.textContent).join('')).join(' ').trim();
+        for(let k=0;k<span;k++){row[c+k]=vm==='continue'?((rows[ri-1]||[])[c+k]||''):txt}c+=span});rows.push(row)});
+    return {name:'Tableau n°'+(ti+1),rows}})}
+function readHtml(text){const d=new DOMParser().parseFromString(text,'text/html');
+  return [...d.querySelectorAll('table')].map((tb,ti)=>{const G=[];[...tb.rows].forEach((tr,ri)=>{G[ri]=G[ri]||[];let c=0;
+    [...tr.cells].forEach(td=>{while(G[ri][c]!=null)c++;const cs=+td.colSpan||1,rs=+td.rowSpan||1,t=td.textContent.replace(/\s+/g,' ').trim();
+      for(let a=0;a<rs;a++)for(let b=0;b<cs;b++){G[ri+a]=G[ri+a]||[];G[ri+a][c+b]=t}c+=cs})});return {name:'Tableau n°'+(ti+1),rows:Array.from(G,r=>Array.from(r||[],x=>x==null?'':x))}})}
+function readCsv(text){text=text.replace(/^﻿/,'');const first=text.split(/\r?\n/)[0]||'';const sep=[';','\t',','].sort((a,b)=>first.split(b).length-first.split(a).length)[0];
+  const rows=[];let row=[],cur='',q=false;for(let i=0;i<text.length;i++){const ch=text[i];
+    if(q){if(ch==='"'){if(text[i+1]==='"'){cur+='"';i++}else q=false}else cur+=ch}
+    else if(ch==='"')q=true;else if(ch===sep){row.push(cur);cur=''}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(cur);rows.push(row);row=[];cur=''}else cur+=ch}
+  if(cur||row.length){row.push(cur);rows.push(row)}return [{name:'Fichier CSV',rows}]}
+async function readAny(file){const n=file.name.toLowerCase();
+  if(/\.xlsx$|\.xlsm$/.test(n))return readXlsx(await file.arrayBuffer());
+  if(/\.docx$/.test(n))return readDocx(await file.arrayBuffer());
+  const t=await file.text();if(/<table/i.test(t))return readHtml(t);if(/\.(xls|doc)$/.test(n)&&!/<table/i.test(t))throw new Error('ancien');return readCsv(t)}
+/* ---- détection des colonnes ---- */
+const LVW={lect:DISC.lect.LV.map(x=>[x.k,nrm(x.n)]),math:DISC.math.LV.map(x=>[x.k,nrm(x.n)])};
+function testOf(h){if(/\bmi[- ]?parcours\b|\bmi[- ]annee\b/.test(h))return 'mi';if(/\bfin\b/.test(h))return 'fin';if(/\bdebut\b/.test(h))return 'debut';return ''}
+function discOf(h){if(/francais|lecture/.test(h))return 'lect';if(/math/.test(h))return 'math';return ''}
+function detect(T,force){const R=T.rows;let nr=force!=null?force:R.findIndex(r=>r.some(c=>/^(n°\s*)?nom\b|nom et pr|prenom/.test(nrm(c))));if(nr<0)nr=0;
+  const nc=Math.max(0,(R[nr]||[]).findIndex(c=>/^(n°\s*)?nom\b|nom et pr|prenom/.test(nrm(c))));
+  let top=nr;for(let k=1;k<=2&&nr-k>=0;k++){if((R[nr-k]||[]).some(c=>/debut|parcours|\bfin\b|francais|math|lecture/.test(nrm(c))))top=nr-k}
+  let ds=nr+1;while(ds<R.length&&(!(R[ds]||[])[nc]||/^(nom|n°|sexe|francais|lecture|math)/.test(nrm(R[ds][nc]))||R[ds][nc]===(R[nr]||[])[nc]))ds++;
+  if(ds>=R.length)ds=nr+1;
+  const W=Math.max(...R.slice(top,Math.min(R.length,ds+30)).map(r=>r.length),0);
+  const H=[];for(let r=top;r<ds;r++){const row=R[r]||[];let last='';const filled=[];for(let c=0;c<W;c++){let v=row[c]||'';if(!v&&r<ds-1&&c>nc)v=last;else if(v)last=v;filled[c]=v}H.push(filled)}
+  const heads=[];for(let c=0;c<W;c++){const parts=[];H.forEach(h=>{const v=h[c];if(v&&parts[parts.length-1]!==v)parts.push(v)});heads.push(parts.join(' › '))}
+  const roles=heads.map((h0,c)=>{const h=nrm(h0);if(c===nc)return 'nom';if(!h)return '';
+    if(/arriv/.test(h))return 'arr';const t=testOf(h)||'*';const d=discOf(h);
+    if(/^sexe$|sexe$/.test(h)&&!/\b(g|f|garcon|fille)\b/.test(h.replace(/sexe/,'')))return 'sexe';
+    if(/sexe|garcon|fille|^g$|^f$|› g$|› f$/.test(h)){if(/(\bf\b|fille)$/.test(h))return 'sexF';if(/(\bg\b|garcon)$/.test(h))return 'sexG';return 'sexe'}
+    if(/outil/.test(h))return (d||'lect')==='math'?t+'.om':t+'.ol';
+    if(/verifi/.test(h))return t+'.v';
+    for(const dk of ['lect','math'])for(const [k,w] of LVW[dk]){if(new RegExp('(^|[ ›])'+w.replace(/ /g,'\\s*')+'s?$').test(h)){if(k==='DEB'){const dd=d||((nrm(heads[c+1]||'').match(/lettre/))?'lect':(nrm(heads[c+1]||'').match(/1 chiffre/))?'math':'');if(!dd)return '';return t+'.'+(dd==='math'?'m':'l')+'='+k}if(d&&d!==dk)continue;return t+'.'+(dk==='math'?'m':'l')+'='+k}}
+    if(/niveau|lecture|francais|math/.test(h)&&d)return t+'.'+(d==='math'?'m':'l');
+    if(/^n°|^num|^no$|^n$/.test(h))return '';return ''});
+  return {top,nr,ds,nc,heads,roles}}
+const ROLE_OPTS=()=>{const o=[['','— ignorer —'],['nom','Nom et prénoms'],['sexe','Sexe (G/F écrit dans la case)'],['sexG','Sexe : case « G »'],['sexF','Sexe : case « F »'],['arr','Arrivé après le début (1)']];
+  ['*',...TKEYS].forEach(t=>{const tn=t==='*'?'test choisi':TNAME[t];
+    o.push([t+'.l','Lecture – niveau écrit en toutes lettres ('+tn+')'],[t+'.m','Maths – niveau écrit en toutes lettres ('+tn+')'],[t+'.ol','Lecture – N° outil ('+tn+')'],[t+'.om','Maths – N° outil ('+tn+')'],[t+'.v','Vérifié par un mentor ('+tn+')']);
+    DISC.lect.LV.forEach(x=>o.push([t+'.l='+x.k,'Case Lecture « '+x.n+' » ('+tn+')']));DISC.math.LV.forEach(x=>o.push([t+'.m='+x.k,'Case Maths « '+x.n+' » ('+tn+')']))});return o};
+const mark=v=>{v=nrm(v);return !!v&&!/^(0|non|n|-|—|\.)$/.test(v)};
+function parseRows(){const T=FI.tables[FI.ti],R=T.rows,roles=FI.roles,tsel=FI.test;const out=[];
+  for(let r=FI.ds;r<R.length;r++){const row=R[r]||[];const ni=roles.indexOf('nom');const nom=UP((row[ni]||'').trim());
+    if(!nom||/^total|^effectif|^nombre/.test(nrm(nom))||/^\d+([.,]\d+)?$/.test(nom))continue;
+    const e={nom,sexe:'',arr:'',t:{}};TKEYS.forEach(k=>e.t[k]={});
+    roles.forEach((ro,c)=>{if(!ro||ro==='nom')return;const v=String(row[c]||'').trim();if(!v)return;
+      if(ro==='sexe'){const s=nrm(v);e.sexe=/^(f|fille|feminin)/.test(s)?'F':/^(g|m|garcon|masculin)/.test(s)?'G':e.sexe;return}
+      if(ro==='sexG'){if(mark(v))e.sexe='G';return}if(ro==='sexF'){if(mark(v))e.sexe='F';return}
+      if(ro==='arr'){if(mark(v))e.arr='1';return}
+      let [t,f]=ro.split('.');if(t==='*')t=tsel;const tt=e.t[t];
+      if(f.includes('=')){const [d,k]=f.split('=');if(mark(v))tt[d]=k;return}
+      if(f==='l'||f==='m'){const k=findLevel(f==='m'?'math':'lect',v)||findLevel(f==='m'?'math':'lect',v.replace(/s$/,''));if(k)tt[f]=k;return}
+      if(f==='ol'||f==='om'){const m=/\d+/.exec(v);if(m)tt[f]=m[0];return}
+      if(f==='v'){if(mark(v))tt.v='1'}});
+    out.push(e)}
+  return out}
+function fiHTML(){const T=FI.tables[FI.ti];const P=parseRows();const opts=ROLE_OPTS();
+  const N=dk=>Object.fromEntries(DISC[dk].LV.map(x=>[x.k,x.n]));const NL=N('lect'),NM=N('math');
+  const has=t=>P.some(e=>e.t[t].l||e.t[t].m);
+  const cols=FI.heads.map((h,c)=>({h,c})).filter(x=>x.h||FI.roles[x.c]);
+  return `<div class="box" role="dialog" aria-modal="true" style="max-width:860px"><h3>📄 Importer une fiche de résultats ASER</h3>
+   <p class="hint" style="margin:0 0 8px">Fichier : <b>${esc(FI.file)}</b>${FI.tables.length>1?` – <select id="fiT" style="width:auto">${FI.tables.map((t,i)=>`<option value="${i}" ${i===FI.ti?'selected':''}>${esc(t.name)} (${t.rows.length} lignes)</option>`).join('')}</select>`:''}</p>
+   <div class="grid g4" style="margin-bottom:8px"><label class="f">Ligne du titre « Nom »<input type="number" id="fiNr" min="1" value="${FI.nr+1}"></label><label class="f">Première ligne d’élève<input type="number" id="fiDs" min="1" value="${FI.ds+1}"></label>
+    <label class="f">Test ASER (colonnes sans test indiqué)<select id="fiTest">${TKEYS.map(k=>`<option value="${k}" ${FI.test===k?'selected':''}>${TNAME[k]}</option>`).join('')}</select></label>
+    <label class="f">Apprenants déjà dans la liste<select id="fiMode"><option value="upd" ${FI.mode==='upd'?'selected':''}>Compléter leurs résultats (même nom)</option><option value="add" ${FI.mode==='add'?'selected':''}>Ajouter tous comme nouveaux</option></select></label></div>
+   <details ${FI.open?'open':''} id="fiCols"><summary><b>Colonnes reconnues</b> (${FI.roles.filter(Boolean).length} sur ${cols.length}) – vérifiez et corrigez si besoin</summary>
+    <div style="max-height:260px;overflow:auto;margin-top:6px"><table class="tbl" style="font-size:12px"><tr><th>Colonne du fichier</th><th>Correspond à</th></tr>
+    ${cols.map(({h,c})=>`<tr><td>${esc(h||'(colonne '+(c+1)+')')}</td><td><select data-fic="${c}" style="font-size:12px">${opts.map(([v,l])=>`<option value="${v}" ${FI.roles[c]===v?'selected':''}>${l}</option>`).join('')}</select></td></tr>`).join('')}</table></div></details>
+   <p style="margin:10px 0 4px"><b>${P.length} apprenant(s) trouvé(s)</b> – aperçu :</p>
+   <div style="max-height:220px;overflow:auto"><table class="tbl" style="font-size:12px"><tr><th>Nom et prénoms</th><th>Sexe</th>${TKEYS.filter(has).map(t=>`<th>${TNAME[t]} : lecture</th><th>${TNAME[t]} : maths</th>`).join('')}</tr>
+    ${P.slice(0,12).map(e=>`<tr><td>${esc(e.nom)}</td><td>${e.sexe}</td>${TKEYS.filter(has).map(t=>`<td>${NL[e.t[t].l]||'<span style="color:#b3261e">—</span>'}${e.t[t].ol?' (outil '+e.t[t].ol+')':''}</td><td>${NM[e.t[t].m]||'<span style="color:#b3261e">—</span>'}${e.t[t].om?' (outil '+e.t[t].om+')':''}</td>`).join('')}</tr>`).join('')}${P.length>12?`<tr><td colspan="9">… et ${P.length-12} autre(s)</td></tr>`:''}</table></div>
+   ${!TKEYS.some(has)?'<p class="warn" style="margin-top:8px">Aucun niveau reconnu : ouvrez « Colonnes reconnues » et indiquez à quoi correspondent les colonnes de niveau.</p>':''}
+   <div class="toolbar" style="margin-top:12px"><button class="primary" id="fiOk" ${P.length?'':'disabled'}>Importer ${P.length} apprenant(s)</button><button id="fiCancel">Annuler</button></div></div>`}
+function fiRender(){let m=document.getElementById('fiModal');if(!m){m=document.createElement('div');m.className='gm';m.id='fiModal';document.body.appendChild(m);
+    m.addEventListener('change',ev=>{const el=ev.target;
+      if(el.id==='fiT'){FI.ti=+el.value;fiDetect()}
+      else if(el.id==='fiNr'){const D=FI.tables[FI.ti].rows;FI.nr=Math.max(0,Math.min(D.length-1,+el.value-1));const d=detectAt(FI.nr);Object.assign(FI,d)}
+      else if(el.id==='fiDs'){FI.ds=Math.max(FI.nr+1,+el.value-1)}
+      else if(el.id==='fiTest')FI.test=el.value;else if(el.id==='fiMode')FI.mode=el.value;
+      else if(el.dataset.fic!=null){FI.roles[+el.dataset.fic]=el.value;FI.open=true}
+      fiRender()});
+    m.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;if(b.id==='fiCancel')m.remove();if(b.id==='fiOk'){fiApply();m.remove()}});
+    m.addEventListener('toggle',ev=>{if(ev.target.id==='fiCols')FI.open=ev.target.open},true)}
+  m.innerHTML=fiHTML()}
+function detectAt(nr){return detect(FI.tables[FI.ti],nr)}
+function fiDetect(){const d=detect(FI.tables[FI.ti]);Object.assign(FI,d)}
+async function ficheImport(file){if(!file)return;
+  try{const tables=(await readAny(file)).filter(t=>t.rows.length>1);
+    if(!tables.length){toast('Aucun tableau trouvé dans ce fichier');return}
+    Object.assign(FI,{file:file.name,tables,ti:0,test:curT(),mode:'upd',open:false});
+    let best=0,bs=-1;tables.forEach((t,i)=>{const d=detect(t);const sc=d.roles.filter(Boolean).length+(d.roles.includes('nom')?5:0);if(sc>bs){bs=sc;best=i}});FI.ti=best;fiDetect();
+    if(!FI.roles.includes('nom')||FI.roles.filter(Boolean).length<3)FI.open=true;
+    fiRender()}
+  catch(e){toast(String(e.message)==='ancien'?'Ancien format (.xls/.doc) : enregistrez le fichier au format .xlsx, .docx ou .csv, puis réessayez.':'Fichier illisible : utilisez un fichier Excel (.xlsx), Word (.docx) ou CSV.')}}
+function fiApply(){const P=parseRows();let add=0,upd=0;const by=new Map(S.eleves.map(e=>[UP(e.nom),e]));
+  P.forEach(p=>{let e=FI.mode==='upd'?by.get(p.nom):null;if(e)upd++;else{e=newEleve(p.nom);S.eleves.push(e);by.set(p.nom,e);add++}
+    if(p.sexe)e.sexe=p.sexe;if(p.arr)e.arr='1';
+    TKEYS.forEach(t=>{const s=p.t[t];['l','m','ol','om','v'].forEach(f=>{if(s[f])e.t[t][f]=s[f]})});
+    if(isHom()&&!e.orig){const hd=DKS().filter(dk=>{const x=DISC[dk].LV.find(y=>y.k===curLevel(e,dk));return x&&HOM_G[x.l]===HG(dk)});if(hd.length)e.hd=hd}});
+  TKEYS.forEach(t=>{if(P.some(p=>p.t[t].l||p.t[t].m)){S.tests[t]=S.tests[t]||{};const h=FI.heads.map(nrm).find(x=>testOf(x)===t&&/\d{1,2}\/\d{1,2}\/\d{2,4}/.test(x));
+    if(h&&!S.tests[t].date){const m=/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/.exec(h);const y=m[3].length===2?'20'+m[3]:m[3];S.tests[t].date=y+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0')}}});
+  deriveAll();syncLevels();GEN={math:null,lect:null};persist();renderAll();
+  toast(`Fiche importée : ${add} apprenant(s) ajouté(s)${upd?`, ${upd} complété(s)`:''}. Vérifiez les niveaux et la date du test.`)}
+
 function pasteEleves(text){
   const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);let n=0;
   lines.forEach(l=>{const p=l.split(/[;\t]/).map(x=>x.trim());const e=newEleve(p[0]);
